@@ -1,62 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="臺灣古今地圖">
-  <defs>
-    <filter id="grain" x="0" y="0" width="100%" height="100%">
-      <feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="2" stitchTiles="stitch"/>
-      <feColorMatrix values="0 0 0 0 0.30
-                             0 0 0 0 0.30
-                             0 0 0 0 0.29
-                             0 0 0 0.10 0"/>
-    </filter>
-  </defs>
-
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="台灣地圖">
   <!-- Paper -->
   <rect width="512" height="512" fill="#F1EFE9"/>
-  <rect width="512" height="512" filter="url(#grain)" opacity="0.4"/>
 
-  <!-- Hairline outer border -->
+  <!-- Hairline outer border (design system motif) -->
   <rect x="14" y="14" width="484" height="484" fill="none" stroke="#BBB8AE" stroke-width="2"/>
 
-  <!-- Taiwan island, rotated 6° NE-SW to match actual orientation.
-       Drawn around its own visual center (252, 270), then rotated. -->
-  <g transform="rotate(-6 256 256)">
-
-    <!-- Silhouette ─ Keelung peninsula bump, bulged east coast, sharp Hengchun tip, gentler west -->
-    <path d="M 252 62
-             L 274 56  L 296 64
-             C 322 76, 342 94, 354 122
-             C 366 154, 374 200, 374 254
-             C 372 312, 358 372, 336 416
-             C 322 442, 304 460, 286 472
-             L 268 482
-             L 258 488
-             L 252 478
-             C 238 468, 224 454, 212 434
-             C 192 400, 174 360, 162 318
-             C 148 268, 142 218, 150 178
-             C 158 140, 172 110, 192 88
-             C 210 72, 226 64, 240 60
-             Z"
-          fill="#C15F3C"/>
-
-    <!-- Central Mountain Range hint: a thin darker line running down the eastern side -->
-    <path d="M 280 110
-             C 296 150, 308 200, 312 248
-             C 314 296, 308 348, 298 388
-             C 290 416, 280 440, 270 458"
-          fill="none"
-          stroke="#7E3A20"
-          stroke-width="3"
-          stroke-linecap="round"
-          opacity="0.55"/>
-  </g>
-
-  <!-- Tiny mono coordinate label, marginalia style, bottom-left -->
-  <text x="40" y="495"
-        font-family="JetBrains Mono, ui-monospace, monospace"
-        font-size="11"
-        fill="#807C73"
-        letter-spacing="2">24°N · 121°E</text>
-
-  <!-- Vermilion section rule, bottom-right, design system motif -->
-  <rect x="402" y="487" width="48" height="3" fill="#C15F3C"/>
+  <!-- Centered text — 台灣地圖, Songti / Noto Serif TC, soft graphite, breathing room -->
+  <text x="256" y="256"
+        text-anchor="middle"
+        dominant-baseline="central"
+        font-family="Songti TC, Noto Serif TC, 'Source Han Serif TC', serif"
+        font-weight="400"
+        font-size="80"
+        fill="#565347"
+        letter-spacing="6">台灣地圖</text>
 </svg>
