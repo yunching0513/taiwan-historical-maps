@@ -164,13 +164,12 @@ npx vercel --prod
 
 ## 底圖切換
 
-`01 — BASE` 區段提供三種底圖選擇：
+`01 — BASE` 區段提供兩種底圖選擇：
 
 | 底圖 | 來源 | 涵蓋 | 最大原生 zoom |
 |------|------|------|---------------|
 | 簡圖 Plain | CartoDB Positron Light | 全球 | 19 |
 | 衛星 Satellite | NLSC PHOTO2 通用正射影像 | 全臺（含離島） | 19 |
-| 街道 Streets | NLSC EMAP5 通用電子地圖 | 全臺 | 19 |
 
 ### 為什麼不用 Google 衛星圖？
 

@@ -266,7 +266,7 @@
   /* ── Base map pills ──────────────────────────────── */
   .base-pills {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
     margin-top: 8px;
   }
@@ -1041,10 +1041,6 @@
         衛星
         <span class="en">Satellite</span>
       </button>
-      <button type="button" class="base-pill" data-id="streets">
-        街道
-        <span class="en">Streets</span>
-      </button>
     </div>
 
     <div class="section-label">
@@ -1232,11 +1228,6 @@
       // White labels on top for legibility over dark imagery
       { url: 'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',
         opts: { subdomains: 'abcd', maxNativeZoom: 19, opacity: 0.85, pane: 'shadowPane' } },
-    ],
-    streets: [
-      // NLSC 通用電子地圖 (Taiwan official road map with labels baked-in)
-      { url: 'https://wmts.nlsc.gov.tw/wmts/EMAP5/default/GoogleMapsCompatible/{z}/{y}/{x}',
-        opts: { maxNativeZoom: 19, attribution: '通用電子地圖 &copy; <a href="https://maps.nlsc.gov.tw/" target="_blank" rel="noopener">國土測繪中心</a>' } },
     ],
   };
 
