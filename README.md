@@ -124,6 +124,30 @@ npx vercel --prod
 | Section 標頭裝飾 | 48×3px 朱色短條 | 標題下方裝飾線 |
 | Region 分組 | hairline + zh-serif 大字距 | 「北 · 中 · 南 · 東 · 離島」 |
 
+## 底圖切換
+
+`01 — BASE` 區段提供三種底圖選擇：
+
+| 底圖 | 來源 | 涵蓋 | 最大原生 zoom |
+|------|------|------|---------------|
+| 簡圖 Plain | CartoDB Positron Light | 全球 | 19 |
+| 衛星 Satellite | NLSC PHOTO2 通用正射影像 | 全臺（含離島） | 19 |
+| 街道 Streets | NLSC EMAP5 通用電子地圖 | 全臺 | 19 |
+
+### 為什麼不用 Google 衛星圖？
+
+Google Maps 的圖磚 URL（`mt0.google.com/vt/...`）雖然技術上可達，但 **直接以 XYZ tile 方式存取違反其服務條款**。正式串接需要 Google Maps JavaScript API + API key + 啟用計費，並使用官方 SDK（不能用 Leaflet 直接拉 tile）。
+
+改用 **NLSC PHOTO2** 是更好的選擇：
+
+- 國土測繪中心是臺灣官方測繪單位，正射影像每年更新
+- 全臺涵蓋包括金門、馬祖、澎湖等離島
+- 解析度在臺灣境內 **不亞於 Google**，部分都會區更新更頻繁
+- 免 API key、免計費、無 ToS 顧慮
+- WMTS 標準端點，相容 Leaflet
+
+如果之後真的需要全球範圍的衛星圖（例如出國使用），可以考慮 [Esri World Imagery](https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer)（免 API key、要 attribution）。
+
 ## GPS 定位 & 路線記錄
 
 `02 — POSITION` 區段提供兩個功能：

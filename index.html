@@ -256,6 +256,49 @@
     font-weight: 500;
   }
 
+  /* ── Base map pills ──────────────────────────────── */
+  .base-pills {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .base-pill {
+    padding: 10px 6px 9px;
+    border: 1px solid var(--stone);
+    background: var(--paper);
+    cursor: pointer;
+    text-align: center;
+    font-family: var(--zh-serif);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--graphite);
+    line-height: 1.2;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .base-pill .en {
+    display: block;
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 10px;
+    color: var(--ash);
+    letter-spacing: 0.02em;
+    margin-top: 2px;
+  }
+  .base-pill:hover {
+    border-color: var(--indigo);
+    color: var(--indigo);
+  }
+  .base-pill.active {
+    border-color: var(--indigo);
+    background: var(--indigo-l);
+    color: var(--indigo);
+  }
+  .base-pill.active .en { color: var(--indigo-d); }
+
   /* ── Layer era group header ─────────────────────── */
   .layer-group-label {
     display: flex;
@@ -978,14 +1021,34 @@
     </div>
 
     <div class="section-label">
-      <span class="num">01 — Strata</span>
+      <span class="num">01 — Base</span>
+      <span class="en">base map · 底圖</span>
+    </div>
+
+    <div class="base-pills" id="base-pills">
+      <button type="button" class="base-pill" data-id="plain">
+        簡圖
+        <span class="en">Plain</span>
+      </button>
+      <button type="button" class="base-pill" data-id="satellite">
+        衛星
+        <span class="en">Satellite</span>
+      </button>
+      <button type="button" class="base-pill" data-id="streets">
+        街道
+        <span class="en">Streets</span>
+      </button>
+    </div>
+
+    <div class="section-label">
+      <span class="num">02 — Strata</span>
       <span class="en">historical layers</span>
     </div>
 
     <div id="historical-layers"></div>
 
     <div class="section-label">
-      <span class="num">02 — Position</span>
+      <span class="num">03 — Position</span>
       <span class="en">gps · trace</span>
     </div>
 
@@ -1025,7 +1088,7 @@
     </div>
 
     <div class="section-label">
-      <span class="num">03 — Traces</span>
+      <span class="num">04 — Traces</span>
       <span class="en">saved walks</span>
     </div>
 
@@ -1144,18 +1207,67 @@
   const map = L.map('map', { zoomControl: true, attributionControl: true, maxZoom: MAP_MAX_ZOOM })
     .setView(currentCity.center, currentCity.zoom);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OSM &copy; CARTO',
-    subdomains: 'abcd',
-    maxZoom: MAP_MAX_ZOOM,
-    maxNativeZoom: 19,
-  }).addTo(map);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
-    subdomains: 'abcd',
-    maxZoom: MAP_MAX_ZOOM,
-    maxNativeZoom: 19,
-    pane: 'shadowPane',
-  }).addTo(map);
+  // ── Base map definitions ────────────────────────
+  // Each base map is a stack of one or more tile layers (e.g. imagery + labels overlay).
+  // Sources are deliberately ToS-clean: CartoDB (free CDN), NLSC (Taiwan gov), Esri (free attrib).
+  // Google Maps tiles are NOT used because direct XYZ access violates their Terms of Service.
+  const BASE_MAPS = {
+    plain: [
+      { url: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+        opts: { subdomains: 'abcd', maxNativeZoom: 19, attribution: '&copy; OSM &copy; CARTO' } },
+      { url: 'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',
+        opts: { subdomains: 'abcd', maxNativeZoom: 19, pane: 'shadowPane' } },
+    ],
+    satellite: [
+      // NLSC 通用正射影像 (Taiwan aerial photography, full coverage, max zoom 19)
+      { url: 'https://wmts.nlsc.gov.tw/wmts/PHOTO2/default/GoogleMapsCompatible/{z}/{y}/{x}',
+        opts: { maxNativeZoom: 19, attribution: '正射影像 &copy; <a href="https://maps.nlsc.gov.tw/" target="_blank" rel="noopener">國土測繪中心</a>' } },
+      // White labels on top for legibility over dark imagery
+      { url: 'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',
+        opts: { subdomains: 'abcd', maxNativeZoom: 19, opacity: 0.85, pane: 'shadowPane' } },
+    ],
+    streets: [
+      // NLSC 通用電子地圖 (Taiwan official road map with labels baked-in)
+      { url: 'https://wmts.nlsc.gov.tw/wmts/EMAP5/default/GoogleMapsCompatible/{z}/{y}/{x}',
+        opts: { maxNativeZoom: 19, attribution: '通用電子地圖 &copy; <a href="https://maps.nlsc.gov.tw/" target="_blank" rel="noopener">國土測繪中心</a>' } },
+    ],
+  };
+
+  let currentBaseLayers = [];
+  let currentBaseId = null;
+
+  function setBaseMap(id) {
+    if (id === currentBaseId) return;
+    currentBaseLayers.forEach(l => map.removeLayer(l));
+    currentBaseLayers = [];
+    const stack = BASE_MAPS[id];
+    if (!stack) return;
+    stack.forEach((layerDef, i) => {
+      const layer = L.tileLayer(layerDef.url, {
+        tileSize: 256,
+        maxZoom: MAP_MAX_ZOOM,
+        ...layerDef.opts,
+      });
+      layer.addTo(map);
+      // Keep base layers below historical overlays
+      if (!layerDef.opts.pane) layer.getContainer && layer.getContainer()?.classList.add('base-tile');
+      currentBaseLayers.push(layer);
+    });
+    currentBaseId = id;
+    document.querySelectorAll('.base-pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.id === id);
+    });
+    // Re-add historical layer on top after base swap
+    if (activeId && layerCache[activeId]) {
+      layerCache[activeId].bringToFront();
+    }
+  }
+
+  setBaseMap('plain');
+
+  document.querySelectorAll('.base-pill').forEach(pill => {
+    pill.addEventListener('click', () => setBaseMap(pill.dataset.id));
+  });
 
   // ── City selector UI ─────────────────────────────
   const cityListInner = document.getElementById('city-list-inner');
