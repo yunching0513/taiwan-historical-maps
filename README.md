@@ -11,6 +11,9 @@
 ```
 taiwan-old-maps/
 ├── index.html             # 統一版（22 縣市切換）
+├── manifest.webmanifest   # PWA 應用程式清單
+├── sw.js                  # Service worker（離線快取）
+├── icons/                 # 應用程式圖示（SVG + 9 種 PNG 尺寸）
 ├── taichung/index.html    # → 跳轉至 index.html?city=taichung
 └── tainan/index.html      # → 跳轉至 index.html?city=tainan
 ```
@@ -123,6 +126,41 @@ npx vercel --prod
 | 分隔線 | 1px solid `--stone` / 1px dotted `--silver` | 面板邊界、分組之間 |
 | Section 標頭裝飾 | 48×3px 朱色短條 | 標題下方裝飾線 |
 | Region 分組 | hairline + zh-serif 大字距 | 「北 · 中 · 南 · 東 · 離島」 |
+
+## 安裝成手機 App（PWA）
+
+這是 Progressive Web App，**iOS / Android / 桌面都可以「安裝」當原生 App 用**——全螢幕、自己的桌面圖示、無瀏覽器網址列。
+
+### iOS（Safari）
+
+1. 用 **Safari** 開 [yunching0513.github.io/taiwan-historical-maps](https://yunching0513.github.io/taiwan-historical-maps/)（必須是 Safari，Chrome on iOS 不支援）
+2. 點下方分享按鈕 ⬆️
+3. 滑下找「加入主畫面 / Add to Home Screen」
+4. 命名（預設「古今」）→ 加入
+
+### Android（Chrome）
+
+1. 用 **Chrome** 開網址
+2. Chrome 通常會在底部主動跳出「Install App」提示，或點右上角 ⋮ → 安裝應用程式
+3. 桌面立刻出現古今 App 圖示
+
+### macOS / Windows 桌面（Chrome / Edge）
+
+1. 開網址
+2. 網址列右側會出現「+」安裝圖示，按下後新增到 Dock / 開始功能表
+
+### 安裝後可用什麼？
+
+- ✓ 全螢幕運作，無瀏覽器網址列
+- ✓ 自有桌面圖示（古／今 朱印設計）
+- ✓ 離線時 UI 仍可載入（圖磚需連線才能取得）
+- ✓ Android 長按圖示有 **快速啟動捷徑**：直接跳到臺北／臺中／臺南／高雄
+- ✓ GPS 定位、路線記錄、localStorage 路線清單全部正常運作
+
+### 不能做的事（PWA 限制）
+
+- iOS **背景定位無法持續**——記錄路線時必須讓 App 保持在前景，不能切換到其他 App。Android 限制較少但仍建議前景。
+- 沒有 App Store 上架（要的話可以接續用 PWABuilder 或 Capacitor 打包）。
 
 ## 底圖切換
 
