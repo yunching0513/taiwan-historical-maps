@@ -1,5 +1,9 @@
 # 臺灣古今地圖疊圖
 
+> **Live Demo** · [yunching0513.github.io/taiwan-historical-maps](https://yunching0513.github.io/taiwan-historical-maps/)
+>
+> 快速連結：[臺北](https://yunching0513.github.io/taiwan-historical-maps/?city=taipei) · [臺中](https://yunching0513.github.io/taiwan-historical-maps/?city=taichung) · [臺南](https://yunching0513.github.io/taiwan-historical-maps/?city=tainan) · [高雄](https://yunching0513.github.io/taiwan-historical-maps/?city=kaohsiung)
+
 仿照 [xinyi-water-map](https://github.com/yunching0513/xinyi-water-map) 的歷史圖層功能，做成一個涵蓋全臺 22 個直轄市／縣市的單頁應用。視覺套用《昀慶手拙 · 個人設計風格指導書》——清水混凝土系灰階配朱（vermilion）單一強調色，Noto Serif TC + EB Garamond italic + JetBrains Mono 三套字體。
 
 ## 結構
