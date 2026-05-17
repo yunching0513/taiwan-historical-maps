@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="臺灣古今地圖">
+  <!-- Background: paper / 養生 -->
+  <rect width="512" height="512" fill="#F1EFE9"/>
+
+  <!-- Subtle paper texture (procedural fractal noise overlay) -->
+  <filter id="grain" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="2" stitchTiles="stitch"/>
+    <feColorMatrix values="0 0 0 0 0.30
+                           0 0 0 0 0.30
+                           0 0 0 0 0.29
+                           0 0 0 0.10 0"/>
+  </filter>
+  <rect width="512" height="512" filter="url(#grain)" opacity="0.45"/>
+
+  <!-- Outer hairline stroke (concrete card) -->
+  <rect x="14" y="14" width="484" height="484" fill="none" stroke="#BBB8AE" stroke-width="2"/>
+
+  <!-- Vermilion stamp (top-left) — 古 -->
+  <rect x="62" y="62" width="230" height="230" fill="#C15F3C"/>
+  <!-- White serif 古 inside stamp -->
+  <text x="177" y="240"
+        text-anchor="middle"
+        font-family="Songti TC, Noto Serif TC, 'Source Han Serif TC', serif"
+        font-weight="700"
+        font-size="180"
+        fill="#F1EFE9"
+        letter-spacing="0">古</text>
+
+  <!-- Ink 今 (bottom-right, overlapping diagonally) -->
+  <text x="346" y="436"
+        text-anchor="middle"
+        font-family="Songti TC, Noto Serif TC, 'Source Han Serif TC', serif"
+        font-weight="700"
+        font-size="180"
+        fill="#1F1D19"
+        letter-spacing="0">今</text>
+
+  <!-- Vermilion section-rule, matching the panel section-label motif -->
+  <rect x="62" y="455" width="48" height="3" fill="#C15F3C"/>
+
+  <!-- Tiny mono caption (only legible at large sizes — acts as printed marginalia) -->
+  <text x="118" y="464"
+        font-family="JetBrains Mono, ui-monospace, monospace"
+        font-size="11"
+        fill="#807C73"
+        letter-spacing="2.5">TAIWAN · HISTORICAL</text>
+</svg>
