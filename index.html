@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#F1EFE9" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<title>臺灣古今地圖疊圖 — Taiwan Historical Overlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin="" />
+<style>
+  :root {
+    --paper:    #F1EFE9;
+    --paper-2:  #EAE8E2;
+    --mist:     #D6D3CB;
+    --stone:    #BBB8AE;
+    --silver:   #A6A399;
+    --ash:      #807C73;
+    --graphite: #565347;
+    --ink:      #1F1D19;
+    --sumi:     #0E0D0B;
+    --indigo:   #C15F3C;
+    --indigo-d: #9E4B2E;
+    --indigo-l: rgba(193, 95, 60, 0.08);
+
+    --zh-serif: 'Noto Serif TC', 'Songti TC', 'PingFang TC', serif;
+    --zh-sans:  'Noto Sans TC', system-ui, sans-serif;
+    --en-serif: 'EB Garamond', 'Cormorant Garamond', Georgia, serif;
+    --mono:     'JetBrains Mono', 'Courier New', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--zh-sans);
+    background: var(--paper);
+    color: var(--ink);
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  #map { position: absolute; inset: 0; background: var(--paper); }
+
+  .grain::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.30;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.30 0 0 0 0 0.30 0 0 0 0 0.29 0 0 0 0.10 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ── Panel ─────────────────────────────────────── */
+  .panel {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    z-index: 1000;
+    background: var(--paper-2);
+    border: 1px solid var(--stone);
+    width: 340px;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    padding: 28px 28px 22px;
+    box-shadow: 0 1px 0 var(--mist), 0 24px 60px -28px rgba(31,29,25,0.25);
+  }
+
+  .panel-head {
+    position: relative;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--ink);
+    margin-bottom: 4px;
+  }
+  .panel-head::before {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 48px;
+    height: 3px;
+    background: var(--indigo);
+  }
+  .head-en {
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--indigo);
+    letter-spacing: 0.02em;
+    margin-bottom: 6px;
+  }
+  .head-zh {
+    font-family: var(--zh-serif);
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+  .head-meta {
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ash);
+    text-transform: uppercase;
+  }
+
+  .section-label {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin: 26px 0 8px;
+  }
+  .section-label .num {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--indigo);
+    text-transform: uppercase;
+  }
+  .section-label .en {
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 12px;
+    color: var(--ash);
+    margin-left: auto;
+  }
+
+  /* ── City selector ─────────────────────────────── */
+  .city-current {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px dotted var(--silver);
+    cursor: pointer;
+    transition: padding 0.2s;
+  }
+  .city-current:hover .city-zh { color: var(--indigo-d); }
+  .city-zh {
+    font-family: var(--zh-serif);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--ink);
+    transition: color 0.2s;
+  }
+  .city-en {
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--graphite);
+    margin-top: 2px;
+    letter-spacing: 0.02em;
+  }
+  .city-chevron {
+    width: 22px;
+    height: 22px;
+    border: 1px solid var(--silver);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.25s ease, border-color 0.2s, background 0.2s;
+  }
+  .city-chevron::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-right: 1.5px solid var(--graphite);
+    border-bottom: 1.5px solid var(--graphite);
+    transform: rotate(45deg) translate(-1.5px, -1.5px);
+  }
+  .city-current.open .city-chevron {
+    transform: rotate(180deg);
+    border-color: var(--indigo);
+    background: var(--indigo-l);
+  }
+  .city-current.open .city-chevron::before {
+    border-color: var(--indigo);
+  }
+
+  .city-list {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+  }
+  .city-list.open { max-height: 720px; }
+  .city-list-inner {
+    padding: 10px 0 4px;
+  }
+  .region-group { margin-bottom: 14px; }
+  .region-group:last-child { margin-bottom: 4px; }
+  .region-label {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--mist);
+  }
+  .region-zh {
+    font-family: var(--zh-serif);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    color: var(--graphite);
+  }
+  .region-en {
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 11px;
+    color: var(--ash);
+    letter-spacing: 0.04em;
+  }
+  .region-cities {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 0;
+    line-height: 2;
+  }
+  .city-pill {
+    font-family: var(--zh-serif);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--graphite);
+    padding: 2px 8px;
+    margin-right: 2px;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid transparent;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    position: relative;
+  }
+  .city-pill::after {
+    content: '·';
+    color: var(--silver);
+    margin-left: 8px;
+    margin-right: -4px;
+    pointer-events: none;
+  }
+  .region-cities .city-pill:last-child::after { content: ''; }
+  .city-pill:hover {
+    color: var(--indigo);
+    background: var(--indigo-l);
+  }
+  .city-pill.current {
+    color: var(--indigo);
+    border-bottom-color: var(--indigo);
+    font-weight: 500;
+  }
+
+  /* ── Layer row ─────────────────────────────────── */
+  .layer-row {
+    position: relative;
+    padding: 14px 0 12px;
+    border-bottom: 1px dotted var(--silver);
+    cursor: pointer;
+    transition: padding 0.25s ease;
+  }
+  .layer-row:last-child { border-bottom: none; }
+  .layer-row::before {
+    content: '';
+    position: absolute;
+    left: -28px;
+    top: 18px;
+    width: 0;
+    height: 18px;
+    background: var(--indigo);
+    transition: width 0.2s ease;
+  }
+  .layer-row.active::before { width: 3px; }
+  .layer-row:hover .row-zh { color: var(--indigo-d); }
+  .layer-row.active .row-zh { color: var(--ink); }
+
+  .row-head {
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    gap: 14px;
+    align-items: baseline;
+  }
+  .row-n {
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--indigo);
+    letter-spacing: 0.02em;
+  }
+  .row-zh {
+    font-family: var(--zh-serif);
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--graphite);
+    letter-spacing: 0.08em;
+    line-height: 1.4;
+    transition: color 0.2s;
+  }
+  .row-year {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--ash);
+    align-self: center;
+  }
+  .row-en {
+    margin-left: 46px;
+    margin-top: 4px;
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 12px;
+    color: var(--silver);
+    letter-spacing: 0.01em;
+  }
+
+  .opacity-slot {
+    margin-left: 46px;
+    margin-top: 0;
+    height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: height 0.25s ease, opacity 0.25s ease, margin-top 0.25s ease;
+  }
+  .layer-row.active .opacity-slot {
+    height: 28px;
+    opacity: 1;
+    margin-top: 10px;
+  }
+  .opacity-slot-inner {
+    display: grid;
+    grid-template-columns: 1fr 42px;
+    align-items: center;
+    gap: 12px;
+    padding-top: 4px;
+  }
+
+  input[type=range].opa {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 18px;
+    background: transparent;
+    cursor: pointer;
+  }
+  input[type=range].opa::-webkit-slider-runnable-track {
+    height: 1px;
+    background: var(--silver);
+    border: none;
+  }
+  input[type=range].opa::-moz-range-track {
+    height: 1px;
+    background: var(--silver);
+  }
+  input[type=range].opa::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 10px;
+    height: 10px;
+    background: var(--indigo);
+    border: none;
+    margin-top: -4.5px;
+    border-radius: 0;
+    box-shadow: 0 0 0 0 var(--indigo-l);
+    transition: box-shadow 0.15s;
+  }
+  input[type=range].opa::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 0 4px var(--indigo-l);
+  }
+  input[type=range].opa::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+    background: var(--indigo);
+    border: none;
+    border-radius: 0;
+  }
+  .opa-val {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--graphite);
+    letter-spacing: 0.08em;
+    text-align: right;
+  }
+
+  /* ── Action buttons (locate / record) ───────────── */
+  .action-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 10px 0 0;
+  }
+  .btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 12px;
+    border: 1px solid var(--stone);
+    background: var(--paper);
+    color: var(--graphite);
+    cursor: pointer;
+    text-align: left;
+    font-family: var(--zh-serif);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:hover:not(:disabled) {
+    border-color: var(--indigo);
+    color: var(--indigo);
+    background: var(--indigo-l);
+  }
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .btn.active {
+    border-color: var(--indigo);
+    background: var(--indigo-l);
+    color: var(--indigo);
+  }
+  .btn .dot {
+    width: 8px;
+    height: 8px;
+    background: var(--silver);
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .btn.active .dot { background: var(--indigo); }
+  .btn.recording .dot {
+    background: var(--indigo);
+    animation: btn-pulse 1.5s ease infinite;
+  }
+  @keyframes btn-pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--indigo); }
+    50% { opacity: 0.6; box-shadow: 0 0 0 4px rgba(193, 95, 60, 0); }
+  }
+
+  /* ── Location & recording status cards ─────────── */
+  .loc-status, .rec-status {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-left: 2px solid var(--indigo);
+    background: var(--indigo-l);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--graphite);
+    letter-spacing: 0.05em;
+    line-height: 1.7;
+    display: none;
+  }
+  .loc-status.show, .rec-status.show { display: block; }
+  .loc-status .label, .rec-status .label {
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 12px;
+    color: var(--indigo);
+    margin-bottom: 4px;
+    letter-spacing: 0.02em;
+  }
+  .rec-status .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .rec-status .stats > div { min-width: 0; }
+  .rec-status .stat-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--ash);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    margin-bottom: 2px;
+  }
+  .rec-status .stat-val {
+    font-family: var(--zh-serif);
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+
+  /* ── Saved traces list ──────────────────────────── */
+  .trace-list { margin-top: 4px; }
+  .trace-row {
+    padding: 12px 4px;
+    border-bottom: 1px dotted var(--silver);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+    cursor: pointer;
+    transition: padding 0.15s, background 0.15s;
+  }
+  .trace-row:last-child { border-bottom: none; }
+  .trace-row:hover { background: var(--indigo-l); padding-left: 8px; }
+  .trace-row.shown { background: var(--indigo-l); }
+  .trace-row.shown::before {
+    content: '';
+    position: absolute;
+    left: -28px;
+    width: 3px;
+    height: 18px;
+    background: var(--indigo);
+    margin-top: 2px;
+  }
+  .trace-row { position: relative; }
+  .trace-info { min-width: 0; }
+  .trace-date {
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 11px;
+    color: var(--ash);
+    letter-spacing: 0.02em;
+  }
+  .trace-name {
+    font-family: var(--zh-serif);
+    font-size: 14px;
+    color: var(--ink);
+    margin-top: 1px;
+    letter-spacing: 0.04em;
+  }
+  .trace-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--graphite);
+    letter-spacing: 0.06em;
+    margin-top: 3px;
+  }
+  .trace-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-self: stretch;
+    justify-content: center;
+  }
+  .trace-actions button {
+    background: transparent;
+    border: 1px solid var(--mist);
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    padding: 4px 8px;
+    cursor: pointer;
+    color: var(--graphite);
+    text-transform: uppercase;
+    transition: all 0.15s;
+  }
+  .trace-actions button:hover {
+    border-color: var(--indigo);
+    color: var(--indigo);
+  }
+  .trace-actions button.danger:hover {
+    border-color: #b00020;
+    color: #b00020;
+  }
+  .trace-empty {
+    font-family: var(--zh-sans);
+    font-size: 12px;
+    color: var(--ash);
+    text-align: center;
+    padding: 18px 0 6px;
+    letter-spacing: 0.06em;
+  }
+  .trace-empty .en {
+    display: block;
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 11px;
+    color: var(--silver);
+    margin-top: 2px;
+  }
+
+  /* ── User location marker on map ─────────────────── */
+  .user-marker-icon { background: transparent; border: none; }
+  .user-marker {
+    position: relative;
+    width: 14px;
+    height: 14px;
+    background: var(--indigo);
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px var(--indigo), 0 2px 8px rgba(193, 95, 60, 0.4);
+  }
+  .user-marker::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    background: var(--indigo);
+    opacity: 0.25;
+    z-index: -1;
+    animation: loc-pulse 2.2s ease-out infinite;
+  }
+  @keyframes loc-pulse {
+    0%   { transform: scale(0.6); opacity: 0.55; }
+    100% { transform: scale(2.4); opacity: 0; }
+  }
+
+  /* ── Notice (e.g. outlying islands) ─────────────── */
+  .notice {
+    margin-top: 14px;
+    padding: 10px 12px;
+    border-left: 2px solid var(--indigo);
+    background: var(--indigo-l);
+    font-family: var(--zh-sans);
+    font-size: 11px;
+    color: var(--graphite);
+    line-height: 1.7;
+    letter-spacing: 0.02em;
+    display: none;
+  }
+  .notice.show { display: block; }
+  .notice .en {
+    display: block;
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 11px;
+    color: var(--ash);
+    margin-top: 2px;
+  }
+
+  /* ── Footer ─────────────────────────────────────── */
+  .panel-foot {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--stone);
+    font-family: var(--zh-sans);
+    font-size: 11px;
+    color: var(--ash);
+    line-height: 1.85;
+    letter-spacing: 0.04em;
+  }
+  .panel-foot a {
+    color: var(--graphite);
+    text-decoration: none;
+    border-bottom: 1px solid var(--mist);
+  }
+  .panel-foot a:hover { color: var(--indigo); border-color: var(--indigo); }
+  .panel-foot .mono {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: var(--silver);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  /* ── Mobile-only elements (hidden on desktop) ──── */
+  .toggle-btn { display: none; }
+  .sheet-handle { display: none; }
+  .mobile-tag { display: none; }
+
+  /* ── Mobile · bottom sheet ─────────────────────── */
+  @media (max-width: 768px) {
+    /* Floating city tag at top — quick context when sheet is peek'd */
+    .mobile-tag {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      position: absolute;
+      top: calc(14px + env(safe-area-inset-top, 0px));
+      left: 14px;
+      z-index: 999;
+      background: var(--paper-2);
+      border: 1px solid var(--stone);
+      padding: 8px 14px;
+      pointer-events: none;
+      max-width: calc(100vw - 28px);
+    }
+    .mobile-tag::before {
+      content: '';
+      width: 14px;
+      height: 2px;
+      background: var(--indigo);
+      align-self: center;
+    }
+    .mobile-tag .zh {
+      font-family: var(--zh-serif);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: 0.12em;
+    }
+    .mobile-tag .en {
+      font-family: var(--en-serif);
+      font-style: italic;
+      font-size: 12px;
+      color: var(--graphite);
+    }
+
+    /* Panel as bottom sheet */
+    .panel {
+      top: auto;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      max-width: 100%;
+      max-height: 82vh;
+      border-left: 0;
+      border-right: 0;
+      border-bottom: 0;
+      border-top: 1px solid var(--ink);
+      padding: 0 0 calc(20px + env(safe-area-inset-bottom, 0px));
+      box-shadow: 0 -12px 36px -16px rgba(31,29,25,0.4);
+      transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), max-height 0.4s ease;
+      transform: translateY(0);
+      overflow: hidden;
+    }
+    /* Inner scroll container so the handle stays pinned */
+    .panel-scroll {
+      max-height: calc(82vh - 36px);
+      overflow-y: auto;
+      padding: 4px 22px 22px;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+    /* The top 48×3px alignment lives on panel-head — bring it inside the scroll */
+    .panel-head {
+      padding-top: 10px;
+    }
+
+    /* Peek state — only handle + a thin status line visible */
+    .panel.peek {
+      max-height: 96px;
+    }
+    .panel.peek .panel-scroll {
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .sheet-handle {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0 6px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      background: var(--paper-2);
+      position: relative;
+      z-index: 2;
+    }
+    .sheet-handle::before {
+      content: '';
+      width: 44px;
+      height: 3px;
+      background: var(--stone);
+    }
+    .panel.peek .sheet-handle::before {
+      background: var(--indigo);
+    }
+    .sheet-hint {
+      margin-top: 6px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      color: var(--ash);
+      text-transform: uppercase;
+      display: none;
+    }
+    .panel.peek .sheet-hint { display: block; }
+    .sheet-hint .accent {
+      color: var(--indigo);
+    }
+
+    /* Typography tweaks for mobile */
+    .head-zh { font-size: 22px; letter-spacing: 0.14em; }
+    .head-en { font-size: 12px; }
+    .head-meta { font-size: 9px; letter-spacing: 0.18em; }
+
+    .city-zh { font-size: 24px; letter-spacing: 0.12em; }
+    .city-en { font-size: 13px; }
+
+    /* Larger touch targets */
+    .city-current {
+      padding: 16px 4px;
+      min-height: 60px;
+    }
+    .city-chevron {
+      width: 32px;
+      height: 32px;
+    }
+    .city-chevron::before {
+      width: 7px;
+      height: 7px;
+    }
+
+    .city-pill {
+      font-size: 15px;
+      padding: 8px 12px;
+      margin: 0 4px 4px 0;
+      border: 1px solid var(--mist);
+      background: var(--paper);
+    }
+    /* On mobile, drop the · separators — bordered pills are clearer */
+    .city-pill::after { content: none; }
+    .city-pill.current {
+      border-color: var(--indigo);
+      background: var(--indigo-l);
+    }
+    .region-zh { font-size: 14px; }
+    .region-en { font-size: 12px; }
+
+    .layer-row {
+      padding: 18px 4px 16px;
+      min-height: 56px;
+    }
+    .layer-row::before {
+      left: -22px;
+      top: 22px;
+    }
+    .row-zh { font-size: 18px; }
+    .row-en { font-size: 13px; }
+    .row-year { font-size: 11px; }
+
+    .layer-row.active .opacity-slot { height: 36px; }
+    .opacity-slot-inner { grid-template-columns: 1fr 48px; }
+    .opa-val { font-size: 11px; }
+
+    /* Bigger slider thumb for fingers */
+    input[type=range].opa { height: 32px; }
+    input[type=range].opa::-webkit-slider-thumb {
+      width: 18px;
+      height: 18px;
+      margin-top: -8.5px;
+    }
+    input[type=range].opa::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+    }
+
+    .section-label { margin: 22px 0 6px; }
+    .panel-foot { font-size: 12px; }
+
+    /* Reposition Leaflet zoom controls so sheet doesn't cover them */
+    .leaflet-top.leaflet-left {
+      top: calc(70px + env(safe-area-inset-top, 0px));
+      left: 14px;
+    }
+    .leaflet-control-zoom a {
+      width: 36px !important;
+      height: 36px !important;
+      line-height: 36px !important;
+      font-size: 18px !important;
+    }
+    .leaflet-control-attribution { display: none; }
+
+    /* Disable hover-only effects on touch devices to avoid sticky states */
+    .layer-row:hover .row-zh { color: var(--graphite); }
+    .city-current:hover .city-zh { color: var(--ink); }
+    .city-pill:hover { background: transparent; color: var(--graphite); }
+    .city-pill.current { color: var(--indigo); background: var(--indigo-l); }
+  }
+
+  @media (max-width: 768px) and (hover: hover) {
+    /* Re-enable hover on devices that actually support it (e.g. tablet with mouse) */
+    .layer-row:hover .row-zh { color: var(--indigo-d); }
+  }
+
+  /* ── Leaflet tone ──────────────────────────────── */
+  .leaflet-control-attribution {
+    background: var(--paper-2) !important;
+    color: var(--ash) !important;
+    font-family: var(--mono) !important;
+    font-size: 9px !important;
+    letter-spacing: 0.06em;
+    padding: 2px 8px !important;
+    border: 1px solid var(--stone);
+    border-right: 0;
+    border-bottom: 0;
+  }
+  .leaflet-control-attribution a { color: var(--graphite) !important; }
+  .leaflet-control-zoom a {
+    background: var(--paper-2) !important;
+    color: var(--ink) !important;
+    border: 1px solid var(--stone) !important;
+    border-radius: 0 !important;
+    font-family: var(--en-serif);
+    font-weight: 500;
+  }
+  .leaflet-control-zoom a:hover {
+    background: var(--paper) !important;
+    color: var(--indigo) !important;
+  }
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<!-- Mobile-only: tiny tag at top showing current city for quick context -->
+<div class="mobile-tag" id="mobile-tag" aria-hidden="true">
+  <span class="zh" id="tag-zh">—</span>
+  <span class="en" id="tag-en">—</span>
+</div>
+
+<aside class="panel grain" id="panel">
+  <div class="sheet-handle" id="sheet-handle" role="button" aria-label="切換圖層面板">
+    <span class="sheet-hint"><span class="accent">▲</span>&nbsp;&nbsp;Tap to open · 點此展開</span>
+  </div>
+
+  <div class="panel-scroll">
+    <header class="panel-head">
+      <div class="head-en">Taiwan · Historical Overlay</div>
+      <h1 class="head-zh">臺灣 古今</h1>
+      <div class="head-meta" id="head-meta">N — · E —</div>
+    </header>
+
+    <div class="section-label">
+      <span class="num">00 — Region</span>
+      <span class="en">city · county</span>
+    </div>
+
+    <div class="city-current" id="city-current" role="button" aria-expanded="false">
+      <div>
+        <div class="city-zh" id="current-zh">—</div>
+        <div class="city-en" id="current-en">—</div>
+      </div>
+      <div class="city-chevron"></div>
+    </div>
+
+    <div class="city-list" id="city-list">
+      <div class="city-list-inner" id="city-list-inner"></div>
+    </div>
+
+    <div class="notice" id="notice">
+      離島地區歷史圖磚覆蓋有限，部分年代可能無資料。
+      <span class="en">Historical tile coverage is limited for outlying islands.</span>
+    </div>
+
+    <div class="section-label">
+      <span class="num">01 — Strata</span>
+      <span class="en">historical layers</span>
+    </div>
+
+    <div id="historical-layers"></div>
+
+    <div class="section-label">
+      <span class="num">02 — Position</span>
+      <span class="en">gps · trace</span>
+    </div>
+
+    <div class="action-row">
+      <button class="btn" id="btn-locate" type="button">
+        <span class="dot"></span>
+        <span class="btn-label">定位</span>
+      </button>
+      <button class="btn" id="btn-record" type="button" disabled>
+        <span class="dot"></span>
+        <span class="btn-label">記錄路線</span>
+      </button>
+    </div>
+
+    <div class="loc-status" id="loc-status">
+      <div class="label">Current Fix</div>
+      <div id="loc-coords">—</div>
+      <div id="loc-accuracy">—</div>
+    </div>
+
+    <div class="rec-status" id="rec-status">
+      <div class="label">Recording</div>
+      <div class="stats">
+        <div>
+          <div class="stat-label">Dist</div>
+          <div class="stat-val" id="rec-dist">0 m</div>
+        </div>
+        <div>
+          <div class="stat-label">Time</div>
+          <div class="stat-val" id="rec-time">0:00</div>
+        </div>
+        <div>
+          <div class="stat-label">Pts</div>
+          <div class="stat-val" id="rec-points">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">
+      <span class="num">03 — Traces</span>
+      <span class="en">saved walks</span>
+    </div>
+
+    <div class="trace-list" id="trace-list">
+      <div class="trace-empty">尚無記錄 · No saved traces</div>
+    </div>
+
+    <footer class="panel-foot">
+      <span class="mono">Sources</span>
+      歷史圖資 · <a href="https://gis.sinica.edu.tw" target="_blank" rel="noopener">中央研究院 GIS</a><br>
+      現代底圖 · <a href="https://carto.com/" target="_blank" rel="noopener">CARTO</a> ·
+      <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>
+    </footer>
+  </div>
+</aside>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+<script>
+  // ── Cities (22 administrative divisions) ──────────
+  const REGIONS = [
+    { id: 'north',   zh: '北',  en: 'North' },
+    { id: 'central', zh: '中',  en: 'Central' },
+    { id: 'south',   zh: '南',  en: 'South' },
+    { id: 'east',    zh: '東',  en: 'East' },
+    { id: 'island',  zh: '離島', en: 'Islands' },
+  ];
+
+  const CITIES = [
+    // 北部 North
+    { id: 'taipei',     region: 'north',   zh: '臺北市', en: 'Taipei',         center: [25.0330, 121.5654], zoom: 13 },
+    { id: 'newtaipei',  region: 'north',   zh: '新北市', en: 'New Taipei',     center: [25.0117, 121.4654], zoom: 12 },
+    { id: 'keelung',    region: 'north',   zh: '基隆市', en: 'Keelung',        center: [25.1276, 121.7392], zoom: 14 },
+    { id: 'taoyuan',    region: 'north',   zh: '桃園市', en: 'Taoyuan',        center: [24.9937, 121.3010], zoom: 13 },
+    { id: 'hsinchu_c',  region: 'north',   zh: '新竹市', en: 'Hsinchu City',   center: [24.8138, 120.9675], zoom: 14 },
+    { id: 'hsinchu',    region: 'north',   zh: '新竹縣', en: 'Hsinchu County', center: [24.8387, 121.0177], zoom: 12 },
+    { id: 'yilan',      region: 'north',   zh: '宜蘭縣', en: 'Yilan',          center: [24.7570, 121.7533], zoom: 12 },
+    // 中部 Central
+    { id: 'miaoli',     region: 'central', zh: '苗栗縣', en: 'Miaoli',         center: [24.5602, 120.8214], zoom: 12 },
+    { id: 'taichung',   region: 'central', zh: '臺中市', en: 'Taichung',       center: [24.1469, 120.6839], zoom: 13 },
+    { id: 'changhua',   region: 'central', zh: '彰化縣', en: 'Changhua',       center: [24.0517, 120.5161], zoom: 12 },
+    { id: 'nantou',     region: 'central', zh: '南投縣', en: 'Nantou',         center: [23.9099, 120.6858], zoom: 11 },
+    { id: 'yunlin',     region: 'central', zh: '雲林縣', en: 'Yunlin',         center: [23.7092, 120.4313], zoom: 12 },
+    // 南部 South
+    { id: 'chiayi_c',   region: 'south',   zh: '嘉義市', en: 'Chiayi City',    center: [23.4801, 120.4491], zoom: 14 },
+    { id: 'chiayi',     region: 'south',   zh: '嘉義縣', en: 'Chiayi County',  center: [23.4518, 120.2554], zoom: 12 },
+    { id: 'tainan',     region: 'south',   zh: '臺南市', en: 'Tainan',         center: [22.9971, 120.2058], zoom: 13 },
+    { id: 'kaohsiung',  region: 'south',   zh: '高雄市', en: 'Kaohsiung',      center: [22.6273, 120.3014], zoom: 12 },
+    { id: 'pingtung',   region: 'south',   zh: '屏東縣', en: 'Pingtung',       center: [22.6730, 120.4880], zoom: 11 },
+    // 東部 East
+    { id: 'hualien',    region: 'east',    zh: '花蓮縣', en: 'Hualien',        center: [23.9871, 121.6015], zoom: 10 },
+    { id: 'taitung',    region: 'east',    zh: '臺東縣', en: 'Taitung',        center: [22.7583, 121.1444], zoom: 10 },
+    // 離島 Islands
+    { id: 'penghu',     region: 'island',  zh: '澎湖縣', en: 'Penghu',         center: [23.5711, 119.5793], zoom: 11 },
+    { id: 'kinmen',     region: 'island',  zh: '金門縣', en: 'Kinmen',         center: [24.4321, 118.3171], zoom: 12, outlying: true },
+    { id: 'lienchiang', region: 'island',  zh: '連江縣', en: 'Lienchiang',     center: [26.1607, 119.9514], zoom: 11, outlying: true },
+  ];
+
+  const HISTORICAL_MAPS = [
+    { id: 'jm1904', year: '1904', label: '臺灣堡圖',     en: 'Taiwan Daichō',         url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM20K_1904-jpg-{z}-{x}-{y}' },
+    { id: 'jm1921', year: '1921', label: '日治地形圖',   en: 'Japanese Topographic',  url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM25K_1921-jpg-{z}-{x}-{y}' },
+    { id: 'am1944', year: '1944', label: '美軍地形圖',   en: 'U.S. Army Map',         url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=AM25K_1944A-png-{z}-{x}-{y}' },
+    { id: 'tm1989', year: '1989', label: '經建版地形圖', en: 'Economic Survey',       url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=TM25K_1989-jpg-{z}-{x}-{y}' },
+  ];
+
+  // ── State & helpers ──────────────────────────────
+  const DEFAULT_CITY = 'taipei';
+  const params = new URLSearchParams(location.search);
+  const initialCityId = (params.get('city') && CITIES.find(c => c.id === params.get('city'))) ? params.get('city') : DEFAULT_CITY;
+
+  let currentCity = CITIES.find(c => c.id === initialCityId);
+  const layerCache = {};
+  const opacities = {};
+  let activeId = null;
+
+  function pad2(n) { return String(n).padStart(2, '0'); }
+
+  function fmtCoord(lat, lng) {
+    const f = v => Number(v).toFixed(3);
+    return `N ${f(lat)} · E ${f(lng)}`;
+  }
+
+  // ── Map ──────────────────────────────────────────
+  const map = L.map('map', { zoomControl: true, attributionControl: true })
+    .setView(currentCity.center, currentCity.zoom);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OSM &copy; CARTO',
+    subdomains: 'abcd',
+    maxZoom: 19,
+  }).addTo(map);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
+    subdomains: 'abcd',
+    maxZoom: 19,
+    pane: 'shadowPane',
+  }).addTo(map);
+
+  // ── City selector UI ─────────────────────────────
+  const cityListInner = document.getElementById('city-list-inner');
+  REGIONS.forEach(region => {
+    const group = document.createElement('div');
+    group.className = 'region-group';
+    const cities = CITIES.filter(c => c.region === region.id);
+    group.innerHTML = `
+      <div class="region-label">
+        <span class="region-zh">${region.zh}</span>
+        <span class="region-en">${region.en}</span>
+      </div>
+      <div class="region-cities">
+        ${cities.map(c => `<span class="city-pill" data-id="${c.id}">${c.zh}</span>`).join('')}
+      </div>
+    `;
+    cityListInner.appendChild(group);
+  });
+
+  function updateCityUI() {
+    document.getElementById('current-zh').textContent = currentCity.zh;
+    document.getElementById('current-en').textContent = currentCity.en;
+    document.getElementById('tag-zh').textContent = currentCity.zh;
+    document.getElementById('tag-en').textContent = currentCity.en;
+    document.getElementById('head-meta').textContent = fmtCoord(currentCity.center[0], currentCity.center[1]);
+    document.querySelectorAll('.city-pill').forEach(p => {
+      p.classList.toggle('current', p.dataset.id === currentCity.id);
+    });
+    document.getElementById('notice').classList.toggle('show', !!currentCity.outlying);
+  }
+
+  function selectCity(id, opts = {}) {
+    const city = CITIES.find(c => c.id === id);
+    if (!city) return;
+    currentCity = city;
+    map.flyTo(city.center, city.zoom, { duration: opts.instant ? 0 : 0.9 });
+    updateCityUI();
+    // Update URL without reload
+    const url = new URL(location.href);
+    url.searchParams.set('city', id);
+    history.replaceState(null, '', url);
+    // Auto-close the list
+    document.getElementById('city-current').classList.remove('open');
+    document.getElementById('city-list').classList.remove('open');
+  }
+
+  document.querySelectorAll('.city-pill').forEach(pill => {
+    pill.addEventListener('click', () => selectCity(pill.dataset.id));
+  });
+
+  const cityCurrentEl = document.getElementById('city-current');
+  cityCurrentEl.addEventListener('click', () => {
+    const isOpen = cityCurrentEl.classList.toggle('open');
+    document.getElementById('city-list').classList.toggle('open', isOpen);
+    cityCurrentEl.setAttribute('aria-expanded', isOpen);
+  });
+
+  // ── Layer toggling ───────────────────────────────
+  function setActive(newId) {
+    if (activeId && layerCache[activeId]) {
+      map.removeLayer(layerCache[activeId]);
+    }
+    activeId = activeId === newId ? null : newId;
+
+    if (activeId) {
+      if (!layerCache[activeId]) {
+        const def = HISTORICAL_MAPS.find(m => m.id === activeId);
+        layerCache[activeId] = L.tileLayer(def.url, {
+          attribution: '歷史圖資 © 中央研究院',
+          tileSize: 256,
+          opacity: opacities[activeId] ?? 0.7,
+        });
+      }
+      layerCache[activeId].addTo(map);
+    }
+
+    document.querySelectorAll('.layer-row').forEach(row => {
+      row.classList.toggle('active', row.dataset.id === activeId);
+    });
+  }
+
+  function setOpacity(id, val) {
+    opacities[id] = val;
+    if (layerCache[id]) layerCache[id].setOpacity(val);
+    const lbl = document.querySelector(`.layer-row[data-id="${id}"] .opa-val`);
+    if (lbl) lbl.textContent = Math.round(val * 100) + ' %';
+  }
+
+  const layersContainer = document.getElementById('historical-layers');
+  HISTORICAL_MAPS.forEach((hm, i) => {
+    opacities[hm.id] = 0.7;
+    const row = document.createElement('div');
+    row.className = 'layer-row';
+    row.dataset.id = hm.id;
+    row.innerHTML = `
+      <div class="row-head">
+        <span class="row-n">${pad2(i + 1)}</span>
+        <span class="row-zh">${hm.label}</span>
+        <span class="row-year">${hm.year}</span>
+      </div>
+      <div class="row-en">${hm.en}</div>
+      <div class="opacity-slot">
+        <div class="opacity-slot-inner">
+          <input type="range" class="opa" min="0" max="1" step="0.01" value="0.7" />
+          <span class="opa-val">70 %</span>
+        </div>
+      </div>
+    `;
+    row.addEventListener('click', e => {
+      if (e.target.closest('.opacity-slot')) return;
+      setActive(hm.id);
+    });
+    row.querySelector('input[type=range]').addEventListener('input', e => {
+      e.stopPropagation();
+      setOpacity(hm.id, parseFloat(e.target.value));
+    });
+    layersContainer.appendChild(row);
+  });
+
+  // ── Mobile bottom-sheet toggle ──────────────────
+  const panelEl = document.getElementById('panel');
+  const sheetHandle = document.getElementById('sheet-handle');
+  const MOBILE_BP = 768;
+  const isMobile = () => window.matchMedia(`(max-width: ${MOBILE_BP}px)`).matches;
+
+  function setPeek(peek) {
+    panelEl.classList.toggle('peek', peek);
+    sheetHandle.setAttribute('aria-expanded', String(!peek));
+  }
+
+  sheetHandle.addEventListener('click', () => {
+    if (!isMobile()) return;
+    setPeek(!panelEl.classList.contains('peek'));
+  });
+
+  // Default to peek on mobile so the map is visible on first load
+  if (isMobile()) setPeek(true);
+
+  // Re-evaluate peek state on resize / rotate
+  window.addEventListener('resize', () => {
+    if (!isMobile()) {
+      panelEl.classList.remove('peek');
+    }
+    // Let Leaflet recompute size after layout shifts
+    if (typeof map !== 'undefined') {
+      setTimeout(() => map.invalidateSize(), 250);
+    }
+  });
+
+  // When a city is picked on mobile, slide the sheet back to peek so the
+  // user can see where the map flew to
+  document.querySelectorAll('.city-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      if (isMobile()) setTimeout(() => setPeek(true), 400);
+    });
+  });
+
+  // ── Geolocation & trace recording ───────────────
+  let userMarker = null;
+  let accuracyCircle = null;
+  let watchId = null;
+  let isLocating = false;
+  let hasFirstFix = false;
+
+  let isRecording = false;
+  let currentTrace = null;
+  let recordPolyline = null;
+  let recTimerId = null;
+
+  let shownTracePolyline = null;
+  let shownTraceId = null;
+
+  let savedTraces = loadTraces();
+
+  function loadTraces() {
+    try {
+      return JSON.parse(localStorage.getItem('taiwanOldMaps.traces') || '[]');
+    } catch {
+      return [];
+    }
+  }
+  function persistTraces() {
+    try {
+      localStorage.setItem('taiwanOldMaps.traces', JSON.stringify(savedTraces));
+    } catch (e) {
+      console.warn('localStorage write failed', e);
+    }
+  }
+
+  function haversine(a, b) {
+    const R = 6371000;
+    const toRad = x => x * Math.PI / 180;
+    const dLat = toRad(b.lat - a.lat);
+    const dLng = toRad(b.lng - a.lng);
+    const sinDLat = Math.sin(dLat / 2);
+    const sinDLng = Math.sin(dLng / 2);
+    const c = sinDLat * sinDLat +
+              Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * sinDLng * sinDLng;
+    return 2 * R * Math.atan2(Math.sqrt(c), Math.sqrt(1 - c));
+  }
+  function calcDistance(points) {
+    let total = 0;
+    for (let i = 1; i < points.length; i++) {
+      total += haversine(points[i - 1], points[i]);
+    }
+    return total;
+  }
+  function fmtDist(m) {
+    if (!m || m < 1) return '0 m';
+    return m < 1000 ? `${m.toFixed(0)} m` : `${(m / 1000).toFixed(2)} km`;
+  }
+  function fmtDur(ms) {
+    const s = Math.max(0, Math.floor(ms / 1000));
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+    return `${m}:${String(sec).padStart(2, '0')}`;
+  }
+
+  const locBtn = document.getElementById('btn-locate');
+  const recBtn = document.getElementById('btn-record');
+  const locStatus = document.getElementById('loc-status');
+  const recStatus = document.getElementById('rec-status');
+
+  function updateButtons() {
+    locBtn.classList.toggle('active', isLocating);
+    locBtn.querySelector('.btn-label').textContent = isLocating ? '停止定位' : '定位';
+    recBtn.disabled = !isLocating;
+    recBtn.classList.toggle('recording', isRecording);
+    recBtn.classList.toggle('active', isRecording);
+    recBtn.querySelector('.btn-label').textContent = isRecording ? '停止記錄' : '記錄路線';
+  }
+
+  function startLocate() {
+    if (!('geolocation' in navigator)) {
+      alert('此瀏覽器不支援地理定位');
+      return;
+    }
+    isLocating = true;
+    hasFirstFix = false;
+    updateButtons();
+    watchId = navigator.geolocation.watchPosition(
+      onPosition,
+      onPositionError,
+      { enableHighAccuracy: true, maximumAge: 4000, timeout: 25000 }
+    );
+  }
+
+  function stopLocate() {
+    if (isRecording) stopRecording();
+    if (watchId !== null) {
+      navigator.geolocation.clearWatch(watchId);
+      watchId = null;
+    }
+    isLocating = false;
+    if (userMarker) { map.removeLayer(userMarker); userMarker = null; }
+    if (accuracyCircle) { map.removeLayer(accuracyCircle); accuracyCircle = null; }
+    locStatus.classList.remove('show');
+    updateButtons();
+  }
+
+  function onPosition(pos) {
+    const { latitude, longitude, accuracy } = pos.coords;
+    const ll = [latitude, longitude];
+
+    if (!userMarker) {
+      const icon = L.divIcon({
+        className: 'user-marker-icon',
+        html: '<div class="user-marker"></div>',
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+      });
+      userMarker = L.marker(ll, { icon, interactive: false, keyboard: false }).addTo(map);
+    } else {
+      userMarker.setLatLng(ll);
+    }
+
+    if (!accuracyCircle) {
+      accuracyCircle = L.circle(ll, {
+        radius: accuracy,
+        color: '#C15F3C',
+        weight: 1,
+        opacity: 0.4,
+        fillColor: '#C15F3C',
+        fillOpacity: 0.07,
+        interactive: false,
+      }).addTo(map);
+    } else {
+      accuracyCircle.setLatLng(ll).setRadius(accuracy);
+    }
+
+    document.getElementById('loc-coords').textContent =
+      `N ${latitude.toFixed(5)} · E ${longitude.toFixed(5)}`;
+    document.getElementById('loc-accuracy').textContent =
+      `± ${accuracy.toFixed(0)} m`;
+    locStatus.classList.add('show');
+
+    if (!hasFirstFix) {
+      hasFirstFix = true;
+      map.setView(ll, Math.max(map.getZoom(), 16));
+    }
+
+    if (isRecording) addTracePoint(latitude, longitude, accuracy, pos.timestamp);
+  }
+
+  function onPositionError(err) {
+    const msgs = { 1: '位置權限被拒絕', 2: '無法取得位置', 3: '定位逾時' };
+    alert((msgs[err.code] || '定位失敗') + (err.message ? '\n' + err.message : ''));
+    stopLocate();
+  }
+
+  function startRecording() {
+    if (!isLocating) startLocate();
+    isRecording = true;
+    currentTrace = {
+      id: 'tr-' + Date.now(),
+      name: new Date().toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
+      city: currentCity?.zh || '',
+      startTime: Date.now(),
+      points: [],
+    };
+    if (recordPolyline) map.removeLayer(recordPolyline);
+    recordPolyline = L.polyline([], {
+      color: '#C15F3C',
+      weight: 5,
+      opacity: 0.85,
+      lineCap: 'round',
+      lineJoin: 'round',
+    }).addTo(map);
+    recStatus.classList.add('show');
+    updateButtons();
+    if (recTimerId) clearInterval(recTimerId);
+    recTimerId = setInterval(updateRecTimer, 1000);
+    updateRecTimer();
+  }
+
+  function stopRecording() {
+    if (!isRecording) return;
+    isRecording = false;
+    if (recTimerId) { clearInterval(recTimerId); recTimerId = null; }
+    if (recordPolyline) { map.removeLayer(recordPolyline); recordPolyline = null; }
+
+    if (currentTrace && currentTrace.points.length >= 2) {
+      currentTrace.endTime = Date.now();
+      currentTrace.distance = calcDistance(currentTrace.points);
+      savedTraces.unshift(currentTrace);
+      persistTraces();
+      renderTraceList();
+    }
+    currentTrace = null;
+    recStatus.classList.remove('show');
+    updateButtons();
+  }
+
+  function addTracePoint(lat, lng, acc, ts) {
+    if (acc > 80) return;
+    const last = currentTrace.points[currentTrace.points.length - 1];
+    if (last && haversine(last, { lat, lng }) < 3) return;
+    currentTrace.points.push({ lat, lng, t: ts, a: Math.round(acc) });
+    recordPolyline.addLatLng([lat, lng]);
+    updateRecTimer();
+  }
+
+  function updateRecTimer() {
+    if (!currentTrace) return;
+    document.getElementById('rec-dist').textContent = fmtDist(calcDistance(currentTrace.points));
+    document.getElementById('rec-time').textContent = fmtDur(Date.now() - currentTrace.startTime);
+    document.getElementById('rec-points').textContent = String(currentTrace.points.length);
+  }
+
+  function renderTraceList() {
+    const list = document.getElementById('trace-list');
+    if (!savedTraces.length) {
+      list.innerHTML = '<div class="trace-empty">尚無記錄<span class="en">No saved traces</span></div>';
+      return;
+    }
+    list.innerHTML = savedTraces.map(t => {
+      const dur = (t.endTime || Date.now()) - t.startTime;
+      return `
+        <div class="trace-row${t.id === shownTraceId ? ' shown' : ''}" data-id="${t.id}">
+          <div class="trace-info">
+            <div class="trace-date">${t.name}</div>
+            <div class="trace-name">${t.city || '路線'}</div>
+            <div class="trace-meta">${fmtDist(t.distance)} · ${fmtDur(dur)} · ${t.points.length} pts</div>
+          </div>
+          <div class="trace-actions">
+            <button data-act="export" data-id="${t.id}">GeoJSON</button>
+            <button data-act="delete" data-id="${t.id}" class="danger">刪除</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function showTraceOnMap(id) {
+    const trace = savedTraces.find(t => t.id === id);
+    if (!trace) return;
+    if (shownTracePolyline) {
+      map.removeLayer(shownTracePolyline);
+      shownTracePolyline = null;
+    }
+    if (shownTraceId === id) {
+      shownTraceId = null;
+      renderTraceList();
+      return;
+    }
+    const coords = trace.points.map(p => [p.lat, p.lng]);
+    shownTracePolyline = L.polyline(coords, {
+      color: '#C15F3C',
+      weight: 4,
+      opacity: 0.85,
+      lineCap: 'round',
+      lineJoin: 'round',
+      dashArray: null,
+    }).addTo(map);
+    map.fitBounds(shownTracePolyline.getBounds(), { padding: [50, 50] });
+    shownTraceId = id;
+    renderTraceList();
+  }
+
+  function exportTrace(id) {
+    const trace = savedTraces.find(t => t.id === id);
+    if (!trace) return;
+    const geojson = {
+      type: 'Feature',
+      properties: {
+        name: trace.name,
+        city: trace.city,
+        startTime: new Date(trace.startTime).toISOString(),
+        endTime: trace.endTime ? new Date(trace.endTime).toISOString() : null,
+        distance_m: Math.round(trace.distance || 0),
+        point_count: trace.points.length,
+      },
+      geometry: {
+        type: 'LineString',
+        coordinates: trace.points.map(p => [p.lng, p.lat]),
+      },
+    };
+    const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/geo+json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${trace.id}.geojson`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function deleteTrace(id) {
+    if (!confirm('確定刪除這條路線？')) return;
+    if (id === shownTraceId && shownTracePolyline) {
+      map.removeLayer(shownTracePolyline);
+      shownTracePolyline = null;
+      shownTraceId = null;
+    }
+    savedTraces = savedTraces.filter(t => t.id !== id);
+    persistTraces();
+    renderTraceList();
+  }
+
+  locBtn.addEventListener('click', () => isLocating ? stopLocate() : startLocate());
+  recBtn.addEventListener('click', () => isRecording ? stopRecording() : startRecording());
+
+  document.getElementById('trace-list').addEventListener('click', e => {
+    const actBtn = e.target.closest('button[data-act]');
+    if (actBtn) {
+      e.stopPropagation();
+      const id = actBtn.dataset.id;
+      if (actBtn.dataset.act === 'export') exportTrace(id);
+      else if (actBtn.dataset.act === 'delete') deleteTrace(id);
+      return;
+    }
+    const row = e.target.closest('.trace-row');
+    if (row) showTraceOnMap(row.dataset.id);
+  });
+
+  // Stop the GPS watch if the tab is hidden to save battery
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && isLocating && !isRecording) {
+      // Pause location when hidden; resume on focus
+      // (skipped — preserving the watch is simpler and matches user expectation)
+    }
+  });
+
+  renderTraceList();
+  updateButtons();
+
+  // ── Init ─────────────────────────────────────────
+  updateCityUI();
+</script>
+</body>
+</html>
