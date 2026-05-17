@@ -256,6 +256,44 @@
     font-weight: 500;
   }
 
+  /* ── Layer era group header ─────────────────────── */
+  .layer-group-label {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 18px 0 4px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--mist);
+  }
+  .layer-group-label:first-child { margin-top: 6px; }
+  .layer-group-label .lg-zh {
+    font-family: var(--zh-serif);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    color: var(--graphite);
+  }
+  .layer-group-label .lg-en {
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 11px;
+    color: var(--ash);
+    letter-spacing: 0.04em;
+  }
+  .row-tag {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 1px 6px;
+    border: 1px solid var(--mist);
+    font-family: var(--mono);
+    font-size: 8px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    color: var(--ash);
+    text-transform: uppercase;
+    vertical-align: middle;
+  }
+
   /* ── Layer row ─────────────────────────────────── */
   .layer-row {
     position: relative;
@@ -1047,11 +1085,40 @@
     { id: 'lienchiang', region: 'island',  zh: '連江縣', en: 'Lienchiang',     center: [26.1607, 119.9514], zoom: 11, outlying: true },
   ];
 
+  // Historical map layers — all verified against tile coordinates at z=13.
+  // maxNativeZoom is the highest level the tile pyramid actually contains;
+  // beyond it Leaflet upscales the tile so the layer stays visible.
+  const LAYER_GROUPS = [
+    { id: 'jp',     zh: '日治時期',   en: 'Japanese Period 1904–1944' },
+    { id: 'army',   zh: '美軍時期',   en: 'WWII U.S. Army 1944–1945' },
+    { id: 'roc',    zh: '經建版',     en: 'Economic Survey 1950–2003' },
+    { id: 'sat',    zh: '衛星影像',   en: 'Satellite 1966–1969' },
+  ];
+
   const HISTORICAL_MAPS = [
-    { id: 'jm1904', year: '1904', label: '臺灣堡圖',     en: 'Taiwan Daichō',         url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM20K_1904-jpg-{z}-{x}-{y}' },
-    { id: 'jm1921', year: '1921', label: '日治地形圖',   en: 'Japanese Topographic',  url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM25K_1921-jpg-{z}-{x}-{y}' },
-    { id: 'am1944', year: '1944', label: '美軍地形圖',   en: 'U.S. Army Map',         url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=AM25K_1944A-png-{z}-{x}-{y}' },
-    { id: 'tm1989', year: '1989', label: '經建版地形圖', en: 'Economic Survey',       url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=TM25K_1989-jpg-{z}-{x}-{y}' },
+    // 日治時期 ────────────────────────────────────────────
+    { id: 'jm20k_1904',   group: 'jp',  year: '1904', label: '臺灣堡圖',                 en: 'Taiwan Daichō · 20K',         url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM20K_1904-jpg-{z}-{x}-{y}',         maxNativeZoom: 17 },
+    { id: 'jm100k_1905',  group: 'jp',  year: '1905', label: '十萬分一臺灣圖',           en: 'Taiwan 100K',                 url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM100K_1905-png-{z}-{x}-{y}',       maxNativeZoom: 14 },
+    { id: 'jm50k_1916',   group: 'jp',  year: '1916', label: '蕃地地形圖',               en: 'Banchi (Mountain) 50K',       url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM50K_1916-jpg-{z}-{x}-{y}',        maxNativeZoom: 15 },
+    { id: 'jm50k_1920',   group: 'jp',  year: '1920', label: '五萬分一地形圖',           en: 'Civil-Eng 50K',               url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM50K_1920-png-{z}-{x}-{y}',        maxNativeZoom: 15 },
+    { id: 'jm25k_1921',   group: 'jp',  year: '1921', label: '二萬五千分一地形圖',       en: 'Japanese Topo 25K',           url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM25K_1921-jpg-{z}-{x}-{y}',        maxNativeZoom: 17 },
+    { id: 'jm50k_1924',   group: 'jp',  year: '1924', label: '陸地測量部五萬分一',       en: 'Imperial Land Survey 50K',    url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM50K_1924_new-png-{z}-{x}-{y}',    maxNativeZoom: 15 },
+    { id: 'jm25k_1944',   group: 'jp',  year: '1944', label: '航照修正版地形圖',         en: 'Aerial-Revised 25K',          url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM25K_1944-png-{z}-{x}-{y}',        maxNativeZoom: 16, partial: true },
+    // 美軍時期 ────────────────────────────────────────────
+    { id: 'am25k_1944a',  group: 'army', year: '1944', label: '美軍地形圖 25K-A',        en: 'U.S. Army 25K Series A',      url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=AM25K_1944A-png-{z}-{x}-{y}',       maxNativeZoom: 15 },
+    { id: 'am25k_1944b',  group: 'army', year: '1944', label: '美軍地形圖 25K-B',        en: 'U.S. Army 25K Series B',      url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=AM25K_1944B-jpg-{z}-{x}-{y}',       maxNativeZoom: 15 },
+    { id: 'am50k_1944',   group: 'army', year: '1944', label: '美軍地形圖 50K',          en: 'U.S. Army 50K',               url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=AM50K_1944-png-{z}-{x}-{y}',        maxNativeZoom: 15 },
+    { id: 'am_city_1945', group: 'army', year: '1945', label: '美軍臺灣城市地圖',        en: 'U.S. Army City Plans',        url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=AMCityPlan_1945-png-{z}-{x}-{y}',   maxNativeZoom: 17 },
+    // 經建版 ──────────────────────────────────────────────
+    { id: 'tm25k_1950',   group: 'roc', year: '1950', label: '經建版地形圖',             en: 'Economic Survey 25K',         url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=TM25K_1950-jpg-{z}-{x}-{y}',        maxNativeZoom: 16 },
+    { id: 'tm50k_1956',   group: 'roc', year: '1956', label: '五萬分一地形圖',           en: 'Topographic 50K',             url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=TM50K_1956-jpg-{z}-{x}-{y}',        maxNativeZoom: 16 },
+    { id: 'tm25k_1989',   group: 'roc', year: '1989', label: '經建版地形圖（一版）',     en: 'Economic Survey v1',          url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=TM25K_1989-jpg-{z}-{x}-{y}',        maxNativeZoom: 16 },
+    { id: 'tm25k_1993',   group: 'roc', year: '1993', label: '經建版地形圖（二版）',     en: 'Economic Survey v2',          url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=TM25K_1993-jpg-{z}-{x}-{y}',        maxNativeZoom: 15 },
+    { id: 'tm25k_2001',   group: 'roc', year: '2001', label: '經建版地形圖（三版）',     en: 'Economic Survey v3',          url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=TM25K_2001-jpg-{z}-{x}-{y}',        maxNativeZoom: 16 },
+    { id: 'tm25k_2003',   group: 'roc', year: '2003', label: '經建版地形圖（四版）',     en: 'Economic Survey v4',          url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=TM25K_2003-jpg-{z}-{x}-{y}',        maxNativeZoom: 17 },
+    // 衛星影像 ─────────────────────────────────────────────
+    { id: 'corona_1966',  group: 'sat', year: '1966', label: 'CORONA 衛星影像',          en: 'CORONA Satellite',            url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=Taiwan_Corona_1966-jpg-{z}-{x}-{y}', maxNativeZoom: 14 },
+    { id: 'corona_1969',  group: 'sat', year: '1969', label: 'CORONA 衛星影像',          en: 'CORONA Satellite',            url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=Taiwan_Corona_1969-jpg-{z}-{x}-{y}', maxNativeZoom: 14 },
   ];
 
   // ── State & helpers ──────────────────────────────
@@ -1072,17 +1139,21 @@
   }
 
   // ── Map ──────────────────────────────────────────
-  const map = L.map('map', { zoomControl: true, attributionControl: true })
+  const MAP_MAX_ZOOM = 20;
+
+  const map = L.map('map', { zoomControl: true, attributionControl: true, maxZoom: MAP_MAX_ZOOM })
     .setView(currentCity.center, currentCity.zoom);
 
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; OSM &copy; CARTO',
     subdomains: 'abcd',
-    maxZoom: 19,
+    maxZoom: MAP_MAX_ZOOM,
+    maxNativeZoom: 19,
   }).addTo(map);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
     subdomains: 'abcd',
-    maxZoom: 19,
+    maxZoom: MAP_MAX_ZOOM,
+    maxNativeZoom: 19,
     pane: 'shadowPane',
   }).addTo(map);
 
@@ -1156,6 +1227,8 @@
           attribution: '歷史圖資 © 中央研究院',
           tileSize: 256,
           opacity: opacities[activeId] ?? 0.7,
+          maxZoom: MAP_MAX_ZOOM,
+          maxNativeZoom: def.maxNativeZoom ?? 16,
         });
       }
       layerCache[activeId].addTo(map);
@@ -1174,34 +1247,50 @@
   }
 
   const layersContainer = document.getElementById('historical-layers');
-  HISTORICAL_MAPS.forEach((hm, i) => {
-    opacities[hm.id] = 0.7;
-    const row = document.createElement('div');
-    row.className = 'layer-row';
-    row.dataset.id = hm.id;
-    row.innerHTML = `
-      <div class="row-head">
-        <span class="row-n">${pad2(i + 1)}</span>
-        <span class="row-zh">${hm.label}</span>
-        <span class="row-year">${hm.year}</span>
-      </div>
-      <div class="row-en">${hm.en}</div>
-      <div class="opacity-slot">
-        <div class="opacity-slot-inner">
-          <input type="range" class="opa" min="0" max="1" step="0.01" value="0.7" />
-          <span class="opa-val">70 %</span>
-        </div>
-      </div>
+  let layerIndex = 0;
+  LAYER_GROUPS.forEach(group => {
+    const groupMaps = HISTORICAL_MAPS.filter(m => m.group === group.id);
+    if (!groupMaps.length) return;
+
+    const header = document.createElement('div');
+    header.className = 'layer-group-label';
+    header.innerHTML = `
+      <span class="lg-zh">${group.zh}</span>
+      <span class="lg-en">${group.en}</span>
     `;
-    row.addEventListener('click', e => {
-      if (e.target.closest('.opacity-slot')) return;
-      setActive(hm.id);
+    layersContainer.appendChild(header);
+
+    groupMaps.forEach(hm => {
+      layerIndex += 1;
+      opacities[hm.id] = 0.7;
+      const row = document.createElement('div');
+      row.className = 'layer-row';
+      row.dataset.id = hm.id;
+      const partialHint = hm.partial ? '<span class="row-tag" title="僅部分地區有覆蓋">partial</span>' : '';
+      row.innerHTML = `
+        <div class="row-head">
+          <span class="row-n">${pad2(layerIndex)}</span>
+          <span class="row-zh">${hm.label}${partialHint}</span>
+          <span class="row-year">${hm.year}</span>
+        </div>
+        <div class="row-en">${hm.en}</div>
+        <div class="opacity-slot">
+          <div class="opacity-slot-inner">
+            <input type="range" class="opa" min="0" max="1" step="0.01" value="0.7" />
+            <span class="opa-val">70 %</span>
+          </div>
+        </div>
+      `;
+      row.addEventListener('click', e => {
+        if (e.target.closest('.opacity-slot')) return;
+        setActive(hm.id);
+      });
+      row.querySelector('input[type=range]').addEventListener('input', e => {
+        e.stopPropagation();
+        setOpacity(hm.id, parseFloat(e.target.value));
+      });
+      layersContainer.appendChild(row);
     });
-    row.querySelector('input[type=range]').addEventListener('input', e => {
-      e.stopPropagation();
-      setOpacity(hm.id, parseFloat(e.target.value));
-    });
-    layersContainer.appendChild(row);
   });
 
   // ── Mobile bottom-sheet toggle ──────────────────
