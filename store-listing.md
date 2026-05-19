@@ -86,6 +86,8 @@ Walk the city with century-old maps. 19 layers, GPS tracking, photo memories.
 · 歷史圖磚：中央研究院 GIS 專題中心
 · 現代正射影像：內政部國土測繪中心
 · 現代街道底圖：CARTO / OpenStreetMap
+
+開發者：吳昀慶 Yunching Wu
 ```
 
 **English Version**（for international Play store visibility）:
@@ -129,6 +131,8 @@ All data (GPS traces, photos, preferences) stays on your device via IndexedDB an
 · Historical tiles: Academia Sinica GIS Center
 · Modern orthophoto: National Land Surveying & Mapping Center (NLSC, Taiwan)
 · Modern street basemap: CARTO / OpenStreetMap
+
+Built by Yunching Wu · 吳昀慶
 ```
 
 ---

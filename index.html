@@ -922,13 +922,16 @@
       padding-top: 10px;
     }
 
-    /* Peek state — only handle + a thin status line visible */
+    /* Peek state — only handle + a thin status line visible. We collapse the
+       panel tighter and hide panel-head content so the "舊地圖散策" title
+       isn't half-clipped under the sheet handle. */
     .panel.peek {
-      max-height: 96px;
+      max-height: 60px;
     }
     .panel.peek .panel-scroll {
       overflow: hidden;
       pointer-events: none;
+      visibility: hidden;
     }
 
     .sheet-handle {
@@ -1148,14 +1151,7 @@
     </div>
 
     <div class="section-label">
-      <span class="num">02 — Strata</span>
-      <span class="en">historical layers</span>
-    </div>
-
-    <div id="historical-layers"></div>
-
-    <div class="section-label">
-      <span class="num">03 — Position</span>
+      <span class="num">02 — Position</span>
       <span class="en">gps · trace</span>
     </div>
 
@@ -1218,6 +1214,13 @@
     </div>
 
     <div class="section-label">
+      <span class="num">03 — Strata</span>
+      <span class="en">historical layers</span>
+    </div>
+
+    <div id="historical-layers"></div>
+
+    <div class="section-label">
       <span class="num">04 — Traces</span>
       <span class="en">saved walks</span>
     </div>
@@ -1231,6 +1234,9 @@
       歷史圖資 · <a href="https://gis.sinica.edu.tw" target="_blank" rel="noopener">中央研究院 GIS</a><br>
       現代底圖 · <a href="https://carto.com/" target="_blank" rel="noopener">CARTO</a> ·
       <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>
+
+      <span class="mono">Built by</span>
+      <a href="https://github.com/yunching0513" target="_blank" rel="noopener">吳昀慶 · Yunching Wu</a>
     </footer>
   </div>
 </aside>
