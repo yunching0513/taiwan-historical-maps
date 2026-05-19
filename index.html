@@ -2108,8 +2108,23 @@
     ctx.font = '600 50px "Yuanti TC", "Hiragino Maru Gothic ProN", "PingFang TC", sans-serif';
     stats.forEach((s, i) => ctx.fillText(s[1], 80 + i * colW, sY + 60));
 
-    // Map area (rendered procedurally; no basemap tiles needed for offline use)
-    drawTraceOnCanvas(ctx, trace, photos, 80, 480, W - 160, 1000);
+    // Map area — fetch the actual base + active overlay tiles so the trace
+    // sits on the historical/satellite imagery the user was looking at.
+    const mapX = 80, mapY = 480, mapW = W - 160, mapH = 1000;
+    const bounds = computeTraceBounds(trace, 0.1);
+    let projectFn = null;
+    try {
+      projectFn = await renderMapTilesIntoArea(ctx, bounds, mapX, mapY, mapW, mapH);
+    } catch (err) {
+      console.warn('tile render failed, falling back to dark panel', err);
+    }
+    // Polyline + markers — uses the same projection if tiles loaded, otherwise
+    // falls back to the dark procedural rendering.
+    if (projectFn) {
+      drawTracePolyline(ctx, trace, photos, projectFn, mapX, mapY, mapW, mapH);
+    } else {
+      drawTraceOnCanvas(ctx, trace, photos, mapX, mapY, mapW, mapH);
+    }
 
     // Photo strip (up to 5 thumbs)
     if (photos.length) {
@@ -2242,6 +2257,236 @@
     if (ratio > target) { sh = img.height; sw = sh * target; sx = (img.width - sw) / 2; sy = 0; }
     else                { sw = img.width;  sh = sw / target; sx = 0; sy = (img.height - sh) / 2; }
     ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+  }
+
+  // ── Map-tile composite for share card ─────────────
+  function computeTraceBounds(trace, padFraction) {
+    const lats = trace.points.map(p => p.lat);
+    const lngs = trace.points.map(p => p.lng);
+    let minLat = Math.min(...lats), maxLat = Math.max(...lats);
+    let minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
+    const padLat = Math.max((maxLat - minLat) * padFraction, 0.0008);
+    const padLng = Math.max((maxLng - minLng) * padFraction, 0.0008);
+    minLat -= padLat; maxLat += padLat;
+    minLng -= padLng; maxLng += padLng;
+    return L.latLngBounds([minLat, minLng], [maxLat, maxLng]);
+  }
+
+  // Pick zoom level so the bounds fit within (areaW, areaH) pixels.
+  function pickZoomForBounds(bounds, areaW, areaH) {
+    for (let z = 18; z >= 6; z--) {
+      const nw = map.project(bounds.getNorthWest(), z);
+      const se = map.project(bounds.getSouthEast(), z);
+      const w = Math.abs(se.x - nw.x);
+      const h = Math.abs(se.y - nw.y);
+      if (w <= areaW && h <= areaH) return z;
+    }
+    return 10;
+  }
+
+  function buildTileUrl(template, x, y, z, subdomains) {
+    let url = template
+      .replace('{x}', x)
+      .replace('{y}', y)
+      .replace('{z}', z)
+      .replace('{r}', '');
+    if (subdomains) {
+      const s = subdomains[Math.abs(x + y) % subdomains.length];
+      url = url.replace('{s}', s);
+    }
+    return url;
+  }
+
+  async function fetchAndDrawTile(url, ctx, tx, ty) {
+    try {
+      const res = await fetch(url, { mode: 'cors', credentials: 'omit' });
+      if (!res.ok) return false;
+      const blob = await res.blob();
+      // Skip empty / placeholder tiles (< 500 bytes is server-side "no data")
+      if (blob.size < 500) return false;
+      const bmp = await createImageBitmap(blob);
+      ctx.drawImage(bmp, tx, ty, 256, 256);
+      if (bmp.close) bmp.close();
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  // Composite base + active historical overlay tiles into the share card's
+  // map area. Returns a projection function (lat,lng) → {x,y} on the canvas
+  // so the polyline can be drawn on top with exact alignment.
+  async function renderMapTilesIntoArea(ctx, bounds, dx, dy, dw, dh) {
+    const zoom = pickZoomForBounds(bounds, dw, dh);
+    const nw = map.project(bounds.getNorthWest(), zoom);
+    const se = map.project(bounds.getSouthEast(), zoom);
+    const tileNW = nw.divideBy(256).floor();
+    const tileSE = se.divideBy(256).floor();
+
+    const tileColumns = tileSE.x - tileNW.x + 1;
+    const tileRows = tileSE.y - tileNW.y + 1;
+
+    const work = document.createElement('canvas');
+    work.width = tileColumns * 256;
+    work.height = tileRows * 256;
+    const wctx = work.getContext('2d');
+
+    // Stack of layers to fetch: base bottom → historical overlay top
+    const stack = [];
+    const baseLayers = BASE_MAPS[currentBaseId] || BASE_MAPS.plain;
+    baseLayers.forEach(l => {
+      const o = l.opts || {};
+      stack.push({
+        url: l.url,
+        subdomains: o.subdomains,
+        maxNative: o.maxNativeZoom || 19,
+        opacity: o.opacity != null ? o.opacity : 1,
+      });
+    });
+    if (activeId) {
+      const layer = HISTORICAL_MAPS.find(m => m.id === activeId);
+      if (layer) {
+        stack.push({
+          url: layer.url,
+          maxNative: layer.maxNativeZoom || 16,
+          opacity: opacities[activeId] != null ? opacities[activeId] : 0.7,
+        });
+      }
+    }
+
+    for (const def of stack) {
+      // If the layer's native zoom is lower than our desired zoom, request at
+      // its max (Leaflet upscale-equivalent — accept blur for layers like
+      // CORONA at zoom 14).
+      const zReq = Math.min(zoom, def.maxNative);
+      const factor = Math.pow(2, zoom - zReq);
+
+      wctx.globalAlpha = def.opacity;
+      const tasks = [];
+      for (let x = tileNW.x; x <= tileSE.x; x++) {
+        for (let y = tileNW.y; y <= tileSE.y; y++) {
+          const reqX = Math.floor(x / factor);
+          const reqY = Math.floor(y / factor);
+          const url = buildTileUrl(def.url, reqX, reqY, zReq, def.subdomains);
+          // When upscaling, draw a 256/factor crop of the lower-zoom tile.
+          if (factor === 1) {
+            tasks.push(fetchAndDrawTile(url, wctx, (x - tileNW.x) * 256, (y - tileNW.y) * 256));
+          } else {
+            tasks.push(fetchAndDrawScaledTile(url, wctx, (x - tileNW.x) * 256, (y - tileNW.y) * 256, x, y, factor));
+          }
+        }
+      }
+      await Promise.all(tasks);
+    }
+    wctx.globalAlpha = 1;
+
+    // Copy the precise bounds rect from the work canvas into the share map area.
+    const srcX = nw.x - tileNW.x * 256;
+    const srcY = nw.y - tileNW.y * 256;
+    const srcW = se.x - nw.x;
+    const srcH = se.y - nw.y;
+    // Letterbox / pillarbox if aspect ratios differ. We chose zoom to fit
+    // inside dw×dh, so srcW/srcH ≤ dw/dh; centre the rendered area.
+    const renderScale = Math.min(dw / srcW, dh / srcH);
+    const renderW = srcW * renderScale;
+    const renderH = srcH * renderScale;
+    const renderX = dx + (dw - renderW) / 2;
+    const renderY = dy + (dh - renderH) / 2;
+    ctx.drawImage(work, srcX, srcY, srcW, srcH, renderX, renderY, renderW, renderH);
+
+    // Soft border around the rendered map block
+    ctx.strokeStyle = 'rgba(187, 184, 174, 0.25)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(renderX, renderY, renderW, renderH);
+
+    // Return projection (lat,lng) → canvas pixel for the polyline overlay.
+    return function project(lat, lng) {
+      const p = map.project([lat, lng], zoom);
+      return {
+        x: renderX + (p.x - nw.x) * renderScale,
+        y: renderY + (p.y - nw.y) * renderScale,
+      };
+    };
+  }
+
+  async function fetchAndDrawScaledTile(url, ctx, dstX, dstY, x, y, factor) {
+    try {
+      const res = await fetch(url, { mode: 'cors', credentials: 'omit' });
+      if (!res.ok) return false;
+      const blob = await res.blob();
+      if (blob.size < 500) return false;
+      const bmp = await createImageBitmap(blob);
+      const cropSize = 256 / factor;
+      const cropX = (x % factor) * cropSize;
+      const cropY = (y % factor) * cropSize;
+      ctx.drawImage(bmp, cropX, cropY, cropSize, cropSize, dstX, dstY, 256, 256);
+      if (bmp.close) bmp.close();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function drawTracePolyline(ctx, trace, photos, project, mapX, mapY, mapW, mapH) {
+    if (!trace.points.length) return;
+    const pts = trace.points;
+
+    ctx.save();
+    // Clip to map area so the polyline never spills out
+    ctx.beginPath();
+    ctx.rect(mapX, mapY, mapW, mapH);
+    ctx.clip();
+
+    // Glow under the polyline for legibility on busy maps
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+    ctx.lineWidth = 10;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    pts.forEach((p, i) => {
+      const q = project(p.lat, p.lng);
+      if (i === 0) ctx.moveTo(q.x, q.y);
+      else ctx.lineTo(q.x, q.y);
+    });
+    ctx.stroke();
+
+    // Vermilion polyline on top
+    ctx.strokeStyle = '#C15F3C';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    pts.forEach((p, i) => {
+      const q = project(p.lat, p.lng);
+      if (i === 0) ctx.moveTo(q.x, q.y);
+      else ctx.lineTo(q.x, q.y);
+    });
+    ctx.stroke();
+
+    // Start point
+    const start = project(pts[0].lat, pts[0].lng);
+    ctx.fillStyle = '#C15F3C';
+    ctx.beginPath(); ctx.arc(start.x, start.y, 12, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#F1EFE9';
+    ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(start.x, start.y, 12, 0, Math.PI * 2); ctx.stroke();
+
+    // End point
+    const end = project(pts[pts.length - 1].lat, pts[pts.length - 1].lng);
+    ctx.fillStyle = '#F1EFE9';
+    ctx.beginPath(); ctx.arc(end.x, end.y, 12, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#C15F3C';
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.arc(end.x, end.y, 12, 0, Math.PI * 2); ctx.stroke();
+
+    // Photo markers
+    photos.forEach(p => {
+      const q = project(p.lat, p.lng);
+      ctx.fillStyle = '#F1EFE9';
+      ctx.beginPath(); ctx.arc(q.x, q.y, 9, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#C15F3C';
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(q.x, q.y, 9, 0, Math.PI * 2); ctx.stroke();
+    });
+    ctx.restore();
   }
 
   // Clean up photo markers when a trace's polyline is removed from map.
