@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#F1EFE9" />
+<title>隱私權政策 · Privacy · 台灣舊地圖散策</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:    #F1EFE9;
+    --paper-2:  #EAE8E2;
+    --mist:     #D6D3CB;
+    --stone:    #BBB8AE;
+    --silver:   #A6A399;
+    --ash:      #807C73;
+    --graphite: #565347;
+    --ink:      #1F1D19;
+    --indigo:   #C15F3C;
+    --indigo-d: #9E4B2E;
+    --indigo-l: rgba(193, 95, 60, 0.08);
+    --zh-serif: 'Noto Serif TC', 'Songti TC', 'PingFang TC', serif;
+    --zh-sans:  'Noto Sans TC', system-ui, sans-serif;
+    --en-serif: 'EB Garamond', Georgia, serif;
+    --mono:     'JetBrains Mono', 'Courier New', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--zh-sans);
+    background: var(--paper);
+    color: var(--ink);
+    font-weight: 300;
+    line-height: 1.95;
+    letter-spacing: 0.02em;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 64px 32px 96px; }
+  header { padding-bottom: 32px; border-bottom: 1px solid var(--ink); margin-bottom: 32px; position: relative; }
+  header::after {
+    content: '';
+    position: absolute; bottom: -1px; left: 0;
+    width: 48px; height: 3px; background: var(--indigo);
+  }
+  .head-en {
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--indigo);
+    margin-bottom: 6px;
+    letter-spacing: 0.02em;
+  }
+  h1 {
+    font-family: var(--zh-serif);
+    font-size: 36px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+  .meta {
+    margin-top: 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--ash);
+    text-transform: uppercase;
+  }
+  section { margin-bottom: 40px; }
+  .sec-label {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin: 36px 0 14px;
+  }
+  .sec-label .num {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--indigo);
+    text-transform: uppercase;
+  }
+  .sec-label .en {
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ash);
+    margin-left: auto;
+  }
+  h2 {
+    font-family: var(--zh-serif);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  p {
+    font-size: 15px;
+    color: var(--graphite);
+    margin-bottom: 14px;
+  }
+  p strong { font-weight: 600; color: var(--ink); }
+  p em {
+    font-family: var(--en-serif);
+    font-style: italic;
+    color: var(--indigo);
+    font-weight: 500;
+  }
+  ul {
+    list-style: none;
+    margin-bottom: 16px;
+  }
+  li {
+    position: relative;
+    padding-left: 22px;
+    font-size: 14px;
+    color: var(--graphite);
+    line-height: 1.95;
+  }
+  li::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 12px;
+    width: 10px; height: 1px;
+    background: var(--indigo);
+  }
+  li strong { color: var(--ink); font-weight: 600; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 18px;
+    font-size: 14px;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px dotted var(--silver);
+    vertical-align: top;
+  }
+  th {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ash);
+    font-weight: 500;
+    border-bottom: 1px solid var(--ink);
+  }
+  td .what {
+    font-family: var(--zh-serif);
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  td .why { font-size: 13px; color: var(--graphite); }
+  .en-block {
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-left: 2px solid var(--mist);
+    background: var(--paper-2);
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--graphite);
+    line-height: 1.85;
+  }
+  .en-block em { font-style: normal; color: var(--indigo); }
+  a { color: var(--indigo); text-decoration: none; border-bottom: 1px solid var(--indigo-l); }
+  a:hover { border-bottom-color: var(--indigo); }
+  footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--stone);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ash);
+    letter-spacing: 0.1em;
+    line-height: 1.9;
+  }
+  footer a { color: var(--graphite); border-bottom-color: var(--mist); }
+  @media (max-width: 600px) {
+    .wrap { padding: 40px 22px 64px; }
+    h1 { font-size: 28px; }
+    table { font-size: 13px; }
+    th, td { padding: 8px 6px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="head-en">Privacy Policy · Taiwan Old-Map Stroll</div>
+    <h1>隱私權政策</h1>
+    <div class="meta">last updated · 2026-05-19</div>
+  </header>
+
+  <section>
+    <div class="sec-label">
+      <span class="num">00 — Summary</span>
+      <span class="en">tl;dr</span>
+    </div>
+    <p>「台灣舊地圖散策」是一個 <strong>純前端</strong>、<strong>無後端</strong>的個人專案。所有資料都儲存在你的裝置本機（瀏覽器 IndexedDB 與 localStorage），<strong>不會傳送到任何伺服器</strong>。沒有帳號、沒有追蹤、沒有廣告、沒有第三方分析。</p>
+    <div class="en-block">
+      Taiwan Old-Map Stroll is a <em>fully client-side</em> personal project with no backend. All data (GPS traces, photos, preferences) is stored exclusively on your device via IndexedDB and localStorage. <em>Nothing is uploaded</em> to any server we operate. No accounts, no tracking, no ads, no third-party analytics.
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">
+      <span class="num">01 — Data collected</span>
+      <span class="en">what & why</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 32%">資料</th>
+          <th style="width: 32%">用途</th>
+          <th>儲存位置</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="what">GPS 位置</div>
+            <div class="why">只在你按「定位」後才取用，停止時立即終止監聽。</div>
+          </td>
+          <td><div class="why">在地圖上顯示你的位置；若同時記錄路線，作為軌跡點。</div></td>
+          <td><div class="why">localStorage（鍵 <code>taiwanOldMaps.traces</code>）</div></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="what">相機拍攝的照片</div>
+            <div class="why">只在你主動按「拍照記錄此刻」並透過系統相機介面拍攝才會存。</div>
+          </td>
+          <td><div class="why">附在當下路線的特定 GPS 座標旁，標記在地圖上。</div></td>
+          <td><div class="why">IndexedDB（資料庫 <code>taiwanOldMaps</code>，物件儲存區 <code>photos</code>）</div></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="what">使用偏好</div>
+            <div class="why">目前選擇的城市、底圖、啟用的歷史圖層。</div>
+          </td>
+          <td><div class="why">下次開啟時還原狀態。</div></td>
+          <td><div class="why">URL query string + localStorage</div></td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>不收集</strong>：帳號、電話、Email、聯絡人、裝置 ID、IMEI、廣告 ID、瀏覽歷史、其他 App 的使用情形。</p>
+  </section>
+
+  <section>
+    <div class="sec-label">
+      <span class="num">02 — Permissions</span>
+      <span class="en">why we ask</span>
+    </div>
+    <ul>
+      <li><strong>位置（Location）</strong>：只在你按「定位」時請求一次。權限可隨時在系統設定中關閉，App 仍可正常瀏覽歷史地圖。</li>
+      <li><strong>相機（Camera）</strong>：只在你按「拍照記錄」時叫起系統相機介面。本 App 不會在背景或自動觸發相機。</li>
+      <li><strong>儲存（Storage）</strong>：用於 IndexedDB 儲存照片二進位資料。配額由瀏覽器管理。</li>
+    </ul>
+    <p>iOS / Android 上「加入主畫面」的 PWA 版本受系統權限框架管理，與 Web 瀏覽器版本相同。</p>
+  </section>
+
+  <section>
+    <div class="sec-label">
+      <span class="num">03 — Third-party servers</span>
+      <span class="en">tile services</span>
+    </div>
+    <p>App 顯示地圖時會直接從以下圖磚伺服器抓取磚塊（tile），這些請求<strong>來自你的瀏覽器</strong>而非我們。對方伺服器可能依其政策記錄存取 IP 等資訊：</p>
+    <ul>
+      <li><strong>中央研究院 GIS 專題中心</strong> — 歷史圖磚 19 張．<a href="https://gis.sinica.edu.tw" target="_blank" rel="noopener">gis.sinica.edu.tw</a></li>
+      <li><strong>國土測繪中心 NLSC</strong> — 通用正射影像、電子地圖．<a href="https://maps.nlsc.gov.tw/" target="_blank" rel="noopener">maps.nlsc.gov.tw</a></li>
+      <li><strong>CARTO Positron</strong> — 簡圖底圖．<a href="https://carto.com/legal/privacy/" target="_blank" rel="noopener">carto.com/legal/privacy</a></li>
+      <li><strong>OpenStreetMap</strong> — 地名標籤資料．<a href="https://wiki.osmfoundation.org/wiki/Privacy_Policy" target="_blank" rel="noopener">osmfoundation.org/wiki/Privacy_Policy</a></li>
+      <li><strong>Google Fonts</strong>（unpkg、Google Fonts CDN）— 載入字型．<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a></li>
+    </ul>
+    <p>我們不會把你的任何個人資料傳給這些服務。你存取地圖時，這些第三方服務最多可看到一般 HTTP 請求中的 IP、User-Agent、Referer。</p>
+  </section>
+
+  <section>
+    <div class="sec-label">
+      <span class="num">04 — Your rights</span>
+      <span class="en">control & deletion</span>
+    </div>
+    <ul>
+      <li><strong>查看／匯出</strong>：每一條路線可在「03 — Traces」清單中按「GeoJSON」下載；分享卡片含照片亦可下載 PNG。</li>
+      <li><strong>刪除單一路線</strong>：清單中按「刪除」即移除該路線與其所有照片。</li>
+      <li><strong>清空全部</strong>：瀏覽器設定 → 清除網站資料；或 PWA 主畫面長按 → 移除 App；或開 console 執行 <code>localStorage.clear(); indexedDB.deleteDatabase('taiwanOldMaps')</code></li>
+    </ul>
+    <p>由於資料完全在你的裝置，我們無法代你存取、修改或刪除。</p>
+  </section>
+
+  <section>
+    <div class="sec-label">
+      <span class="num">05 — Children</span>
+      <span class="en">age</span>
+    </div>
+    <p>本 App 內容適合所有年齡。GPS 與相機等功能由你主動觸發，未蒐集任何個人識別資料，<strong>13 歲以下兒童可在家長監督下使用</strong>。我們不會明知地收集任何 13 歲以下兒童的個人資料；若你認為有此情形請與我們聯絡。</p>
+  </section>
+
+  <section>
+    <div class="sec-label">
+      <span class="num">06 — Changes</span>
+      <span class="en">updates</span>
+    </div>
+    <p>本政策若有變更會直接修改本頁面並更新頂端「last updated」日期。重大變更（例如將來新增任何後端服務或第三方分析）會在 App 介面以顯著方式通知。</p>
+  </section>
+
+  <section>
+    <div class="sec-label">
+      <span class="num">07 — Contact</span>
+      <span class="en">get in touch</span>
+    </div>
+    <p>有任何隱私權相關問題，可透過：</p>
+    <ul>
+      <li><strong>GitHub Issue</strong>．<a href="https://github.com/yunching0513/taiwan-historical-maps/issues" target="_blank" rel="noopener">github.com/yunching0513/taiwan-historical-maps/issues</a></li>
+      <li><strong>Email</strong>．jtl0513 [at] gmail.com</li>
+    </ul>
+  </section>
+
+  <footer>
+    <a href="./">← 回到 App</a> · TAIWAN · OLD-MAP STROLL · yunching0513.github.io/taiwan-historical-maps
+  </footer>
+</div>
+</body>
+</html>

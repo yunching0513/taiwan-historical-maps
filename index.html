@@ -2291,6 +2291,34 @@
     });
   }
 
+  // ── Deep-link query params ───────────────────────
+  // Read additional state from the URL so links can pre-load a layer / base /
+  // picker state. Useful for sharing specific scenes and for store-listing
+  // screenshots.
+  //
+  //   ?city=tainan&layer=jm20k_1904   → city + layer
+  //   ?base=satellite                  → satellite base map
+  //   ?picker=open                     → open the city picker
+  //   ?opacity=0.5                     → set opacity of the active layer
+  (function applyDeepLink() {
+    const baseId = params.get('base');
+    if (baseId && BASE_MAPS[baseId]) setBaseMap(baseId);
+
+    const layerId = params.get('layer');
+    if (layerId && HISTORICAL_MAPS.find(m => m.id === layerId)) {
+      setActive(layerId);
+      const opa = parseFloat(params.get('opacity'));
+      if (!isNaN(opa) && opa >= 0 && opa <= 1) setOpacity(layerId, opa);
+    }
+
+    if (params.get('picker') === 'open' || params.get('picker') === '1') {
+      const cur = document.getElementById('city-current');
+      cur.classList.add('open');
+      document.getElementById('city-list').classList.add('open');
+      cur.setAttribute('aria-expanded', 'true');
+    }
+  })();
+
   // ── Init ─────────────────────────────────────────
   updateCityUI();
 </script>
