@@ -555,7 +555,7 @@
   }
   .rec-status .stats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 8px;
     margin-top: 6px;
   }
@@ -666,6 +666,110 @@
     color: var(--silver);
     margin-top: 2px;
   }
+
+  /* ── Camera button inside recording card ───────── */
+  .btn-camera {
+    width: 100%;
+    margin-top: 10px;
+    background: var(--indigo);
+    color: var(--paper);
+    border-color: var(--indigo);
+    justify-content: center;
+  }
+  .btn-camera:hover:not(:disabled) {
+    background: var(--indigo-d);
+    color: var(--paper);
+    border-color: var(--indigo-d);
+  }
+  .btn-camera .dot { background: var(--paper); }
+
+  /* ── Photo marker on map ─────────────────────────── */
+  .photo-marker-icon { background: transparent; border: none; }
+  .photo-marker {
+    width: 14px;
+    height: 14px;
+    background: var(--paper);
+    border: 2px solid var(--indigo);
+    box-shadow: 0 2px 6px rgba(31, 29, 25, 0.35);
+    cursor: pointer;
+    position: relative;
+  }
+  .photo-marker::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    background: var(--indigo);
+  }
+
+  /* ── Photo lightbox ─────────────────────────────── */
+  .photo-lightbox[hidden] { display: none; }
+  .photo-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .lb-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(14, 13, 11, 0.85);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .lb-card {
+    position: relative;
+    background: var(--paper-2);
+    border: 1px solid var(--stone);
+    padding: 16px;
+    max-width: 92vw;
+    max-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 24px 60px -16px rgba(0,0,0,0.6);
+  }
+  .lb-image {
+    display: block;
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    background: #000;
+  }
+  .lb-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--graphite);
+    line-height: 1.85;
+    letter-spacing: 0.05em;
+  }
+  .lb-date { color: var(--ash); }
+  .lb-coords { color: var(--ink); }
+  .lb-layer {
+    font-family: var(--zh-serif);
+    font-size: 13px;
+    color: var(--indigo);
+    letter-spacing: 0.06em;
+    margin-top: 2px;
+  }
+  .lb-layer:empty { display: none; }
+  .lb-close {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--paper);
+    border: 1px solid var(--stone);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+  }
+  .lb-close:hover { background: var(--indigo); }
 
   /* ── User location marker on map ─────────────────── */
   .user-marker-icon { background: transparent; border: none; }
@@ -1087,6 +1191,29 @@
           <div class="stat-label">Pts</div>
           <div class="stat-val" id="rec-points">0</div>
         </div>
+        <div>
+          <div class="stat-label">Photos</div>
+          <div class="stat-val" id="rec-photos">0</div>
+        </div>
+      </div>
+      <button type="button" class="btn btn-camera" id="btn-camera">
+        <span class="dot"></span>
+        <span class="btn-label">拍照記錄此刻</span>
+      </button>
+      <input type="file" id="photo-file" accept="image/*" capture="environment" hidden />
+    </div>
+
+    <!-- Photo lightbox -->
+    <div class="photo-lightbox" id="photo-lightbox" hidden>
+      <div class="lb-backdrop" id="lb-backdrop"></div>
+      <div class="lb-card">
+        <img class="lb-image" id="lb-image" alt="" />
+        <div class="lb-meta">
+          <div class="lb-date" id="lb-date">—</div>
+          <div class="lb-coords" id="lb-coords">—</div>
+          <div class="lb-layer" id="lb-layer"></div>
+        </div>
+        <button type="button" class="lb-close" id="lb-close" aria-label="關閉">✕</button>
       </div>
     </div>
 
@@ -1668,9 +1795,10 @@
           <div class="trace-info">
             <div class="trace-date">${t.name}</div>
             <div class="trace-name">${t.city || '路線'}</div>
-            <div class="trace-meta">${fmtDist(t.distance)} · ${fmtDur(dur)} · ${t.points.length} pts</div>
+            <div class="trace-meta">${fmtDist(t.distance)} · ${fmtDur(dur)} · ${t.points.length} pts${t.photoCount ? ' · ' + t.photoCount + ' 📷' : ''}</div>
           </div>
           <div class="trace-actions">
+            <button data-act="share" data-id="${t.id}">分享</button>
             <button data-act="export" data-id="${t.id}">GeoJSON</button>
             <button data-act="delete" data-id="${t.id}" class="danger">刪除</button>
           </div>
@@ -1756,6 +1884,7 @@
       const id = actBtn.dataset.id;
       if (actBtn.dataset.act === 'export') exportTrace(id);
       else if (actBtn.dataset.act === 'delete') deleteTrace(id);
+      else if (actBtn.dataset.act === 'share') shareTrace(id);
       return;
     }
     const row = e.target.closest('.trace-row');
@@ -1772,6 +1901,386 @@
 
   renderTraceList();
   updateButtons();
+
+  // ── Photo capture (IndexedDB) ────────────────────
+  const photoMarkers = new Map();           // id → L.marker on map
+
+  const PHOTO_DB = 'taiwanOldMaps';
+  const PHOTO_DB_VER = 1;
+  const PHOTO_STORE = 'photos';
+
+  function openPhotoDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(PHOTO_DB, PHOTO_DB_VER);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(PHOTO_STORE)) {
+          const store = db.createObjectStore(PHOTO_STORE, { keyPath: 'id' });
+          store.createIndex('by_traceId', 'traceId', { unique: false });
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function savePhoto(photo) {
+    const db = await openPhotoDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(PHOTO_STORE, 'readwrite');
+      tx.objectStore(PHOTO_STORE).put(photo);
+      tx.oncomplete = () => resolve(photo.id);
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async function getPhotosByTrace(traceId) {
+    const db = await openPhotoDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(PHOTO_STORE, 'readonly');
+      const idx = tx.objectStore(PHOTO_STORE).index('by_traceId');
+      const req = idx.getAll(IDBKeyRange.only(traceId));
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function deletePhotosByTrace(traceId) {
+    const db = await openPhotoDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(PHOTO_STORE, 'readwrite');
+      const idx = tx.objectStore(PHOTO_STORE).index('by_traceId');
+      const req = idx.openCursor(IDBKeyRange.only(traceId));
+      req.onsuccess = () => {
+        const cursor = req.result;
+        if (cursor) { cursor.delete(); cursor.continue(); }
+      };
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  function makePhotoMarker(photo) {
+    const icon = L.divIcon({
+      className: 'photo-marker-icon',
+      html: '<div class="photo-marker"></div>',
+      iconSize: [14, 14],
+      iconAnchor: [7, 7],
+    });
+    const m = L.marker([photo.lat, photo.lng], { icon, keyboard: false });
+    m.on('click', () => openLightbox(photo));
+    return m;
+  }
+
+  function lookupLayerLabel(layerId) {
+    if (!layerId) return '';
+    const m = HISTORICAL_MAPS.find(x => x.id === layerId);
+    return m ? `${m.year} · ${m.label}` : '';
+  }
+
+  // ── Lightbox ─────────────────────────────────────
+  const lightbox = document.getElementById('photo-lightbox');
+  const lbImage = document.getElementById('lb-image');
+  let lbObjectUrl = null;
+
+  function openLightbox(photo) {
+    if (lbObjectUrl) URL.revokeObjectURL(lbObjectUrl);
+    lbObjectUrl = URL.createObjectURL(photo.blob);
+    lbImage.src = lbObjectUrl;
+    document.getElementById('lb-date').textContent =
+      new Date(photo.timestamp).toLocaleString('zh-TW');
+    document.getElementById('lb-coords').textContent =
+      `N ${photo.lat.toFixed(5)} · E ${photo.lng.toFixed(5)}`;
+    document.getElementById('lb-layer').textContent =
+      lookupLayerLabel(photo.activeLayerId);
+    lightbox.hidden = false;
+  }
+  function closeLightbox() {
+    lightbox.hidden = true;
+    lbImage.src = '';
+    if (lbObjectUrl) { URL.revokeObjectURL(lbObjectUrl); lbObjectUrl = null; }
+  }
+  document.getElementById('lb-close').addEventListener('click', closeLightbox);
+  document.getElementById('lb-backdrop').addEventListener('click', closeLightbox);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !lightbox.hidden) closeLightbox(); });
+
+  // ── Capture button ───────────────────────────────
+  const cameraBtn = document.getElementById('btn-camera');
+  const fileInput = document.getElementById('photo-file');
+
+  cameraBtn.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', async e => {
+    const file = e.target.files && e.target.files[0];
+    fileInput.value = '';
+    if (!file) return;
+    if (!isRecording || !currentTrace) {
+      alert('需要先開始記錄路線才能拍照');
+      return;
+    }
+    const last = currentTrace.points[currentTrace.points.length - 1];
+    if (!last) {
+      alert('還沒收到 GPS 位置，請稍候');
+      return;
+    }
+    const photo = {
+      id: 'ph-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+      traceId: currentTrace.id,
+      lat: last.lat,
+      lng: last.lng,
+      timestamp: Date.now(),
+      activeLayerId: activeId,
+      blob: file,
+    };
+    try {
+      await savePhoto(photo);
+      const marker = makePhotoMarker(photo).addTo(map);
+      photoMarkers.set(photo.id, marker);
+      currentTrace.photoCount = (currentTrace.photoCount || 0) + 1;
+      document.getElementById('rec-photos').textContent = String(currentTrace.photoCount);
+    } catch (err) {
+      console.error('photo save failed', err);
+      alert('儲存失敗：' + (err.message || err));
+    }
+  });
+
+  // ── Hook into trace lifecycle ────────────────────
+  const _origStartRecording = startRecording;
+  startRecording = function () {
+    _origStartRecording();
+    if (currentTrace) currentTrace.photoCount = 0;
+    document.getElementById('rec-photos').textContent = '0';
+  };
+
+  const _origStopRecording = stopRecording;
+  stopRecording = function () {
+    // photoCount is already set on currentTrace before we save it
+    _origStopRecording();
+  };
+
+  // ── Share card generator ─────────────────────────
+  async function shareTrace(id) {
+    const trace = savedTraces.find(t => t.id === id);
+    if (!trace) return;
+    let photos = [];
+    try { photos = await getPhotosByTrace(id); } catch {}
+
+    const W = 1080, H = 1920;
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    // Dark ground
+    ctx.fillStyle = '#1A1A1A';
+    ctx.fillRect(0, 0, W, H);
+
+    // Header
+    ctx.fillStyle = '#C15F3C';
+    ctx.font = 'italic 30px Georgia, "EB Garamond", serif';
+    ctx.fillText('Taiwan · Old-Map Stroll', 80, 130);
+
+    ctx.fillStyle = '#F1EFE9';
+    ctx.font = '600 92px "Yuanti TC", "Hiragino Maru Gothic ProN", "PingFang TC", sans-serif';
+    ctx.fillText('舊地圖散策', 80, 230);
+
+    ctx.font = '22px "JetBrains Mono", "Courier New", monospace';
+    ctx.fillStyle = '#A6A399';
+    const dateStr = new Date(trace.startTime).toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    ctx.fillText(`${dateStr} · ${trace.city || ''}`, 80, 280);
+
+    ctx.fillStyle = '#C15F3C';
+    ctx.fillRect(80, 305, 64, 4);
+
+    // Stats (4 columns)
+    const stats = [
+      ['DIST',   fmtDist(trace.distance || 0)],
+      ['TIME',   fmtDur((trace.endTime || Date.now()) - trace.startTime)],
+      ['POINTS', String(trace.points.length)],
+      ['PHOTOS', String(photos.length)],
+    ];
+    const sY = 380;
+    const colW = (W - 160) / 4;
+    ctx.fillStyle = '#807C73';
+    ctx.font = '500 20px "JetBrains Mono", monospace';
+    stats.forEach((s, i) => ctx.fillText(s[0], 80 + i * colW, sY));
+    ctx.fillStyle = '#F1EFE9';
+    ctx.font = '600 50px "Yuanti TC", "Hiragino Maru Gothic ProN", "PingFang TC", sans-serif';
+    stats.forEach((s, i) => ctx.fillText(s[1], 80 + i * colW, sY + 60));
+
+    // Map area (rendered procedurally; no basemap tiles needed for offline use)
+    drawTraceOnCanvas(ctx, trace, photos, 80, 480, W - 160, 1000);
+
+    // Photo strip (up to 5 thumbs)
+    if (photos.length) {
+      const showPhotos = photos.slice(0, 5);
+      const tY = 1530, tH = 220, gap = 16;
+      const tW = (W - 160 - gap * (showPhotos.length - 1)) / showPhotos.length;
+      for (let i = 0; i < showPhotos.length; i++) {
+        try {
+          const img = await loadImageFromBlob(showPhotos[i].blob);
+          drawImageCover(ctx, img, 80 + i * (tW + gap), tY, tW, tH);
+        } catch {}
+      }
+    }
+
+    // Footer marginalia
+    ctx.fillStyle = '#807C73';
+    ctx.font = '16px "JetBrains Mono", monospace';
+    ctx.fillText('TAIWAN · OLD-MAP STROLL', 80, H - 60);
+    ctx.textAlign = 'right';
+    ctx.fillText('yunching0513.github.io/taiwan-historical-maps', W - 80, H - 60);
+    ctx.textAlign = 'left';
+
+    canvas.toBlob(async blob => {
+      if (!blob) { alert('產生圖檔失敗'); return; }
+      const filename = `stroll-${new Date(trace.startTime).toISOString().slice(0,10)}.png`;
+      const file = new File([blob], filename, { type: 'image/png' });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: '舊地圖散策',
+            text: `${trace.city || ''} · ${fmtDist(trace.distance || 0)} · ${photos.length} 張照片`,
+          });
+          return;
+        } catch (err) {
+          if (err.name !== 'AbortError') console.warn('share failed', err);
+        }
+      }
+      // Fallback: download
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }, 'image/png');
+  }
+
+  function drawTraceOnCanvas(ctx, trace, photos, x, y, w, h) {
+    if (!trace.points.length) return;
+    const pts = trace.points;
+    const lats = pts.map(p => p.lat);
+    const lngs = pts.map(p => p.lng);
+    const minLat = Math.min(...lats), maxLat = Math.max(...lats);
+    const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
+    const cosLat = Math.cos(((minLat + maxLat) / 2) * Math.PI / 180);
+    const pad = 60;
+    const innerW = w - pad * 2;
+    const innerH = h - pad * 2;
+    const latRange = Math.max(maxLat - minLat, 0.0008);
+    const lngRange = Math.max(maxLng - minLng, 0.0008);
+    const scale = Math.min(innerH / latRange, innerW / (lngRange / cosLat));
+    const cLat = (minLat + maxLat) / 2;
+    const cLng = (minLng + maxLng) / 2;
+    const cx = x + w / 2;
+    const cy = y + h / 2;
+    const project = (lat, lng) => ({
+      x: cx + ((lng - cLng) / cosLat) * scale,
+      y: cy - (lat - cLat) * scale,
+    });
+
+    // Soft border for the map panel
+    ctx.strokeStyle = 'rgba(187, 184, 174, 0.18)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x, y, w, h);
+
+    // Polyline
+    ctx.strokeStyle = '#C15F3C';
+    ctx.lineWidth = 6;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    pts.forEach((p, i) => {
+      const q = project(p.lat, p.lng);
+      if (i === 0) ctx.moveTo(q.x, q.y);
+      else ctx.lineTo(q.x, q.y);
+    });
+    ctx.stroke();
+
+    // Start (solid vermilion) and end (paper inner with vermilion ring)
+    const start = project(pts[0].lat, pts[0].lng);
+    ctx.fillStyle = '#C15F3C';
+    ctx.beginPath(); ctx.arc(start.x, start.y, 12, 0, Math.PI * 2); ctx.fill();
+
+    const end = project(pts[pts.length - 1].lat, pts[pts.length - 1].lng);
+    ctx.fillStyle = '#F1EFE9';
+    ctx.beginPath(); ctx.arc(end.x, end.y, 12, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#C15F3C';
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.arc(end.x, end.y, 12, 0, Math.PI * 2); ctx.stroke();
+
+    // Photo markers
+    photos.forEach(p => {
+      const q = project(p.lat, p.lng);
+      ctx.fillStyle = '#F1EFE9';
+      ctx.beginPath(); ctx.arc(q.x, q.y, 8, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#C15F3C';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(q.x, q.y, 8, 0, Math.PI * 2); ctx.stroke();
+    });
+  }
+
+  function loadImageFromBlob(blob) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(blob);
+      img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('image load failed')); };
+      img.src = url;
+    });
+  }
+
+  function drawImageCover(ctx, img, x, y, w, h) {
+    const ratio = img.width / img.height;
+    const target = w / h;
+    let sw, sh, sx, sy;
+    if (ratio > target) { sh = img.height; sw = sh * target; sx = (img.width - sw) / 2; sy = 0; }
+    else                { sw = img.width;  sh = sw / target; sx = 0; sy = (img.height - sh) / 2; }
+    ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+  }
+
+  // Clean up photo markers when a trace's polyline is removed from map.
+  const _origShowTraceOnMap = showTraceOnMap;
+  showTraceOnMap = async function (id) {
+    // First, clear any existing photo markers
+    photoMarkers.forEach(m => map.removeLayer(m));
+    photoMarkers.clear();
+    _origShowTraceOnMap(id);
+    // After showTraceOnMap toggles, if a trace is now shown, load its photos
+    if (shownTraceId) {
+      try {
+        const photos = await getPhotosByTrace(shownTraceId);
+        photos.forEach(p => {
+          const marker = makePhotoMarker(p).addTo(map);
+          photoMarkers.set(p.id, marker);
+        });
+      } catch (err) {
+        console.warn('load photos failed', err);
+      }
+    }
+  };
+
+  const _origDeleteTrace = deleteTrace;
+  deleteTrace = async function (id) {
+    // intercept confirm flow: only delete photos if the original confirmed
+    const oldCount = savedTraces.length;
+    _origDeleteTrace(id);
+    if (savedTraces.length < oldCount) {
+      try { await deletePhotosByTrace(id); } catch (err) { console.warn('delete photos failed', err); }
+      // Clean photo markers if they belonged to this trace
+      photoMarkers.forEach((m, photoId) => {
+        if (photoId.startsWith('ph-')) {
+          map.removeLayer(m);
+          photoMarkers.delete(photoId);
+        }
+      });
+    }
+  };
 
   // ── Service worker (PWA) ─────────────────────────
   if ('serviceWorker' in navigator) {
