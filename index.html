@@ -658,6 +658,351 @@
     padding: 18px 0 6px;
     letter-spacing: 0.06em;
   }
+
+  /* ── Swipe-compare divider (#2) ───────────────────── */
+  .compare-divider[hidden] { display: none; }
+  .compare-divider {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    z-index: 999;
+    background: var(--indigo);
+    box-shadow: 0 0 0 1px rgba(193, 95, 60, 0.4),
+                0 0 14px 2px rgba(193, 95, 60, 0.3);
+    cursor: ew-resize;
+    pointer-events: auto;
+    touch-action: none;
+  }
+  .compare-handle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 2px solid var(--indigo);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--indigo);
+    font-family: var(--en-serif);
+    font-size: 20px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(31, 29, 25, 0.3);
+    user-select: none;
+  }
+  .compare-side-label {
+    position: absolute;
+    top: 14px;
+    z-index: 998;
+    background: rgba(31, 29, 25, 0.78);
+    color: var(--paper);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    padding: 5px 10px;
+    pointer-events: none;
+    display: none;
+  }
+  .compare-active .compare-side-label { display: block; }
+  .compare-side-label.left  { left: 14px; }
+  .compare-side-label.right { right: 14px; }
+
+  /* ── Strata header actions (compare / four-era) ──── */
+  .strata-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+    margin-bottom: 10px;
+  }
+  .strata-act {
+    flex: 1;
+    padding: 8px 10px;
+    background: var(--paper);
+    border: 1px solid var(--stone);
+    font-family: var(--zh-serif);
+    font-size: 13px;
+    color: var(--graphite);
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .strata-act:hover:not(:disabled) { border-color: var(--indigo); color: var(--indigo); }
+  .strata-act.active {
+    border-color: var(--indigo);
+    background: var(--indigo);
+    color: var(--paper);
+  }
+  .strata-act .en {
+    display: block;
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 10px;
+    margin-top: 1px;
+    opacity: 0.7;
+  }
+
+  /* ── Four-era collage modal (#7) ─────────────────── */
+  .era-modal[hidden] { display: none; }
+  .era-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1900;
+    display: flex;
+    flex-direction: column;
+    background: var(--ink);
+  }
+  .era-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px 14px;
+    color: var(--paper);
+    background: var(--ink);
+  }
+  .era-modal-head .ti {
+    font-family: var(--zh-serif);
+    font-weight: 600;
+    font-size: 17px;
+    letter-spacing: 0.14em;
+  }
+  .era-modal-head .ti em {
+    display: block;
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 11px;
+    color: var(--silver);
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+    font-weight: 400;
+  }
+  .era-modal-close {
+    background: transparent;
+    border: 1px solid var(--silver);
+    color: var(--paper);
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .era-modal-close:hover { border-color: var(--indigo); color: var(--indigo); }
+  .era-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 2px;
+    background: var(--ink);
+    overflow: hidden;
+  }
+  .era-cell {
+    position: relative;
+    background: var(--paper-2);
+    overflow: hidden;
+  }
+  .era-cell canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .era-label {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    background: rgba(31, 29, 25, 0.78);
+    color: var(--paper);
+    padding: 6px 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+  }
+  .era-label .zh {
+    display: block;
+    font-family: var(--zh-serif);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    margin-top: 1px;
+    color: var(--mist);
+    font-weight: 400;
+  }
+  .era-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ash);
+    letter-spacing: 0.2em;
+    background: var(--paper-2);
+  }
+
+  /* ── Calendar of strolls (#6) ────────────────────── */
+  .cal-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 6px;
+    margin-bottom: 8px;
+  }
+  .cal-nav {
+    background: transparent;
+    border: 1px solid var(--stone);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--graphite);
+    font-family: var(--en-serif);
+    font-style: italic;
+    transition: all 0.15s;
+  }
+  .cal-nav:hover { border-color: var(--indigo); color: var(--indigo); }
+  .cal-title {
+    flex: 1;
+    text-align: center;
+    font-family: var(--zh-serif);
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--ink);
+  }
+  .cal-title em {
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ash);
+    margin-left: 6px;
+    letter-spacing: 0.02em;
+  }
+  .cal-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ash);
+    letter-spacing: 0.16em;
+    text-align: center;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--mist);
+  }
+  .cal-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    margin-top: 4px;
+  }
+  .cal-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--graphite);
+    position: relative;
+    border-radius: 2px;
+    transition: background 0.15s;
+  }
+  .cal-day.empty { color: transparent; pointer-events: none; }
+  .cal-day.today { color: var(--ink); font-weight: 600; }
+  .cal-day.has-trace {
+    color: var(--paper);
+    background: var(--indigo);
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .cal-day.has-trace:hover { background: var(--indigo-d); }
+  .cal-day.has-trace.today { box-shadow: 0 0 0 2px var(--ink); }
+  .cal-summary {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-left: 2px solid var(--indigo);
+    background: var(--indigo-l);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--graphite);
+    letter-spacing: 0.05em;
+    line-height: 1.8;
+    display: none;
+  }
+  .cal-summary.show { display: block; }
+  .cal-summary .head {
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 12px;
+    color: var(--indigo);
+    margin-bottom: 4px;
+  }
+
+  /* ── City seals collection (#10) ─────────────────── */
+  .seal-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .seal {
+    aspect-ratio: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid var(--silver);
+    background: var(--paper);
+    font-family: var(--zh-serif);
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--silver);
+    letter-spacing: 0.04em;
+    text-align: center;
+    line-height: 1.15;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .seal:hover { border-color: var(--graphite); color: var(--graphite); }
+  .seal.visited {
+    border-color: var(--indigo);
+    color: var(--paper);
+    background: var(--indigo);
+    box-shadow: 0 1px 4px rgba(193, 95, 60, 0.3);
+  }
+  .seal.visited:hover { background: var(--indigo-d); }
+  /* Corner registration marks (postal stamp style) */
+  .seal::before,
+  .seal::after {
+    content: '';
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border: 1px solid currentColor;
+    opacity: 0.55;
+  }
+  .seal::before { top: 3px; left: 3px; border-right: none; border-bottom: none; }
+  .seal::after  { bottom: 3px; right: 3px; border-left: none; border-top: none; }
+  .seal-count {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--ash);
+    margin-top: 12px;
+    text-align: right;
+  }
+  .seal-count .num {
+    color: var(--indigo);
+    font-weight: 600;
+  }
   .trace-empty .en {
     display: block;
     font-family: var(--en-serif);
@@ -1218,6 +1563,15 @@
       <span class="en">historical layers</span>
     </div>
 
+    <div class="strata-actions">
+      <button type="button" class="strata-act" id="btn-compare">
+        對照拉條<span class="en">Swipe Compare</span>
+      </button>
+      <button type="button" class="strata-act" id="btn-four-era">
+        四代對照<span class="en">Four Eras</span>
+      </button>
+    </div>
+
     <div id="historical-layers"></div>
 
     <div class="section-label">
@@ -1227,6 +1581,30 @@
 
     <div class="trace-list" id="trace-list">
       <div class="trace-empty">尚無記錄 · No saved traces</div>
+    </div>
+
+    <div class="section-label">
+      <span class="num">05 — Calendar</span>
+      <span class="en">月曆</span>
+    </div>
+
+    <div class="cal-header">
+      <button type="button" class="cal-nav" id="cal-prev" aria-label="上一月">◀</button>
+      <div class="cal-title" id="cal-title">—</div>
+      <button type="button" class="cal-nav" id="cal-next" aria-label="下一月">▶</button>
+    </div>
+    <div class="cal-weekdays"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+    <div class="cal-days" id="cal-days"></div>
+    <div class="cal-summary" id="cal-summary"></div>
+
+    <div class="section-label">
+      <span class="num">06 — Seals</span>
+      <span class="en">縣市印章</span>
+    </div>
+
+    <div class="seal-grid" id="seal-grid"></div>
+    <div class="seal-count" id="seal-count">
+      <span class="num">0</span> / 22 visited
     </div>
 
     <footer class="panel-foot">
@@ -1240,6 +1618,22 @@
     </footer>
   </div>
 </aside>
+
+<!-- Swipe-compare divider + side labels -->
+<div class="compare-side-label left" id="compare-label-left">NOW</div>
+<div class="compare-side-label right" id="compare-label-right">THEN</div>
+<div class="compare-divider" id="compare-divider" hidden>
+  <div class="compare-handle">⇄</div>
+</div>
+
+<!-- Four-era collage modal -->
+<div class="era-modal" id="era-modal" hidden>
+  <div class="era-modal-head">
+    <div class="ti">四代對照<em>Same place across four eras</em></div>
+    <button type="button" class="era-modal-close" id="era-close" aria-label="關閉">✕</button>
+  </div>
+  <div class="era-grid" id="era-grid"></div>
+</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
@@ -1766,6 +2160,8 @@
       savedTraces.unshift(currentTrace);
       persistTraces();
       renderTraceList();
+      renderSeals();
+      renderCalendar();
     }
     currentTrace = null;
     recStatus.classList.remove('show');
@@ -1812,6 +2208,299 @@
       `;
     }).join('');
   }
+
+  // ── Swipe-compare mode (#2) ──────────────────────
+  let compareMode = false;
+  let compareX = 0.5; // 0 to 1 across screen
+
+  const compareDivider = document.getElementById('compare-divider');
+  const compareBtn = document.getElementById('btn-compare');
+
+  function applyCompareClip() {
+    if (!activeId || !layerCache[activeId]) return;
+    const container = layerCache[activeId]._container;
+    if (!container) return;
+    if (compareMode) {
+      // Show right side of historical layer only
+      container.style.clipPath = `inset(0 0 0 ${compareX * 100}%)`;
+      container.style.webkitClipPath = `inset(0 0 0 ${compareX * 100}%)`;
+    } else {
+      container.style.clipPath = '';
+      container.style.webkitClipPath = '';
+    }
+  }
+
+  function updateCompareDividerPos() {
+    const mapEl = document.getElementById('map');
+    const rect = mapEl.getBoundingClientRect();
+    compareDivider.style.left = (rect.left + rect.width * compareX - 2) + 'px';
+  }
+
+  function setCompareMode(on) {
+    compareMode = on;
+    compareBtn.classList.toggle('active', on);
+    document.body.classList.toggle('compare-active', on);
+    compareDivider.hidden = !on;
+    if (on) {
+      if (!activeId) {
+        alert('先啟用一個歷史圖層再開對照拉條');
+        compareMode = false;
+        compareBtn.classList.remove('active');
+        document.body.classList.remove('compare-active');
+        compareDivider.hidden = true;
+        return;
+      }
+      updateCompareDividerPos();
+      applyCompareClip();
+    } else {
+      applyCompareClip(); // clear
+    }
+  }
+
+  compareBtn.addEventListener('click', () => setCompareMode(!compareMode));
+
+  // Drag handling — pointer events for mouse + touch
+  let dragging = false;
+  compareDivider.addEventListener('pointerdown', e => {
+    dragging = true;
+    compareDivider.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  compareDivider.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const mapEl = document.getElementById('map');
+    const rect = mapEl.getBoundingClientRect();
+    compareX = Math.max(0.05, Math.min(0.95, (e.clientX - rect.left) / rect.width));
+    updateCompareDividerPos();
+    applyCompareClip();
+  });
+  compareDivider.addEventListener('pointerup', e => {
+    dragging = false;
+    try { compareDivider.releasePointerCapture(e.pointerId); } catch {}
+  });
+
+  // Keep divider aligned to map on resize / map move
+  window.addEventListener('resize', () => { if (compareMode) updateCompareDividerPos(); });
+  map.on('move zoom', () => { if (compareMode) updateCompareDividerPos(); });
+
+  // Re-apply clip when active layer changes (setActive is called elsewhere)
+  const _origSetActive = setActive;
+  setActive = function (id) {
+    _origSetActive(id);
+    if (compareMode) applyCompareClip();
+  };
+
+  // ── Four-era collage (#7) ────────────────────────
+  const FOUR_ERAS = [
+    { layerId: 'jm20k_1904', year: '1904', label: '臺灣堡圖' },
+    { layerId: 'am25k_1944a', year: '1944', label: '美軍地形圖' },
+    { layerId: 'tm25k_1989', year: '1989', label: '經建版（一版）' },
+    { layerId: 'tm25k_2003', year: '2003', label: '經建版（四版）' },
+  ];
+
+  async function renderFourEraCellTo(canvas, layerId, centerLatLng, zoom) {
+    const w = canvas.width, h = canvas.height;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#EAE8E2';
+    ctx.fillRect(0, 0, w, h);
+
+    // Compute bounds spanning canvas at this zoom
+    const center = map.project(centerLatLng, zoom);
+    const nw = L.point(center.x - w / 2, center.y - h / 2);
+    const se = L.point(center.x + w / 2, center.y + h / 2);
+    const tileNW = nw.divideBy(256).floor();
+    const tileSE = se.divideBy(256).floor();
+
+    const work = document.createElement('canvas');
+    work.width = (tileSE.x - tileNW.x + 1) * 256;
+    work.height = (tileSE.y - tileNW.y + 1) * 256;
+    const wctx = work.getContext('2d');
+
+    // Base layer first
+    const base = BASE_MAPS.plain;
+    for (const b of base) {
+      const o = b.opts || {};
+      const reqZoom = Math.min(zoom, o.maxNativeZoom || 19);
+      const factor = Math.pow(2, zoom - reqZoom);
+      wctx.globalAlpha = o.opacity != null ? o.opacity : 1;
+      const tasks = [];
+      for (let x = tileNW.x; x <= tileSE.x; x++) {
+        for (let y = tileNW.y; y <= tileSE.y; y++) {
+          const reqX = Math.floor(x / factor);
+          const reqY = Math.floor(y / factor);
+          const url = buildTileUrl(b.url, reqX, reqY, reqZoom, o.subdomains);
+          if (factor === 1) tasks.push(fetchAndDrawTile(url, wctx, (x - tileNW.x) * 256, (y - tileNW.y) * 256));
+          else tasks.push(fetchAndDrawScaledTile(url, wctx, (x - tileNW.x) * 256, (y - tileNW.y) * 256, x, y, factor));
+        }
+      }
+      await Promise.all(tasks);
+    }
+
+    // Historical layer on top at full opacity (clearer comparison)
+    const layer = HISTORICAL_MAPS.find(m => m.id === layerId);
+    if (layer) {
+      const maxNative = layer.maxNativeZoom || 16;
+      const reqZoom = Math.min(zoom, maxNative);
+      const factor = Math.pow(2, zoom - reqZoom);
+      wctx.globalAlpha = 1;
+      const tasks = [];
+      for (let x = tileNW.x; x <= tileSE.x; x++) {
+        for (let y = tileNW.y; y <= tileSE.y; y++) {
+          const reqX = Math.floor(x / factor);
+          const reqY = Math.floor(y / factor);
+          const url = buildTileUrl(layer.url, reqX, reqY, reqZoom);
+          if (factor === 1) tasks.push(fetchAndDrawTile(url, wctx, (x - tileNW.x) * 256, (y - tileNW.y) * 256));
+          else tasks.push(fetchAndDrawScaledTile(url, wctx, (x - tileNW.x) * 256, (y - tileNW.y) * 256, x, y, factor));
+        }
+      }
+      await Promise.all(tasks);
+    }
+    wctx.globalAlpha = 1;
+
+    const srcX = nw.x - tileNW.x * 256;
+    const srcY = nw.y - tileNW.y * 256;
+    ctx.drawImage(work, srcX, srcY, w, h, 0, 0, w, h);
+  }
+
+  async function openFourEraCollage() {
+    const grid = document.getElementById('era-grid');
+    const modal = document.getElementById('era-modal');
+    const center = map.getCenter();
+    const zoom = Math.max(map.getZoom(), 14);
+
+    // Build empty cells first
+    grid.innerHTML = FOUR_ERAS.map(e => `
+      <div class="era-cell">
+        <div class="era-label">${e.year}<span class="zh">${e.label}</span></div>
+        <div class="era-loading">LOADING…</div>
+        <canvas data-layer="${e.layerId}"></canvas>
+      </div>
+    `).join('');
+    modal.hidden = false;
+
+    // Wait one frame so canvases get real sizes
+    await new Promise(r => requestAnimationFrame(r));
+
+    const canvases = grid.querySelectorAll('canvas');
+    const loaders = grid.querySelectorAll('.era-loading');
+    for (let i = 0; i < canvases.length; i++) {
+      const c = canvases[i];
+      const r = c.parentElement.getBoundingClientRect();
+      c.width = Math.round(r.width);
+      c.height = Math.round(r.height);
+      await renderFourEraCellTo(c, FOUR_ERAS[i].layerId, center, zoom);
+      loaders[i].style.display = 'none';
+    }
+  }
+
+  document.getElementById('btn-four-era').addEventListener('click', openFourEraCollage);
+  document.getElementById('era-close').addEventListener('click', () => {
+    document.getElementById('era-modal').hidden = true;
+  });
+
+  // ── Calendar of strolls (#6) ─────────────────────
+  let calCursor = new Date(); // current visible month
+  let calSelectedDay = null;  // YYYY-MM-DD
+
+  function renderCalendar() {
+    const year = calCursor.getFullYear();
+    const month = calCursor.getMonth();
+    const today = new Date();
+    const todayY = today.getFullYear(), todayM = today.getMonth(), todayD = today.getDate();
+
+    // Aggregate traces by date for this month
+    const traceByDay = {};
+    savedTraces.forEach(t => {
+      const d = new Date(t.startTime);
+      if (d.getFullYear() === year && d.getMonth() === month) {
+        const day = d.getDate();
+        if (!traceByDay[day]) traceByDay[day] = [];
+        traceByDay[day].push(t);
+      }
+    });
+
+    document.getElementById('cal-title').innerHTML =
+      `${year} 年 ${month + 1} 月<em>${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][month]}</em>`;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    let html = '';
+    for (let i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
+    for (let d = 1; d <= daysInMonth; d++) {
+      const hasTrace = !!traceByDay[d];
+      const isToday = year === todayY && month === todayM && d === todayD;
+      const classes = ['cal-day'];
+      if (hasTrace) classes.push('has-trace');
+      if (isToday) classes.push('today');
+      html += `<div class="${classes.join(' ')}" data-day="${d}">${d}</div>`;
+    }
+    document.getElementById('cal-days').innerHTML = html;
+
+    // Restore selected-day summary if same month
+    const summary = document.getElementById('cal-summary');
+    if (calSelectedDay && calSelectedDay.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`)) {
+      const day = parseInt(calSelectedDay.split('-')[2], 10);
+      showDaySummary(year, month, day, traceByDay[day] || []);
+    } else {
+      summary.classList.remove('show');
+    }
+  }
+
+  function showDaySummary(year, month, day, traces) {
+    const summary = document.getElementById('cal-summary');
+    if (!traces.length) {
+      summary.classList.remove('show');
+      return;
+    }
+    const totalDist = traces.reduce((sum, t) => sum + (t.distance || 0), 0);
+    const totalTime = traces.reduce((sum, t) => sum + ((t.endTime || Date.now()) - t.startTime), 0);
+    const totalPts = traces.reduce((sum, t) => sum + t.points.length, 0);
+    const cities = [...new Set(traces.map(t => t.city).filter(Boolean))].join(' · ');
+    summary.innerHTML = `
+      <div class="head">${year}/${String(month + 1).padStart(2, '0')}/${String(day).padStart(2, '0')}</div>
+      ${cities ? cities + '<br>' : ''}
+      ${traces.length} 條路線 · ${fmtDist(totalDist)} · ${fmtDur(totalTime)} · ${totalPts} pts
+    `;
+    summary.classList.add('show');
+  }
+
+  document.getElementById('cal-prev').addEventListener('click', () => {
+    calCursor.setMonth(calCursor.getMonth() - 1);
+    renderCalendar();
+  });
+  document.getElementById('cal-next').addEventListener('click', () => {
+    calCursor.setMonth(calCursor.getMonth() + 1);
+    renderCalendar();
+  });
+  document.getElementById('cal-days').addEventListener('click', e => {
+    const cell = e.target.closest('.cal-day.has-trace');
+    if (!cell) return;
+    const day = parseInt(cell.dataset.day, 10);
+    const year = calCursor.getFullYear();
+    const month = calCursor.getMonth();
+    calSelectedDay = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const traces = savedTraces.filter(t => {
+      const d = new Date(t.startTime);
+      return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
+    });
+    showDaySummary(year, month, day, traces);
+  });
+
+  // ── City seals (collection) ──────────────────────
+  function renderSeals() {
+    const grid = document.getElementById('seal-grid');
+    if (!grid) return;
+    const visitedSet = new Set(savedTraces.map(t => t.city).filter(Boolean));
+    grid.innerHTML = CITIES.map(c => {
+      const visited = visitedSet.has(c.zh);
+      return `<div class="seal${visited ? ' visited' : ''}" data-id="${c.id}" title="${c.zh}">${c.zh.replace('市','').replace('縣','')}</div>`;
+    }).join('');
+    document.querySelector('#seal-count .num').textContent = String(visitedSet.size);
+  }
+  document.getElementById('seal-grid').addEventListener('click', e => {
+    const seal = e.target.closest('.seal');
+    if (seal) selectCity(seal.dataset.id);
+  });
 
   function showTraceOnMap(id) {
     const trace = savedTraces.find(t => t.id === id);
@@ -1878,6 +2567,8 @@
     savedTraces = savedTraces.filter(t => t.id !== id);
     persistTraces();
     renderTraceList();
+    renderSeals();
+    renderCalendar();
   }
 
   locBtn.addEventListener('click', () => isLocating ? stopLocate() : startLocate());
@@ -1906,6 +2597,8 @@
   });
 
   renderTraceList();
+  renderSeals();
+  renderCalendar();
   updateButtons();
 
   // ── Photo capture (IndexedDB) ────────────────────
