@@ -2317,6 +2317,13 @@
       document.getElementById('city-list').classList.add('open');
       cur.setAttribute('aria-expanded', 'true');
     }
+
+    // Force the mobile bottom sheet out of peek state so screenshots /
+    // shared scenes can land with the full controls visible.
+    if (params.get('panel') === 'open' || params.get('picker') === 'open') {
+      const panel = document.getElementById('panel');
+      if (panel) panel.classList.remove('peek');
+    }
   })();
 
   // ── Init ─────────────────────────────────────────
