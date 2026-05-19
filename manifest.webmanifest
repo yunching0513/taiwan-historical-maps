@@ -1,7 +1,7 @@
 {
-  "name": "臺灣古今地圖 — Taiwan Historical Maps",
-  "short_name": "古今",
-  "description": "中央研究院歷史圖磚疊圖，全臺 22 縣市切換，含 GPS 路線記錄。",
+  "name": "台灣舊地圖散策 — Taiwan Old-Map Stroll",
+  "short_name": "散策",
+  "description": "拿著中研院百年歷史圖磚走進現在的城市——疊圖比對、GPS 記錄、拍照分享你的舊地圖散步路線。",
   "lang": "zh-Hant",
   "dir": "ltr",
   "start_url": "./",
