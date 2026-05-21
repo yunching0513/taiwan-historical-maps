@@ -2237,10 +2237,21 @@
     const container = layerCache[activeId]._container;
     if (!container) return;
     if (compareMode) {
-      // Show right side of historical layer only
+      // Leaflet's .leaflet-layer container is 0×0 by default (it's just an
+      // anchor — tiles position themselves via transform). clip-path on a
+      // 0×0 box clips everything to nothing. Force a real box so clip-path
+      // can take effect.
+      container.style.width = '100vw';
+      container.style.height = '100vh';
+      container.style.top = '0';
+      container.style.left = '0';
       container.style.clipPath = `inset(0 0 0 ${compareX * 100}%)`;
       container.style.webkitClipPath = `inset(0 0 0 ${compareX * 100}%)`;
     } else {
+      container.style.width = '';
+      container.style.height = '';
+      container.style.top = '';
+      container.style.left = '';
       container.style.clipPath = '';
       container.style.webkitClipPath = '';
     }
