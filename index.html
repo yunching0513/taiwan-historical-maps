@@ -665,14 +665,25 @@
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 4px;
+    width: 32px;            /* invisible 32-px-wide hit area */
+    margin-left: -14px;     /* centre the visible vermilion line */
     z-index: 999;
-    background: var(--indigo);
-    box-shadow: 0 0 0 1px rgba(193, 95, 60, 0.4),
-                0 0 14px 2px rgba(193, 95, 60, 0.3);
+    background: transparent;
     cursor: ew-resize;
     pointer-events: auto;
     touch-action: none;
+  }
+  .compare-divider::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 14px;
+    width: 4px;
+    background: var(--indigo);
+    box-shadow: 0 0 0 1px rgba(193, 95, 60, 0.4),
+                0 0 14px 2px rgba(193, 95, 60, 0.3);
+    pointer-events: none;
   }
   .compare-handle {
     position: absolute;
@@ -2241,6 +2252,9 @@
     compareDivider.style.left = (rect.left + rect.width * compareX - 2) + 'px';
   }
 
+  // Restore historical layer opacity after exiting compare mode
+  let compareSavedOpacity = null;
+
   function setCompareMode(on) {
     compareMode = on;
     compareBtn.classList.toggle('active', on);
@@ -2255,34 +2269,68 @@
         compareDivider.hidden = true;
         return;
       }
+      // Reset divider to centre on each activation
+      compareX = 0.5;
+      // Force historical layer to full opacity for clear contrast across the
+      // divider; remember the user's previous opacity to restore on exit.
+      compareSavedOpacity = opacities[activeId];
+      setOpacity(activeId, 1);
       updateCompareDividerPos();
       applyCompareClip();
     } else {
+      // Restore previous opacity
+      if (activeId && compareSavedOpacity != null) {
+        setOpacity(activeId, compareSavedOpacity);
+        compareSavedOpacity = null;
+      }
       applyCompareClip(); // clear
     }
   }
 
   compareBtn.addEventListener('click', () => setCompareMode(!compareMode));
 
-  // Drag handling — pointer events for mouse + touch
+  // Drag handling — try Pointer Events first, fall back to Touch Events for
+  // iOS WKWebView where pointer capture sometimes misbehaves.
   let dragging = false;
-  compareDivider.addEventListener('pointerdown', e => {
-    dragging = true;
-    compareDivider.setPointerCapture(e.pointerId);
-    e.preventDefault();
-  });
-  compareDivider.addEventListener('pointermove', e => {
-    if (!dragging) return;
+
+  function onDrag(clientX) {
     const mapEl = document.getElementById('map');
     const rect = mapEl.getBoundingClientRect();
-    compareX = Math.max(0.05, Math.min(0.95, (e.clientX - rect.left) / rect.width));
+    compareX = Math.max(0.05, Math.min(0.95, (clientX - rect.left) / rect.width));
     updateCompareDividerPos();
     applyCompareClip();
-  });
-  compareDivider.addEventListener('pointerup', e => {
-    dragging = false;
-    try { compareDivider.releasePointerCapture(e.pointerId); } catch {}
-  });
+  }
+
+  if (window.PointerEvent) {
+    compareDivider.addEventListener('pointerdown', e => {
+      dragging = true;
+      try { compareDivider.setPointerCapture(e.pointerId); } catch {}
+      e.preventDefault();
+    });
+    compareDivider.addEventListener('pointermove', e => {
+      if (!dragging) return;
+      onDrag(e.clientX);
+    });
+    const endPointer = e => {
+      dragging = false;
+      try { compareDivider.releasePointerCapture(e.pointerId); } catch {}
+    };
+    compareDivider.addEventListener('pointerup', endPointer);
+    compareDivider.addEventListener('pointercancel', endPointer);
+  }
+  // Touch events fallback (iOS WKWebView is sometimes flaky with pointer)
+  compareDivider.addEventListener('touchstart', e => {
+    dragging = true;
+    e.preventDefault();
+  }, { passive: false });
+  compareDivider.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const t = e.touches[0];
+    if (t) onDrag(t.clientX);
+    e.preventDefault();
+  }, { passive: false });
+  compareDivider.addEventListener('touchend', () => { dragging = false; });
+  compareDivider.addEventListener('touchcancel', () => { dragging = false; });
 
   // Keep divider aligned to map on resize / map move
   window.addEventListener('resize', () => { if (compareMode) updateCompareDividerPos(); });
