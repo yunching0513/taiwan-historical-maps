@@ -87,7 +87,7 @@ self.addEventListener('fetch', event => {
   }
 
   // unpkg.com (Leaflet CDN): cache-first
-  if (url.hostname === 'unpkg.com' || url.hostname.endsWith('googleapis.com') || url.hostname.endsWith('gstatic.com')) {
+  if (url.hostname === 'unpkg.com' || url.hostname.endsWith('googleapis.com') || url.hostname.endsWith('gstatic.com') || url.hostname === 'cdn.jsdelivr.net') {
     event.respondWith(cacheFirst(req));
     return;
   }

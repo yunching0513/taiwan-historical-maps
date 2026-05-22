@@ -1970,6 +1970,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
         crossorigin=""></script>
+<script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js" crossorigin=""></script>
 <script>
   // ── Cities (22 administrative divisions) ──────────
   const REGIONS = [
@@ -3493,12 +3494,51 @@
       }
     }
 
-    // Footer marginalia
+    // ── Bottom section: hashtags + QR code + attribution ──────────────────
+    const bottomY = photos.length ? 1765 : 1560; // push up when no photos
+
+    // Thin divider
+    ctx.strokeStyle = '#2E2E2E';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(80, bottomY); ctx.lineTo(W - 80, bottomY); ctx.stroke();
+
+    // Hashtags (left side)
+    const cityForTag  = (trace.city || '').replace(/[市縣]$/, '');
+    const layerDef    = HISTORICAL_MAPS.find(m => m.id === activeId);
+    const yearTag     = (cityForTag && layerDef) ? `#${cityForTag}${layerDef.year}` : '';
+    ctx.fillStyle = '#C15F3C';
+    ctx.font = '500 28px "Noto Sans TC", "PingFang TC", sans-serif';
+    ctx.fillText(`#舊地圖散策  ${yearTag}`.trim(), 80, bottomY + 48);
+    ctx.fillStyle = '#565347';
+    ctx.font = '22px "JetBrains Mono", monospace';
+    ctx.fillText('#taiwan_old_map', 80, bottomY + 84);
+
+    // QR code (right side) — links to the app
+    const appUrl  = 'https://yunching0513.github.io/taiwan-historical-maps/';
+    const qrSize  = 120;
+    const qrX     = W - 80 - qrSize;
+    const qrY     = bottomY + 14;
+    try {
+      if (typeof QRCode !== 'undefined') {
+        const qrDataUrl = await QRCode.toDataURL(appUrl, {
+          width: qrSize * 2,   // 2× for retina
+          margin: 1,
+          color: { dark: '#F1EFE9', light: '#111111' },
+        });
+        const qrImg = await new Promise((res, rej) => {
+          const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = qrDataUrl;
+        });
+        // Subtle dark frame around QR
+        ctx.fillStyle = '#111111';
+        ctx.fillRect(qrX - 6, qrY - 6, qrSize + 12, qrSize + 12);
+        ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+      }
+    } catch (_) { /* QR generation failed silently */ }
+
+    // Attribution
     ctx.fillStyle = '#807C73';
-    ctx.font = '16px "JetBrains Mono", monospace';
-    ctx.fillText('TAIWAN · OLD-MAP STROLL', 80, H - 60);
-    ctx.textAlign = 'right';
-    ctx.fillText('yunching0513.github.io/taiwan-historical-maps', W - 80, H - 60);
+    ctx.font = '15px "JetBrains Mono", monospace';
+    ctx.fillText('TAIWAN · OLD-MAP STROLL · yunching0513.github.io/taiwan-historical-maps', 80, H - 52);
     ctx.textAlign = 'left';
 
     canvas.toBlob(async blob => {
