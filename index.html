@@ -685,26 +685,7 @@
                 0 0 14px 2px rgba(193, 95, 60, 0.3);
     pointer-events: none;
   }
-  .compare-handle {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: var(--paper);
-    border: 2px solid var(--indigo);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--indigo);
-    font-family: var(--en-serif);
-    font-size: 20px;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(31, 29, 25, 0.3);
-    user-select: none;
-  }
+  /* .compare-handle removed — clean line only */
   .compare-side-label {
     position: absolute;
     top: 50%;
@@ -767,15 +748,17 @@
     z-index: 1900;
     display: flex;
     flex-direction: column;
-    background: var(--ink);
+    background: var(--paper-2);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   .era-modal-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 18px 22px 14px;
-    color: var(--paper);
-    background: var(--ink);
+    padding: calc(18px + env(safe-area-inset-top, 0px)) 22px 14px;
+    color: var(--ink);
+    background: var(--paper-2);
+    border-bottom: 1px solid var(--mist);
   }
   .era-modal-head .ti {
     font-family: var(--zh-serif);
@@ -788,15 +771,15 @@
     font-family: var(--en-serif);
     font-style: italic;
     font-size: 11px;
-    color: var(--silver);
+    color: var(--ash);
     letter-spacing: 0.04em;
     margin-top: 2px;
     font-weight: 400;
   }
   .era-modal-close {
     background: transparent;
-    border: 1px solid var(--silver);
-    color: var(--paper);
+    border: 1px solid var(--stone);
+    color: var(--graphite);
     width: 36px;
     height: 36px;
     font-size: 16px;
@@ -809,7 +792,7 @@
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
     gap: 2px;
-    background: var(--ink);
+    background: var(--mist);
     overflow: hidden;
   }
   .era-cell {
@@ -823,6 +806,138 @@
     height: 100%;
     object-fit: cover;
   }
+  /* Live Leaflet map container inside each cell */
+  .era-map-div {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  /* Era label: tappable edit hint */
+  .era-label {
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    flex-direction: column;
+  }
+  .era-label::after {
+    content: '換圖層';
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: rgba(241,239,233,0.45);
+    margin-top: 3px;
+  }
+
+  /* ── Layer picker sheet (inside era-modal) ──────── */
+  .era-picker {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    z-index: 3000;
+    background: var(--paper);
+    border-top: 1px solid var(--mist);
+    max-height: 68%;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+    border-radius: 14px 14px 0 0;
+    box-shadow: 0 -4px 24px rgba(31,29,25,0.12);
+  }
+  .era-picker.open { transform: translateY(0); }
+
+  .era-picker-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--mist);
+    flex-shrink: 0;
+  }
+  .era-picker-title {
+    font-family: var(--zh-serif);
+    font-size: 14px;
+    color: var(--ink);
+    letter-spacing: 0.08em;
+  }
+  .era-picker-title em {
+    font-family: var(--mono);
+    font-style: normal;
+    font-size: 10px;
+    color: var(--ash);
+    margin-left: 8px;
+    letter-spacing: 0.12em;
+  }
+  .era-picker-close {
+    background: none;
+    border: none;
+    color: var(--graphite);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+  }
+
+  .era-picker-list {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    flex: 1;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .era-picker-group-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--ash);
+    text-transform: uppercase;
+    padding: 14px 20px 6px;
+    border-top: 1px solid var(--mist);
+  }
+  .era-picker-group-label:first-child { border-top: none; padding-top: 10px; }
+
+  .era-picker-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 20px;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .era-picker-row:active,
+  .era-picker-row:hover { background: rgba(31,29,25,0.04); }
+  .era-picker-row.active { background: rgba(193,95,60,0.10); }
+
+  .era-picker-year {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--vermilion);
+    min-width: 36px;
+    letter-spacing: 0.04em;
+  }
+  .era-picker-row.active .era-picker-year { color: var(--vermilion); }
+
+  .era-picker-name {
+    flex: 1;
+    font-family: var(--zh-serif);
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+  .era-picker-en {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--ash);
+    letter-spacing: 0.06em;
+    display: block;
+    margin-top: 1px;
+  }
+  .era-picker-check {
+    font-size: 14px;
+    color: var(--vermilion);
+    opacity: 0;
+  }
+  .era-picker-row.active .era-picker-check { opacity: 1; }
   .era-label {
     position: absolute;
     top: 10px;
@@ -1516,7 +1631,7 @@
   @media (max-width: 768px) {
     /* Search box: full-width across the top so it doesn't fight the panel */
     .search-box {
-      top: calc(env(safe-area-inset-top, 0px) - 24px);
+      top: calc(env(safe-area-inset-top, 0px) - 14px);
       left: 12px;
       right: 12px;
       transform: none;
@@ -1812,22 +1927,6 @@
       </button>
     </div>
 
-    <div class="section-label">
-      <span class="num">02 — Position</span>
-      <span class="en">gps · trace</span>
-    </div>
-
-    <div class="action-row">
-      <button class="btn" id="btn-locate" type="button">
-        <span class="dot"></span>
-        <span class="btn-label">定位</span>
-      </button>
-      <button class="btn" id="btn-record" type="button" disabled>
-        <span class="dot"></span>
-        <span class="btn-label">記錄路線</span>
-      </button>
-    </div>
-
     <div class="loc-status" id="loc-status">
       <div class="label">Current Fix</div>
       <div id="loc-coords">—</div>
@@ -1876,7 +1975,7 @@
     </div>
 
     <div class="section-label">
-      <span class="num">03 — Strata</span>
+      <span class="num">02 — Strata</span>
       <span class="en">historical layers</span>
     </div>
 
@@ -1892,7 +1991,7 @@
     <div id="historical-layers"></div>
 
     <div class="section-label">
-      <span class="num">04 — Offline</span>
+      <span class="num">03 — Offline</span>
       <span class="en">offline packs</span>
     </div>
 
@@ -1907,7 +2006,7 @@
     </div>
 
     <div class="section-label">
-      <span class="num">05 — Traces</span>
+      <span class="num">04 — Traces</span>
       <span class="en">saved walks</span>
     </div>
 
@@ -1916,7 +2015,7 @@
     </div>
 
     <div class="section-label">
-      <span class="num">06 — Calendar</span>
+      <span class="num">05 — Calendar</span>
       <span class="en">月曆</span>
     </div>
 
@@ -1930,7 +2029,7 @@
     <div class="cal-summary" id="cal-summary"></div>
 
     <div class="section-label">
-      <span class="num">07 — Seals</span>
+      <span class="num">06 — Seals</span>
       <span class="en">縣市印章</span>
     </div>
 
@@ -1954,9 +2053,7 @@
 <!-- Swipe-compare divider + side labels -->
 <div class="compare-side-label left" id="compare-label-left">NOW</div>
 <div class="compare-side-label right" id="compare-label-right">THEN</div>
-<div class="compare-divider" id="compare-divider" hidden>
-  <div class="compare-handle">⇄</div>
-</div>
+<div class="compare-divider" id="compare-divider" hidden></div>
 
 <!-- Four-era collage modal -->
 <div class="era-modal" id="era-modal" hidden>
@@ -1965,6 +2062,15 @@
     <button type="button" class="era-modal-close" id="era-close" aria-label="關閉">✕</button>
   </div>
   <div class="era-grid" id="era-grid"></div>
+
+  <!-- Layer picker sheet -->
+  <div class="era-picker" id="era-picker">
+    <div class="era-picker-head">
+      <div class="era-picker-title">選擇圖層<em id="era-picker-cell-label">格 1</em></div>
+      <button type="button" class="era-picker-close" id="era-picker-close">✕</button>
+    </div>
+    <div class="era-picker-list" id="era-picker-list"></div>
+  </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -2071,7 +2177,7 @@
   // ── Map ──────────────────────────────────────────
   const MAP_MAX_ZOOM = 20;
 
-  const map = L.map('map', { zoomControl: true, attributionControl: true, maxZoom: MAP_MAX_ZOOM })
+  const map = L.map('map', { zoomControl: false, attributionControl: true, maxZoom: MAP_MAX_ZOOM })
     .setView(currentCity.center, currentCity.zoom);
 
   // ── Base map definitions ────────────────────────
@@ -2786,41 +2892,173 @@
     ctx.drawImage(work, srcX, srcY, w, h, 0, 0, w, h);
   }
 
-  async function openFourEraCollage() {
-    const grid = document.getElementById('era-grid');
+  let eraMaps       = []; // live Leaflet instances inside the collage
+  let eraHistLayers = []; // current historical tile layer for each cell
+  let eraActiveDefs = []; // current layer def for each cell (for picker highlight)
+  let eraPickerCell = -1; // which cell the picker is targeting
+
+  const ERA_GROUPS = [
+    { key: 'jp',   label: '日治時期',     en: 'Japanese Era 1895–1945' },
+    { key: 'army', label: '美軍圖資',     en: 'U.S. Army Maps 1944–45' },
+    { key: 'roc',  label: '中華民國',     en: 'ROC Survey 1950–2003' },
+    { key: 'sat',  label: '衛星影像',     en: 'CORONA Satellite' },
+  ];
+
+  function buildPickerList(activeDef) {
+    const list = document.getElementById('era-picker-list');
+    list.innerHTML = ERA_GROUPS.map(g => {
+      const rows = HISTORICAL_MAPS.filter(h => h.group === g.key).map(h => `
+        <div class="era-picker-row${h.id === activeDef?.id ? ' active' : ''}"
+             data-layer-id="${h.id}">
+          <span class="era-picker-year">${h.year}</span>
+          <span class="era-picker-name">${h.label}<span class="era-picker-en">${h.en}</span></span>
+          <span class="era-picker-check">✓</span>
+        </div>
+      `).join('');
+      return `<div class="era-picker-group-label">${g.label} · ${g.en}</div>${rows}`;
+    }).join('');
+
+    list.querySelectorAll('.era-picker-row').forEach(row => {
+      row.addEventListener('click', () => {
+        swapEraLayer(eraPickerCell, row.dataset.layerId);
+        closeEraPicker();
+      });
+    });
+  }
+
+  function openEraPicker(cellIndex) {
+    eraPickerCell = cellIndex;
+    const def = eraActiveDefs[cellIndex];
+    document.getElementById('era-picker-cell-label').textContent =
+      `格 ${cellIndex + 1} · ${def?.label || ''}`;
+    buildPickerList(def);
+    // Scroll active row into view
+    requestAnimationFrame(() => {
+      const active = document.querySelector('.era-picker-row.active');
+      if (active) active.scrollIntoView({ block: 'center' });
+    });
+    document.getElementById('era-picker').classList.add('open');
+  }
+
+  function closeEraPicker() {
+    document.getElementById('era-picker').classList.remove('open');
+  }
+
+  function swapEraLayer(cellIndex, layerId) {
+    const m    = eraMaps[cellIndex];
+    const hist = HISTORICAL_MAPS.find(h => h.id === layerId);
+    if (!m || !hist) return;
+
+    // Remove old historical layer
+    if (eraHistLayers[cellIndex]) m.removeLayer(eraHistLayers[cellIndex]);
+
+    // Add new
+    const newLayer = L.tileLayer(hist.url, {
+      maxNativeZoom: hist.maxNativeZoom || 16,
+      maxZoom: MAP_MAX_ZOOM,
+      opacity: 1,
+    }).addTo(m);
+
+    eraHistLayers[cellIndex] = newLayer;
+    eraActiveDefs[cellIndex] = hist;
+
+    // Update label text
+    const cell = document.getElementById(`era-map-${cellIndex}`)?.parentElement;
+    const label = cell?.querySelector('.era-label');
+    if (label) label.innerHTML = `${hist.year}<span class="zh">${hist.label}</span>`;
+  }
+
+  function openFourEraCollage() {
+    const grid  = document.getElementById('era-grid');
     const modal = document.getElementById('era-modal');
     const center = map.getCenter();
-    const zoom = Math.max(map.getZoom(), 14);
+    const zoom   = Math.max(map.getZoom(), 14);
 
-    // Build empty cells first
-    grid.innerHTML = FOUR_ERAS.map(e => `
+    // Destroy any previous instances
+    eraMaps.forEach(m => m.remove());
+    eraMaps = []; eraHistLayers = []; eraActiveDefs = [];
+    closeEraPicker();
+
+    // Build cells — each gets a div for Leaflet + the era label on top
+    grid.innerHTML = FOUR_ERAS.map((e, i) => `
       <div class="era-cell">
-        <div class="era-label">${e.year}<span class="zh">${e.label}</span></div>
-        <div class="era-loading">LOADING…</div>
-        <canvas data-layer="${e.layerId}"></canvas>
+        <div class="era-map-div" id="era-map-${i}"></div>
+        <div class="era-label" data-cell="${i}">${e.year}<span class="zh">${e.label}</span></div>
       </div>
     `).join('');
+
+    // Init activeDefs from defaults
+    FOUR_ERAS.forEach(e => {
+      eraActiveDefs.push(HISTORICAL_MAPS.find(h => h.id === e.layerId) || null);
+    });
+
     modal.hidden = false;
 
-    // Wait one frame so canvases get real sizes
-    await new Promise(r => requestAnimationFrame(r));
+    // Two rAF so grid cells get real pixel dimensions before Leaflet initialises
+    requestAnimationFrame(() => requestAnimationFrame(() => {
 
-    const canvases = grid.querySelectorAll('canvas');
-    const loaders = grid.querySelectorAll('.era-loading');
-    for (let i = 0; i < canvases.length; i++) {
-      const c = canvases[i];
-      const r = c.parentElement.getBoundingClientRect();
-      c.width = Math.round(r.width);
-      c.height = Math.round(r.height);
-      await renderFourEraCellTo(c, FOUR_ERAS[i].layerId, center, zoom);
-      loaders[i].style.display = 'none';
-    }
+      FOUR_ERAS.forEach((era, i) => {
+        const container = document.getElementById(`era-map-${i}`);
+        const m = L.map(container, {
+          zoomControl: false,
+          attributionControl: false,
+          maxZoom: MAP_MAX_ZOOM,
+        });
+
+        m.setView(center, zoom);
+
+        // Base: CartoCDN light (tiles + labels)
+        BASE_MAPS.plain.forEach(def => {
+          L.tileLayer(def.url, { ...def.opts, maxZoom: MAP_MAX_ZOOM }).addTo(m);
+        });
+
+        // Historical overlay
+        const hist = HISTORICAL_MAPS.find(h => h.id === era.layerId);
+        let histLayer = null;
+        if (hist) {
+          histLayer = L.tileLayer(hist.url, {
+            maxNativeZoom: hist.maxNativeZoom || 16,
+            maxZoom: MAP_MAX_ZOOM,
+            opacity: 1,
+          }).addTo(m);
+        }
+        eraHistLayers.push(histLayer);
+        eraMaps.push(m);
+      });
+
+      // Sync all four maps — when any one moves, the rest follow
+      let syncing = false;
+      eraMaps.forEach(m => {
+        m.on('move', () => {
+          if (syncing) return;
+          syncing = true;
+          const c = m.getCenter(), z = m.getZoom();
+          eraMaps.forEach(other => {
+            if (other !== m) other.setView(c, z, { animate: false });
+          });
+          syncing = false;
+        });
+      });
+
+      // Era label tap → open picker
+      grid.querySelectorAll('.era-label').forEach(lbl => {
+        lbl.addEventListener('click', e => {
+          e.stopPropagation();
+          openEraPicker(Number(lbl.dataset.cell));
+        });
+      });
+
+    }));
   }
 
   document.getElementById('btn-four-era').addEventListener('click', openFourEraCollage);
   document.getElementById('era-close').addEventListener('click', () => {
+    eraMaps.forEach(m => m.remove());
+    eraMaps = []; eraHistLayers = []; eraActiveDefs = [];
     document.getElementById('era-modal').hidden = true;
+    closeEraPicker();
   });
+  document.getElementById('era-picker-close').addEventListener('click', closeEraPicker);
 
   // ── Calendar of strolls (#6) ─────────────────────
   let calCursor = new Date(); // current visible month
