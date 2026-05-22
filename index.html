@@ -1502,7 +1502,7 @@
   @media (max-width: 768px) {
     /* Search box: full-width across the top so it doesn't fight the panel */
     .search-box {
-      top: calc(6px + env(safe-area-inset-top, 0px));
+      top: calc(env(safe-area-inset-top, 0px) - 24px);
       left: 12px;
       right: 12px;
       transform: none;
@@ -1666,7 +1666,7 @@
 
     /* Reposition Leaflet zoom controls so they sit below the search box */
     .leaflet-top.leaflet-left {
-      top: calc(66px + env(safe-area-inset-top, 0px));
+      top: calc(36px + env(safe-area-inset-top, 0px));
       left: 14px;
     }
     .leaflet-control-zoom a {
