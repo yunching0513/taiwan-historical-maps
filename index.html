@@ -3463,16 +3463,33 @@
       drawTraceOnCanvas(ctx, trace, photos, mapX, mapY, mapW, mapH);
     }
 
-    // Photo strip (up to 5 thumbs)
+    // Photo strip (up to 5 thumbs) — natural aspect ratio, no cropping
     if (photos.length) {
       const showPhotos = photos.slice(0, 5);
-      const tY = 1530, tH = 220, gap = 16;
-      const tW = (W - 160 - gap * (showPhotos.length - 1)) / showPhotos.length;
-      for (let i = 0; i < showPhotos.length; i++) {
-        try {
-          const img = await loadImageFromBlob(showPhotos[i].blob);
-          drawImageCover(ctx, img, 80 + i * (tW + gap), tY, tW, tH);
-        } catch {}
+      const tY = 1530, tH = 220, gap = 14;
+      const maxW = W - 160; // usable width
+
+      // Load all images first to know their natural ratios
+      const imgs = await Promise.all(showPhotos.map(p =>
+        loadImageFromBlob(p.blob).catch(() => null)
+      ));
+      const valid = imgs.filter(Boolean);
+      if (valid.length) {
+        // Natural widths at tH height
+        const naturalWidths = valid.map(img => Math.round(tH * img.width / img.height));
+        const totalNatural = naturalWidths.reduce((a, b) => a + b, 0) + gap * (valid.length - 1);
+        // Scale down uniformly if too wide
+        const scale = totalNatural > maxW ? maxW / totalNatural : 1;
+        const scaledH = Math.round(tH * scale);
+        const scaledWidths = naturalWidths.map(w => Math.round(w * scale));
+        const totalScaled = scaledWidths.reduce((a, b) => a + b, 0) + gap * (valid.length - 1);
+        let x = 80 + Math.round((maxW - totalScaled) / 2); // centre the strip
+        for (let i = 0; i < valid.length; i++) {
+          const w = scaledWidths[i];
+          // Draw at natural ratio — no cropping
+          ctx.drawImage(valid[i], x, tY + Math.round((tH - scaledH) / 2), w, scaledH);
+          x += w + gap;
+        }
       }
     }
 
