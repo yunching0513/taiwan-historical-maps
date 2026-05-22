@@ -2582,14 +2582,72 @@
     }
   }
 
-  function startLocate() {
-    if (!('geolocation' in navigator)) {
+  // Background-geolocation watcher id (Capacitor native only).
+  // Truthy when the native iOS/Android plugin is driving updates instead
+  // of navigator.geolocation, which lets us keep tracking while the user
+  // locks the phone or switches to another app.
+  let nativeBgWatcherId = null;
+  function getBgGeoPlugin() {
+    const Cap = window.Capacitor;
+    if (!Cap || typeof Cap.isNativePlatform !== 'function') return null;
+    if (!Cap.isNativePlatform()) return null;
+    return Cap.Plugins?.BackgroundGeolocation || null;
+  }
+
+  async function startLocate() {
+    const BG = getBgGeoPlugin();
+    if (!BG && !('geolocation' in navigator)) {
       alert('此瀏覽器不支援地理定位');
       return;
     }
     isLocating = true;
     hasFirstFix = false;
     updateButtons();
+
+    if (BG) {
+      // Native path: keeps firing in background once the user grants
+      // "Always Allow". The plugin returns a watcher id we need to keep
+      // around for removal in stopLocate.
+      try {
+        const id = await BG.addWatcher({
+          backgroundMessage: '正在記錄你的散策路徑',
+          backgroundTitle: '舊地圖散策',
+          requestPermissions: true,
+          stale: false,
+          distanceFilter: 5,
+        }, (location, error) => {
+          if (error) { onPositionError(error); return; }
+          // Adapt the plugin's flat object to GeolocationPosition shape so
+          // the rest of the pipeline (onPosition) doesn't need to know.
+          onPosition({
+            coords: {
+              latitude: location.latitude,
+              longitude: location.longitude,
+              accuracy: location.accuracy ?? 20,
+              altitude: location.altitude ?? null,
+              altitudeAccuracy: location.altitudeAccuracy ?? null,
+              heading: location.bearing ?? null,
+              speed: location.speed ?? null,
+            },
+            timestamp: location.time || Date.now(),
+          });
+        });
+        // If the user pressed Stop before addWatcher resolved, tear it
+        // down immediately to avoid a phantom background watcher.
+        if (!isLocating) {
+          try { await BG.removeWatcher({ id }); } catch {}
+          return;
+        }
+        nativeBgWatcherId = id;
+        return;
+      } catch (err) {
+        console.warn('Background geolocation failed, falling back to web', err);
+        nativeBgWatcherId = null;
+        // fall through to web fallback below
+      }
+    }
+
+    // Web fallback (pure PWA / desktop browsers).
     watchId = navigator.geolocation.watchPosition(
       onPosition,
       onPositionError,
@@ -2597,8 +2655,15 @@
     );
   }
 
-  function stopLocate() {
+  async function stopLocate() {
     if (isRecording) stopRecording();
+    if (nativeBgWatcherId !== null) {
+      const BG = getBgGeoPlugin();
+      if (BG) {
+        try { await BG.removeWatcher({ id: nativeBgWatcherId }); } catch {}
+      }
+      nativeBgWatcherId = null;
+    }
     if (watchId !== null) {
       navigator.geolocation.clearWatch(watchId);
       watchId = null;
