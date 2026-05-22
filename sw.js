@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v3-2026-05-22';
+const CACHE_VERSION = 'v4-2026-05-22'; // Cloudflare proxy 備援上線
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
@@ -39,7 +39,8 @@ const SHELL_URLS = [
 ];
 
 const TILE_HOST_PATTERNS = [
-  /^https:\/\/gis\.sinica\.edu\.tw\//,
+  /^https:\/\/sinica-proxy\.jtl0513\.workers\.dev\//,  // Cloudflare proxy (備援)
+  /^https:\/\/gis\.sinica\.edu\.tw\//,                 // 中研院直連 (fallback)
   /^https:\/\/wmts\.nlsc\.gov\.tw\//,
   /^https:\/\/[a-d]\.basemaps\.cartocdn\.com\//,
   /^https:\/\/[a-c]\.tile\.openstreetmap\.org\//,
