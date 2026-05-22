@@ -1396,12 +1396,149 @@
     font-size: 10px;
     letter-spacing: 0.08em;
     text-decoration: none;
+    cursor: pointer;
     transition: background 0.18s, border-color 0.18s, color 0.18s;
   }
   .panel-foot .coffee-link:hover {
     background: var(--vermilion);
     border-color: var(--vermilion) !important;
     color: #fff !important;
+  }
+
+  /* ── Donation modal (QR-based "buy me a coffee") ──
+     Lightweight ATM transfer card — held in place until a proper
+     LINE Pay 個人收款 or GitHub Sponsors flow is wired in. */
+  .donate-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 29, 25, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+  }
+  .donate-overlay.show { opacity: 1; pointer-events: auto; }
+  .donate-card {
+    background: var(--paper);
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(31, 29, 25, 0.35);
+    width: 100%;
+    max-width: 340px;
+    padding: 26px 24px 22px;
+    position: relative;
+    font-family: var(--zh-sans);
+    color: var(--ink);
+    transform: translateY(12px) scale(0.97);
+    transition: transform 0.24s cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+  .donate-overlay.show .donate-card { transform: none; }
+  .donate-card-close {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--ash);
+    font-size: 18px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .donate-card-close:hover { background: var(--mist); color: var(--ink); }
+  .donate-card-title {
+    text-align: center;
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 22px;
+    color: var(--vermilion);
+    letter-spacing: 0.01em;
+    margin: 0 0 4px;
+  }
+  .donate-card-sub {
+    text-align: center;
+    font-size: 12px;
+    color: var(--ash);
+    letter-spacing: 0.06em;
+    margin: 0 0 16px;
+  }
+  .donate-qr {
+    display: block;
+    width: 100%;
+    max-width: 260px;
+    height: auto;
+    margin: 0 auto 14px;
+    border-radius: 10px;
+  }
+  .donate-account-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--paper-2);
+    border: 1px solid var(--mist);
+    border-radius: 8px;
+    margin-bottom: 14px;
+  }
+  .donate-account-info {
+    flex: 1;
+    min-width: 0;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--graphite);
+    letter-spacing: 0.02em;
+  }
+  .donate-account-info .bank {
+    display: block;
+    font-size: 9px;
+    color: var(--ash);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .donate-copy-btn {
+    flex-shrink: 0;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--stone);
+    background: var(--paper);
+    color: var(--graphite);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .donate-copy-btn:hover {
+    background: var(--vermilion);
+    border-color: var(--vermilion);
+    color: #fff;
+  }
+  .donate-copy-btn.copied {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+  .donate-thanks {
+    text-align: center;
+    font-size: 11px;
+    color: var(--ash);
+    line-height: 1.6;
+    margin: 0;
+  }
+  .donate-thanks em {
+    display: block;
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 10px;
+    color: var(--silver);
+    margin-top: 2px;
+    letter-spacing: 0.04em;
   }
   .panel-foot .mono {
     font-family: var(--mono);
@@ -2069,9 +2206,9 @@
       <a href="https://github.com/yunching0513" target="_blank" rel="noopener">吳昀慶 · Yunching Wu</a>
 
       <br>
-      <a class="coffee-link" href="https://github.com/sponsors/yunching0513" target="_blank" rel="noopener">
+      <button type="button" class="coffee-link" id="btn-donate">
         ☕ 請作者喝咖啡
-      </a>
+      </button>
     </footer>
   </div>
 </aside>
@@ -2096,6 +2233,27 @@
       <button type="button" class="era-picker-close" id="era-picker-close">✕</button>
     </div>
     <div class="era-picker-list" id="era-picker-list"></div>
+  </div>
+</div>
+
+<!-- Donation modal -->
+<div class="donate-overlay" id="donate-overlay" aria-hidden="true">
+  <div class="donate-card" role="dialog" aria-labelledby="donate-title">
+    <button type="button" class="donate-card-close" id="donate-close" aria-label="關閉">✕</button>
+    <h3 class="donate-card-title" id="donate-title">Buy me a coffee</h3>
+    <p class="donate-card-sub">☕ 請作者喝杯咖啡</p>
+    <img class="donate-qr" src="icons/donate-qr.jpg" alt="ATM 轉帳 QR Code" loading="lazy" />
+    <div class="donate-account-row">
+      <div class="donate-account-info">
+        <span class="bank">(013) 國泰世華</span>
+        <span id="donate-account">699506013601</span>
+      </div>
+      <button type="button" class="donate-copy-btn" id="donate-copy">複製</button>
+    </div>
+    <p class="donate-thanks">
+      謝謝你支持這個 App 的維護與更新
+      <em>Thank you for keeping the old maps alive.</em>
+    </p>
   </div>
 </div>
 
@@ -4460,6 +4618,58 @@
       const panel = document.getElementById('panel');
       if (panel) panel.classList.remove('peek');
     }
+  })();
+
+  // ── Donation modal (QR-based ATM transfer for now) ──
+  (function setupDonate() {
+    const trigger = document.getElementById('btn-donate');
+    const overlay = document.getElementById('donate-overlay');
+    const closeBtn = document.getElementById('donate-close');
+    const copyBtn = document.getElementById('donate-copy');
+    const accountEl = document.getElementById('donate-account');
+    if (!trigger || !overlay) return;
+
+    function open() {
+      overlay.classList.add('show');
+      overlay.setAttribute('aria-hidden', 'false');
+    }
+    function close() {
+      overlay.classList.remove('show');
+      overlay.setAttribute('aria-hidden', 'true');
+    }
+
+    trigger.addEventListener('click', open);
+    closeBtn.addEventListener('click', close);
+    // Click on backdrop (but not on the card) closes.
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) close();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && overlay.classList.contains('show')) close();
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      const text = accountEl.textContent.trim();
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        // Older browsers / non-secure contexts: fall back to a hidden textarea.
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch {}
+        document.body.removeChild(ta);
+      }
+      copyBtn.classList.add('copied');
+      copyBtn.textContent = '✓ 已複製';
+      setTimeout(() => {
+        copyBtn.classList.remove('copied');
+        copyBtn.textContent = '複製';
+      }, 1600);
+    });
   })();
 
   // ── Init ─────────────────────────────────────────
