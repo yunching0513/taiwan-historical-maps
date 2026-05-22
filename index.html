@@ -1382,6 +1382,27 @@
     border-bottom: 1px solid var(--mist);
   }
   .panel-foot a:hover { color: var(--indigo); border-color: var(--indigo); }
+  .panel-foot .coffee-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 14px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: var(--paper-2);
+    border: 1px solid var(--stone) !important;
+    color: var(--graphite) !important;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    transition: background 0.18s, border-color 0.18s, color 0.18s;
+  }
+  .panel-foot .coffee-link:hover {
+    background: var(--vermilion);
+    border-color: var(--vermilion) !important;
+    color: #fff !important;
+  }
   .panel-foot .mono {
     font-family: var(--mono);
     font-size: 9px;
@@ -2046,6 +2067,11 @@
 
       <span class="mono">Built by</span>
       <a href="https://github.com/yunching0513" target="_blank" rel="noopener">吳昀慶 · Yunching Wu</a>
+
+      <br>
+      <a class="coffee-link" href="https://github.com/sponsors/yunching0513" target="_blank" rel="noopener">
+        ☕ 請作者喝咖啡
+      </a>
     </footer>
   </div>
 </aside>
