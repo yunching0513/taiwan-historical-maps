@@ -707,7 +707,8 @@
   }
   .compare-side-label {
     position: absolute;
-    top: 14px;
+    top: 50%;
+    transform: translateY(-50%);
     z-index: 998;
     background: rgba(31, 29, 25, 0.78);
     color: var(--paper);
@@ -1395,22 +1396,21 @@
     text-transform: uppercase;
   }
 
-  /* ── Tile loading indicator ─────────────────────── */
+  /* ── Tile loading indicator (bottom-right, out of search box's way) ──── */
   .tile-spinner {
     position: absolute;
-    top: 18px;
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: 96px;
+    right: 14px;
     z-index: 950;
     display: none;
     align-items: center;
     gap: 8px;
-    padding: 6px 12px 6px 8px;
+    padding: 5px 10px 5px 8px;
     background: var(--paper-2);
     border: 1px solid var(--stone);
     box-shadow: 0 4px 14px -6px rgba(31, 29, 25, 0.35);
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: 9px;
     letter-spacing: 0.16em;
     color: var(--ash);
     text-transform: uppercase;
