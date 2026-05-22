@@ -2618,7 +2618,11 @@
   function onDrag(clientX) {
     const mapEl = document.getElementById('map');
     const rect = mapEl.getBoundingClientRect();
-    compareX = Math.max(0.05, Math.min(0.95, (clientX - rect.left) / rect.width));
+    // Allow the full 0–100 % range — user wants to be able to drag the
+    // divider all the way to either edge for a full "before" or "after"
+    // view. The swap button stays half-visible at the extremes so the
+    // user can still grab and drag it back to the centre.
+    compareX = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     updateCompareDividerPos();
     applyCompareClip();
   }
