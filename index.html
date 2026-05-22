@@ -1319,6 +1319,10 @@
     color: var(--ink);
     letter-spacing: 0.04em;
     min-width: 0;
+    /* Strip iOS Safari's default styling so our custom ⌕ icon stands alone */
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 0;
   }
   .search-input::placeholder {
     color: var(--silver);
@@ -1326,8 +1330,21 @@
     font-style: italic;
     letter-spacing: 0.01em;
   }
+  /* Hide every native search-input decoration on WebKit & Blink */
   .search-input::-webkit-search-decoration,
-  .search-input::-webkit-search-cancel-button { -webkit-appearance: none; }
+  .search-input::-webkit-search-cancel-button,
+  .search-input::-webkit-search-results-button,
+  .search-input::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+    display: none;
+  }
+  .search-input:focus { outline: none; box-shadow: none; }
+  /* Use the design-system vermilion border on focus instead of the
+     system blue ring */
+  .search-box:focus-within {
+    border-color: var(--indigo);
+    box-shadow: 0 0 0 3px var(--indigo-l), 0 4px 16px -6px rgba(31, 29, 25, 0.25);
+  }
   .search-clear {
     flex-shrink: 0;
     background: transparent;
