@@ -1407,6 +1407,20 @@
   .search-pin.active .pin-ring::after {
     background: var(--indigo);
   }
+  /* Record button: disabled = muted; recording = pulsing vermilion */
+  .search-rec:disabled { opacity: 0.35; cursor: default; }
+  .search-rec:disabled .search-pin-label { color: var(--silver); }
+  .search-rec.recording .rec-ring {
+    border-color: var(--indigo);
+    box-shadow: 0 0 0 3px var(--indigo-l);
+    animation: rec-pulse 1.4s ease-in-out infinite;
+  }
+  .search-rec.recording .rec-ring::after { background: var(--indigo); }
+  .search-rec.recording .search-pin-label { color: var(--indigo); }
+  @keyframes rec-pulse {
+    0%, 100% { box-shadow: 0 0 0 3px var(--indigo-l); }
+    50%       { box-shadow: 0 0 0 6px rgba(193,95,60,0.06); }
+  }
 
   .search-results {
     position: absolute;
@@ -1735,6 +1749,8 @@
   <button type="button" class="search-clear" id="search-clear" hidden aria-label="清除">✕</button>
   <div class="search-sep" aria-hidden="true"></div>
   <button type="button" class="search-pin" id="search-pin" aria-label="定位"><span class="pin-ring"></span><span class="search-pin-label">定位</span></button>
+  <div class="search-sep" aria-hidden="true"></div>
+  <button type="button" class="search-pin search-rec" id="search-rec" aria-label="記錄路線" disabled><span class="pin-ring rec-ring"></span><span class="search-pin-label">記錄</span></button>
   <div class="search-results" id="search-results" hidden role="listbox"></div>
 </div>
 
@@ -2382,6 +2398,7 @@
   const locStatus = document.getElementById('loc-status');
   const recStatus = document.getElementById('rec-status');
   const searchPinBtn = document.getElementById('search-pin');
+  const searchRecBtn = document.getElementById('search-rec');
 
   function updateButtons() {
     locBtn.classList.toggle('active', isLocating);
@@ -2390,8 +2407,13 @@
     recBtn.classList.toggle('recording', isRecording);
     recBtn.classList.toggle('active', isRecording);
     recBtn.querySelector('.btn-label').textContent = isRecording ? '停止記錄' : '記錄路線';
-    // sync the search-bar pin button state
+    // sync search-bar shortcut buttons
     if (searchPinBtn) searchPinBtn.classList.toggle('active', isLocating);
+    if (searchRecBtn) {
+      searchRecBtn.disabled = !isLocating;
+      searchRecBtn.classList.toggle('recording', isRecording);
+      searchRecBtn.querySelector('.search-pin-label').textContent = isRecording ? '停止' : '記錄';
+    }
   }
 
   function startLocate() {
@@ -2975,6 +2997,7 @@
   locBtn.addEventListener('click', () => isLocating ? stopLocate() : startLocate());
   recBtn.addEventListener('click', () => isRecording ? stopRecording() : startRecording());
   if (searchPinBtn) searchPinBtn.addEventListener('click', () => isLocating ? stopLocate() : startLocate());
+  if (searchRecBtn) searchRecBtn.addEventListener('click', () => isRecording ? stopRecording() : startRecording());
 
   document.getElementById('trace-list').addEventListener('click', e => {
     const actBtn = e.target.closest('button[data-act]');
