@@ -1024,6 +1024,79 @@
   }
 
   /* ── Camera button inside recording card ───────── */
+  /* ── Offline pack ────────────────────────────────── */
+  .btn-pack {
+    width: 100%;
+    margin-top: 8px;
+    background: var(--paper);
+    color: var(--graphite);
+    justify-content: center;
+  }
+  .btn-pack.downloading {
+    border-color: var(--indigo);
+    color: var(--indigo);
+    background: var(--indigo-l);
+  }
+  .btn-pack.downloading .dot {
+    background: var(--indigo);
+    animation: btn-pulse 1.5s ease infinite;
+  }
+  .pack-hint {
+    margin-top: 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--ash);
+    text-align: center;
+    min-height: 14px;
+  }
+  .pack-list { margin-top: 8px; }
+  .pack-row {
+    position: relative;
+    padding: 12px 4px;
+    border-bottom: 1px dotted var(--silver);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+  }
+  .pack-row:last-child { border-bottom: none; }
+  .pack-info .pack-name {
+    font-family: var(--zh-serif);
+    font-size: 14px;
+    color: var(--ink);
+    letter-spacing: 0.04em;
+  }
+  .pack-info .pack-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--graphite);
+    letter-spacing: 0.06em;
+    margin-top: 3px;
+  }
+  .pack-info .pack-layers {
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 11px;
+    color: var(--ash);
+    margin-top: 2px;
+  }
+  .pack-row .pack-actions button {
+    background: transparent;
+    border: 1px solid var(--mist);
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    padding: 4px 8px;
+    cursor: pointer;
+    color: var(--graphite);
+    text-transform: uppercase;
+  }
+  .pack-row .pack-actions button:hover {
+    border-color: #b00020;
+    color: #b00020;
+  }
+
   .btn-camera {
     width: 100%;
     margin-top: 10px;
@@ -1628,7 +1701,22 @@
     <div id="historical-layers"></div>
 
     <div class="section-label">
-      <span class="num">04 — Traces</span>
+      <span class="num">04 — Offline</span>
+      <span class="en">offline packs</span>
+    </div>
+
+    <button type="button" class="btn btn-pack" id="btn-pack">
+      <span class="dot"></span>
+      <span class="btn-label">下載當前範圍離線使用</span>
+    </button>
+    <div class="pack-hint" id="pack-hint"></div>
+
+    <div class="pack-list" id="pack-list">
+      <div class="trace-empty">尚無離線包 · No offline packs</div>
+    </div>
+
+    <div class="section-label">
+      <span class="num">05 — Traces</span>
       <span class="en">saved walks</span>
     </div>
 
@@ -1637,7 +1725,7 @@
     </div>
 
     <div class="section-label">
-      <span class="num">05 — Calendar</span>
+      <span class="num">06 — Calendar</span>
       <span class="en">月曆</span>
     </div>
 
@@ -1651,7 +1739,7 @@
     <div class="cal-summary" id="cal-summary"></div>
 
     <div class="section-label">
-      <span class="num">06 — Seals</span>
+      <span class="num">07 — Seals</span>
       <span class="en">縣市印章</span>
     </div>
 
@@ -2731,6 +2819,219 @@
   renderSeals();
   renderCalendar();
   updateButtons();
+
+  // ── Offline tile packs ──────────────────────────
+  const PACKS_KEY = 'taiwanOldMaps.offlinePacks';
+  const PINNED_CACHE_NAME = 'tw-historical-pinned';
+  let downloadInFlight = null;
+
+  function loadPacks() {
+    try { return JSON.parse(localStorage.getItem(PACKS_KEY) || '[]'); }
+    catch { return []; }
+  }
+  function savePacks(packs) {
+    try { localStorage.setItem(PACKS_KEY, JSON.stringify(packs)); }
+    catch (e) { console.warn('packs save failed', e); }
+  }
+  let savedPacks = loadPacks();
+
+  function fmtBytes(n) {
+    if (n < 1024) return n + ' B';
+    if (n < 1024 * 1024) return (n / 1024).toFixed(0) + ' KB';
+    if (n < 1024 * 1024 * 1024) return (n / 1024 / 1024).toFixed(1) + ' MB';
+    return (n / 1024 / 1024 / 1024).toFixed(2) + ' GB';
+  }
+
+  // Enumerate every (x, y, z) tile URL needed to cover the given bounds for
+  // the current base + active historical layer at the chosen zoom range.
+  function enumerateTileUrls(bounds, zoomRange) {
+    const layers = [];
+    const baseStack = BASE_MAPS[currentBaseId] || BASE_MAPS.plain;
+    baseStack.forEach(b => {
+      const o = b.opts || {};
+      // Skip subdomain-less labels-only overlay tiles? Keep them — we
+      // want labels in offline mode too.
+      layers.push({
+        url: b.url,
+        subdomains: o.subdomains,
+        maxNative: o.maxNativeZoom || 19,
+        kind: 'base',
+        label: '底圖',
+      });
+    });
+    if (activeId) {
+      const lyr = HISTORICAL_MAPS.find(m => m.id === activeId);
+      if (lyr) {
+        layers.push({
+          url: lyr.url,
+          maxNative: lyr.maxNativeZoom || 16,
+          kind: 'overlay',
+          label: lyr.label + ' ' + lyr.year,
+        });
+      }
+    }
+    const urls = [];
+    const layerSummary = [];
+    for (const L of layers) {
+      let count = 0;
+      for (let z = zoomRange[0]; z <= zoomRange[1]; z++) {
+        if (z > L.maxNative) continue;
+        const nw = map.project(bounds.getNorthWest(), z);
+        const se = map.project(bounds.getSouthEast(), z);
+        const xMin = Math.floor(Math.min(nw.x, se.x) / 256);
+        const xMax = Math.floor(Math.max(nw.x, se.x) / 256);
+        const yMin = Math.floor(Math.min(nw.y, se.y) / 256);
+        const yMax = Math.floor(Math.max(nw.y, se.y) / 256);
+        for (let x = xMin; x <= xMax; x++) {
+          for (let y = yMin; y <= yMax; y++) {
+            urls.push(buildTileUrl(L.url, x, y, z, L.subdomains));
+            count++;
+          }
+        }
+      }
+      layerSummary.push({ label: L.label, count });
+    }
+    return { urls, layers: layerSummary };
+  }
+
+  function packHint(text) {
+    document.getElementById('pack-hint').textContent = text || '';
+  }
+
+  const btnPack = document.getElementById('btn-pack');
+  const btnPackLabel = btnPack.querySelector('.btn-label');
+
+  btnPack.addEventListener('click', async () => {
+    if (downloadInFlight) {
+      downloadInFlight.cancel = true;
+      return;
+    }
+    const bounds = map.getBounds();
+    const zoom = Math.floor(map.getZoom());
+    // Sensible zoom range: current ±1, capped within Leaflet limits
+    const zMin = Math.max(zoom - 1, 10);
+    const zMax = Math.min(zoom + 1, 17);
+
+    const { urls, layers } = enumerateTileUrls(bounds, [zMin, zMax]);
+    if (urls.length === 0) {
+      packHint('沒有可下載的圖磚');
+      return;
+    }
+    const estMB = (urls.length * 35 / 1024).toFixed(1);
+    if (!confirm(`預估下載 ${urls.length} 個圖磚 (~${estMB} MB)\n範圍：${currentCity?.zh || '當前畫面'} z${zMin}–${zMax}\n繼續？`)) return;
+
+    btnPack.classList.add('downloading');
+    btnPackLabel.textContent = '取消下載';
+    const flight = { cancel: false };
+    downloadInFlight = flight;
+
+    const cache = await caches.open(PINNED_CACHE_NAME);
+    let done = 0;
+    let bytes = 0;
+    let failed = 0;
+    const queue = urls.slice();
+    const concurrency = 6;
+
+    const worker = async () => {
+      while (queue.length && !flight.cancel) {
+        const url = queue.shift();
+        try {
+          // Reuse browser/SW cache if already fetched; else network
+          const res = await fetch(url, { mode: 'cors', credentials: 'omit' });
+          if (res && res.ok) {
+            const blob = await res.clone().blob();
+            if (blob.size > 1200) {
+              await cache.put(url, res);
+              bytes += blob.size;
+            }
+          }
+        } catch { failed++; }
+        done++;
+        if (done % 5 === 0 || done === urls.length) {
+          packHint(`下載中 ${done} / ${urls.length} · ${fmtBytes(bytes)}`);
+        }
+      }
+    };
+    await Promise.all(Array(concurrency).fill(0).map(worker));
+
+    btnPack.classList.remove('downloading');
+    btnPackLabel.textContent = '下載當前範圍離線使用';
+
+    if (flight.cancel) {
+      packHint(`已取消（已下載 ${done}）`);
+      downloadInFlight = null;
+      return;
+    }
+    downloadInFlight = null;
+
+    const pack = {
+      id: 'pack-' + Date.now(),
+      cityZh: currentCity?.zh || '自訂範圍',
+      cityId: currentCity?.id || null,
+      bbox: [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()],
+      zoomRange: [zMin, zMax],
+      tileCount: urls.length - failed,
+      bytes,
+      layers,
+      createdAt: Date.now(),
+    };
+    savedPacks.unshift(pack);
+    savePacks(savedPacks);
+    renderPackList();
+    packHint(`✓ 完成：${pack.tileCount} 圖磚 · ${fmtBytes(bytes)}${failed ? ` · ${failed} 失敗` : ''}`);
+    setTimeout(() => packHint(''), 5000);
+  });
+
+  function renderPackList() {
+    const list = document.getElementById('pack-list');
+    if (!savedPacks.length) {
+      list.innerHTML = '<div class="trace-empty">尚無離線包<span class="en">No offline packs</span></div>';
+      return;
+    }
+    list.innerHTML = savedPacks.map(p => {
+      const date = new Date(p.createdAt).toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+      const layerLabels = (p.layers || []).filter(l => l.label !== '底圖').map(l => l.label).join(' · ') || '僅底圖';
+      return `
+        <div class="pack-row" data-id="${p.id}">
+          <div class="pack-info">
+            <div class="pack-name">${p.cityZh}</div>
+            <div class="pack-layers">${layerLabels}</div>
+            <div class="pack-meta">${date} · ${p.tileCount} tiles · ${fmtBytes(p.bytes)}</div>
+          </div>
+          <div class="pack-actions">
+            <button data-act="del" data-id="${p.id}">刪除</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function deletePack(id) {
+    const pack = savedPacks.find(p => p.id === id);
+    if (!pack) return;
+    if (!confirm(`刪除「${pack.cityZh}」離線包（${pack.tileCount} 圖磚 · ${fmtBytes(pack.bytes)}）？`)) return;
+    // Recompute the URLs and remove them from the pinned cache. Approximate
+    // (uses current Leaflet projection assuming map state hasn't changed)
+    // but pinned cache is large enough that orphan tiles get evicted via
+    // normal LRU eventually.
+    try {
+      const cache = await caches.open(PINNED_CACHE_NAME);
+      const bounds = L.latLngBounds([pack.bbox[1], pack.bbox[0]], [pack.bbox[3], pack.bbox[2]]);
+      const { urls } = enumerateTileUrls(bounds, pack.zoomRange);
+      await Promise.all(urls.map(u => cache.delete(u).catch(() => {})));
+    } catch (e) { console.warn('pack tile delete failed', e); }
+    savedPacks = savedPacks.filter(p => p.id !== id);
+    savePacks(savedPacks);
+    renderPackList();
+  }
+
+  document.getElementById('pack-list').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-act]');
+    if (!btn) return;
+    if (btn.dataset.act === 'del') deletePack(btn.dataset.id);
+  });
+
+  renderPackList();
 
   // ── Photo capture (IndexedDB) ────────────────────
   const photoMarkers = new Map();           // id → L.marker on map

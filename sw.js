@@ -15,10 +15,13 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v2-2026-05-22';
+const CACHE_VERSION = 'v3-2026-05-22';
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
+// Pinned cache holds user-downloaded offline packs. Version-independent so
+// upgrades don't blow them away. LRU eviction never touches this bucket.
+const PINNED_CACHE = 'tw-historical-pinned';
 
 // Roughly 100–150 MB at typical tile sizes (30–100 KB each). LRU evicts
 // oldest tiles when the cap is exceeded.
@@ -56,7 +59,7 @@ self.addEventListener('activate', event => {
     caches.keys()
       .then(keys => Promise.all(
         keys
-          .filter(k => k !== SHELL_CACHE && k !== RUNTIME_CACHE && k !== TILE_CACHE)
+          .filter(k => k !== SHELL_CACHE && k !== RUNTIME_CACHE && k !== TILE_CACHE && k !== PINNED_CACHE)
           .map(k => caches.delete(k))
       ))
       .then(() => self.clients.claim())
@@ -134,6 +137,11 @@ async function cacheFirst(req) {
 // over cap acts as a simple FIFO. Re-fetching a tile re-adds it at the end,
 // approximating LRU well enough for an icon/tile workload.
 async function tileCacheFirst(req) {
+  // Pinned (offline pack) tiles win — never re-fetched, never evicted.
+  const pinned = await caches.open(PINNED_CACHE);
+  const pinnedHit = await pinned.match(req);
+  if (pinnedHit) return pinnedHit;
+
   const cache = await caches.open(TILE_CACHE);
   const cached = await cache.match(req);
   if (cached) {
