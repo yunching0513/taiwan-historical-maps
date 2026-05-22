@@ -5,3 +5,8 @@
 node_modules/
 .env
 .env.local
+
+# AI pipeline outputs
+.tile_cache/
+out/
+tools/__pycache__/
