@@ -2534,12 +2534,16 @@
   const searchRecBtn = document.getElementById('search-rec');
 
   function updateButtons() {
-    locBtn.classList.toggle('active', isLocating);
-    locBtn.querySelector('.btn-label').textContent = isLocating ? '停止定位' : '定位';
-    recBtn.disabled = !isLocating;
-    recBtn.classList.toggle('recording', isRecording);
-    recBtn.classList.toggle('active', isRecording);
-    recBtn.querySelector('.btn-label').textContent = isRecording ? '停止記錄' : '記錄路線';
+    if (locBtn) {
+      locBtn.classList.toggle('active', isLocating);
+      locBtn.querySelector('.btn-label').textContent = isLocating ? '停止定位' : '定位';
+    }
+    if (recBtn) {
+      recBtn.disabled = !isLocating;
+      recBtn.classList.toggle('recording', isRecording);
+      recBtn.classList.toggle('active', isRecording);
+      recBtn.querySelector('.btn-label').textContent = isRecording ? '停止記錄' : '記錄路線';
+    }
     // sync search-bar shortcut buttons
     if (searchPinBtn) searchPinBtn.classList.toggle('active', isLocating);
     if (searchRecBtn) {
@@ -3259,8 +3263,8 @@
     renderCalendar();
   }
 
-  locBtn.addEventListener('click', () => isLocating ? stopLocate() : startLocate());
-  recBtn.addEventListener('click', () => isRecording ? stopRecording() : startRecording());
+  if (locBtn) locBtn.addEventListener('click', () => isLocating ? stopLocate() : startLocate());
+  if (recBtn) recBtn.addEventListener('click', () => isRecording ? stopRecording() : startRecording());
   if (searchPinBtn) searchPinBtn.addEventListener('click', () => isLocating ? stopLocate() : startLocate());
   if (searchRecBtn) searchRecBtn.addEventListener('click', () => isRecording ? stopRecording() : startRecording());
 
