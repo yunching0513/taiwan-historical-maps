@@ -1290,11 +1290,9 @@
     transform: translateX(-50%);
     z-index: 1010;
     width: min(420px, calc(100vw - 360px));
-    background: rgba(234, 232, 226, 0.82);
-    -webkit-backdrop-filter: blur(18px) saturate(1.4);
-    backdrop-filter: blur(18px) saturate(1.4);
-    border: 1px solid rgba(187, 184, 174, 0.7);
-    box-shadow: 0 2px 10px -4px rgba(31, 29, 25, 0.18);
+    background: #fff;
+    border: 1px solid var(--stone);
+    box-shadow: 0 4px 16px -6px rgba(31, 29, 25, 0.25);
     display: flex;
     align-items: center;
     font-family: var(--zh-sans);
@@ -1361,17 +1359,26 @@
   }
   .search-pin {
     flex-shrink: 0;
-    width: 40px;
     height: 38px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 6px;
     background: transparent;
     border: 0;
     cursor: pointer;
-    padding: 0;
+    padding: 0 12px 0 8px;
     -webkit-tap-highlight-color: transparent;
   }
+  .search-pin-label {
+    font-family: var(--zh-sans);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--graphite);
+    letter-spacing: 0.06em;
+    transition: color 0.2s;
+  }
+  .search-pin:hover .search-pin-label,
+  .search-pin.active .search-pin-label { color: var(--indigo); }
   .pin-ring {
     position: relative;
     width: 13px;
@@ -1495,7 +1502,7 @@
   @media (max-width: 768px) {
     /* Search box: full-width across the top so it doesn't fight the panel */
     .search-box {
-      top: calc(12px + env(safe-area-inset-top, 0px));
+      top: calc(6px + env(safe-area-inset-top, 0px));
       left: 12px;
       right: 12px;
       transform: none;
@@ -1659,7 +1666,7 @@
 
     /* Reposition Leaflet zoom controls so they sit below the search box */
     .leaflet-top.leaflet-left {
-      top: calc(72px + env(safe-area-inset-top, 0px));
+      top: calc(66px + env(safe-area-inset-top, 0px));
       left: 14px;
     }
     .leaflet-control-zoom a {
@@ -1727,7 +1734,7 @@
   />
   <button type="button" class="search-clear" id="search-clear" hidden aria-label="清除">✕</button>
   <div class="search-sep" aria-hidden="true"></div>
-  <button type="button" class="search-pin" id="search-pin" aria-label="定位"><span class="pin-ring"></span></button>
+  <button type="button" class="search-pin" id="search-pin" aria-label="定位"><span class="pin-ring"></span><span class="search-pin-label">定位</span></button>
   <div class="search-results" id="search-results" hidden role="listbox"></div>
 </div>
 
