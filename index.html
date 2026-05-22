@@ -1290,9 +1290,11 @@
     transform: translateX(-50%);
     z-index: 1010;
     width: min(420px, calc(100vw - 360px));
-    background: var(--paper-2);
-    border: 1px solid var(--stone);
-    box-shadow: 0 4px 16px -6px rgba(31, 29, 25, 0.25);
+    background: rgba(234, 232, 226, 0.82);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    backdrop-filter: blur(18px) saturate(1.4);
+    border: 1px solid rgba(187, 184, 174, 0.7);
+    box-shadow: 0 2px 10px -4px rgba(31, 29, 25, 0.18);
     display: flex;
     align-items: center;
     font-family: var(--zh-sans);
@@ -1348,6 +1350,56 @@
     -webkit-tap-highlight-color: transparent;
   }
   .search-clear:hover { color: var(--indigo); }
+
+  /* ── Search bar locate pin ─────────────────────── */
+  .search-sep {
+    flex-shrink: 0;
+    width: 1px;
+    height: 18px;
+    background: var(--mist);
+    margin: 0 2px;
+  }
+  .search-pin {
+    flex-shrink: 0;
+    width: 40px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pin-ring {
+    position: relative;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 1.5px solid var(--stone);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .pin-ring::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--stone);
+    transition: background 0.2s;
+  }
+  .search-pin:hover .pin-ring,
+  .search-pin.active .pin-ring {
+    border-color: var(--indigo);
+    box-shadow: 0 0 0 3px var(--indigo-l);
+  }
+  .search-pin:hover .pin-ring::after,
+  .search-pin.active .pin-ring::after {
+    background: var(--indigo);
+  }
 
   .search-results {
     position: absolute;
@@ -1674,6 +1726,8 @@
     aria-label="搜尋地點"
   />
   <button type="button" class="search-clear" id="search-clear" hidden aria-label="清除">✕</button>
+  <div class="search-sep" aria-hidden="true"></div>
+  <button type="button" class="search-pin" id="search-pin" aria-label="定位"><span class="pin-ring"></span></button>
   <div class="search-results" id="search-results" hidden role="listbox"></div>
 </div>
 
@@ -2320,6 +2374,7 @@
   const recBtn = document.getElementById('btn-record');
   const locStatus = document.getElementById('loc-status');
   const recStatus = document.getElementById('rec-status');
+  const searchPinBtn = document.getElementById('search-pin');
 
   function updateButtons() {
     locBtn.classList.toggle('active', isLocating);
@@ -2328,6 +2383,8 @@
     recBtn.classList.toggle('recording', isRecording);
     recBtn.classList.toggle('active', isRecording);
     recBtn.querySelector('.btn-label').textContent = isRecording ? '停止記錄' : '記錄路線';
+    // sync the search-bar pin button state
+    if (searchPinBtn) searchPinBtn.classList.toggle('active', isLocating);
   }
 
   function startLocate() {
@@ -2910,6 +2967,7 @@
 
   locBtn.addEventListener('click', () => isLocating ? stopLocate() : startLocate());
   recBtn.addEventListener('click', () => isRecording ? stopRecording() : startRecording());
+  if (searchPinBtn) searchPinBtn.addEventListener('click', () => isLocating ? stopLocate() : startLocate());
 
   document.getElementById('trace-list').addEventListener('click', e => {
     const actBtn = e.target.closest('button[data-act]');
