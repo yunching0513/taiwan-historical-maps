@@ -1706,12 +1706,15 @@
 
   const HISTORICAL_MAPS = [
     // 日治時期 ────────────────────────────────────────────
+    { id: 'jm200k_1897', group: 'jp',  year: '1897', label: '假製二十萬分一圖',         en: 'Provisional Taiwan 200K',     url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM200K_1897_new-jpg-{z}-{x}-{y}',    maxNativeZoom: 15 },
     { id: 'jm20k_1904',   group: 'jp',  year: '1904', label: '臺灣堡圖',                 en: 'Taiwan Daichō · 20K',         url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM20K_1904-jpg-{z}-{x}-{y}',         maxNativeZoom: 17 },
     { id: 'jm100k_1905',  group: 'jp',  year: '1905', label: '十萬分一臺灣圖',           en: 'Taiwan 100K',                 url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM100K_1905-png-{z}-{x}-{y}',       maxNativeZoom: 14 },
     { id: 'jm50k_1916',   group: 'jp',  year: '1916', label: '蕃地地形圖',               en: 'Banchi (Mountain) 50K',       url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM50K_1916-jpg-{z}-{x}-{y}',        maxNativeZoom: 15 },
     { id: 'jm50k_1920',   group: 'jp',  year: '1920', label: '五萬分一地形圖',           en: 'Civil-Eng 50K',               url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM50K_1920-png-{z}-{x}-{y}',        maxNativeZoom: 15 },
+    { id: 'jm20k_1921',   group: 'jp',  year: '1921', label: '臺灣堡圖（大正版）',       en: 'Taiwan Daichō · Taishō 20K',  url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM20K_1921-jpg-{z}-{x}-{y}',         maxNativeZoom: 17 },
     { id: 'jm25k_1921',   group: 'jp',  year: '1921', label: '二萬五千分一地形圖',       en: 'Japanese Topo 25K',           url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM25K_1921-jpg-{z}-{x}-{y}',        maxNativeZoom: 17 },
     { id: 'jm50k_1924',   group: 'jp',  year: '1924', label: '陸地測量部五萬分一',       en: 'Imperial Land Survey 50K',    url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM50K_1924_new-png-{z}-{x}-{y}',    maxNativeZoom: 15 },
+    { id: 'jm200k_1932', group: 'jp',  year: '1932', label: '二十萬分一帝國圖',         en: 'Imperial 200K',               url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM200K_1932-png-{z}-{x}-{y}',       maxNativeZoom: 17 },
     { id: 'jm25k_1944',   group: 'jp',  year: '1944', label: '航照修正版地形圖',         en: 'Aerial-Revised 25K',          url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM25K_1944-png-{z}-{x}-{y}',        maxNativeZoom: 16, partial: true },
     // 美軍時期 ────────────────────────────────────────────
     { id: 'am25k_1944a',  group: 'army', year: '1944', label: '美軍地形圖 25K-A',        en: 'U.S. Army 25K Series A',      url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=AM25K_1944A-png-{z}-{x}-{y}',       maxNativeZoom: 15 },
@@ -1719,7 +1722,8 @@
     { id: 'am50k_1944',   group: 'army', year: '1944', label: '美軍地形圖 50K',          en: 'U.S. Army 50K',               url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=AM50K_1944-png-{z}-{x}-{y}',        maxNativeZoom: 15 },
     { id: 'am_city_1945', group: 'army', year: '1945', label: '美軍臺灣城市地圖',        en: 'U.S. Army City Plans',        url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=AMCityPlan_1945-png-{z}-{x}-{y}',   maxNativeZoom: 17 },
     // 經建版 ──────────────────────────────────────────────
-    { id: 'tm25k_1950',   group: 'roc', year: '1950', label: '經建版地形圖',             en: 'Economic Survey 25K',         url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=TM25K_1950-jpg-{z}-{x}-{y}',        maxNativeZoom: 16 },
+    { id: 'tm25k_1950',   group: 'roc', year: '1950', label: '臺灣地形圖',               en: 'Taiwan Topo 25K',             url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=TM25K_1950-jpg-{z}-{x}-{y}',        maxNativeZoom: 16 },
+    { id: 'tm25k_1955',   group: 'roc', year: '1955', label: '二萬五千分一臺灣省圖',     en: 'Taiwan Province 25K',         url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=TM25K_1955-jpg-{z}-{x}-{y}',        maxNativeZoom: 15 },
     { id: 'tm50k_1956',   group: 'roc', year: '1956', label: '五萬分一地形圖',           en: 'Topographic 50K',             url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=TM50K_1956-jpg-{z}-{x}-{y}',        maxNativeZoom: 16 },
     { id: 'tm25k_1989',   group: 'roc', year: '1989', label: '經建版地形圖（一版）',     en: 'Economic Survey v1',          url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=TM25K_1989-jpg-{z}-{x}-{y}',        maxNativeZoom: 16 },
     { id: 'tm25k_1993',   group: 'roc', year: '1993', label: '經建版地形圖（二版）',     en: 'Economic Survey v2',          url: 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=TM25K_1993-jpg-{z}-{x}-{y}',        maxNativeZoom: 15 },
