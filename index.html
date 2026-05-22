@@ -1330,14 +1330,6 @@
     font-style: italic;
     letter-spacing: 0.01em;
   }
-  /* Hide every native search-input decoration on WebKit & Blink */
-  .search-input::-webkit-search-decoration,
-  .search-input::-webkit-search-cancel-button,
-  .search-input::-webkit-search-results-button,
-  .search-input::-webkit-search-results-decoration {
-    -webkit-appearance: none;
-    display: none;
-  }
   .search-input:focus { outline: none; box-shadow: none; }
   /* Use the design-system vermilion border on focus instead of the
      system blue ring */
@@ -1457,41 +1449,7 @@
       transform: none;
       width: auto;
     }
-    /* City tag moves below the search box */
-    .mobile-tag {
-      display: flex;
-      align-items: baseline;
-      gap: 10px;
-      position: absolute;
-      top: calc(72px + env(safe-area-inset-top, 0px));
-      left: 14px;
-      z-index: 999;
-      background: var(--paper-2);
-      border: 1px solid var(--stone);
-      padding: 6px 12px;
-      pointer-events: none;
-      max-width: calc(100vw - 28px);
-    }
-    .mobile-tag::before {
-      content: '';
-      width: 14px;
-      height: 2px;
-      background: var(--indigo);
-      align-self: center;
-    }
-    .mobile-tag .zh {
-      font-family: var(--zh-serif);
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--ink);
-      letter-spacing: 0.12em;
-    }
-    .mobile-tag .en {
-      font-family: var(--en-serif);
-      font-style: italic;
-      font-size: 12px;
-      color: var(--graphite);
-    }
+    .mobile-tag { display: none; }
 
     /* Panel as bottom sheet */
     .panel {
@@ -1647,9 +1605,9 @@
     .base-pills { margin-top: 4px; }
     .panel-foot { font-size: 12px; }
 
-    /* Reposition Leaflet zoom controls so sheet + search + city tag don't cover them */
+    /* Reposition Leaflet zoom controls so they sit below the search box */
     .leaflet-top.leaflet-left {
-      top: calc(126px + env(safe-area-inset-top, 0px));
+      top: calc(72px + env(safe-area-inset-top, 0px));
       left: 14px;
     }
     .leaflet-control-zoom a {
@@ -1706,7 +1664,7 @@
 <div class="search-box" id="search-box">
   <span class="search-icon" aria-hidden="true">⌕</span>
   <input
-    type="search"
+    type="text"
     id="search-input"
     autocomplete="off"
     autocapitalize="off"
