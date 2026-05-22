@@ -2475,6 +2475,35 @@
   let recordPolyline = null;
   let recTimerId = null;
 
+  // ── Screen Wake Lock (keeps phone awake during recording) ──
+  // Pure web can't do background geolocation on iOS Safari — it suspends
+  // JS as soon as the page is hidden. The next-best thing is keeping the
+  // screen on so users can pocket the phone screen-up and the watch loop
+  // keeps firing. Released when recording stops or the user manually
+  // releases it. Must be re-acquired after the page returns from hidden.
+  let wakeLock = null;
+  async function acquireWakeLock() {
+    if (!('wakeLock' in navigator)) return;
+    try {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    } catch (err) {
+      // NotAllowedError when tab is hidden, etc. Non-fatal.
+      wakeLock = null;
+    }
+  }
+  async function releaseWakeLock() {
+    if (!wakeLock) return;
+    try { await wakeLock.release(); } catch {}
+    wakeLock = null;
+  }
+  document.addEventListener('visibilitychange', () => {
+    // Returning from background: re-request if we're still recording.
+    if (document.visibilityState === 'visible' && isRecording && !wakeLock) {
+      acquireWakeLock();
+    }
+  });
+
   let shownTracePolyline = null;
   let shownTraceId = null;
 
@@ -2654,11 +2683,13 @@
     if (recTimerId) clearInterval(recTimerId);
     recTimerId = setInterval(updateRecTimer, 1000);
     updateRecTimer();
+    acquireWakeLock();
   }
 
   function stopRecording() {
     if (!isRecording) return;
     isRecording = false;
+    releaseWakeLock();
     if (recTimerId) { clearInterval(recTimerId); recTimerId = null; }
     if (recordPolyline) { map.removeLayer(recordPolyline); recordPolyline = null; }
 
