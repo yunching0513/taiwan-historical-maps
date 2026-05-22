@@ -1281,6 +1281,120 @@
   .sheet-handle { display: none; }
   .mobile-tag { display: none; }
 
+  /* ── Search box (floating top) ──────────────────── */
+  .search-box {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1010;
+    width: min(420px, calc(100vw - 360px));
+    background: var(--paper-2);
+    border: 1px solid var(--stone);
+    box-shadow: 0 4px 16px -6px rgba(31, 29, 25, 0.25);
+    display: flex;
+    align-items: center;
+    font-family: var(--zh-sans);
+  }
+  .search-icon {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--graphite);
+    font-size: 16px;
+    font-family: var(--en-serif);
+  }
+  .search-input {
+    flex: 1;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    padding: 10px 6px;
+    font-family: var(--zh-sans);
+    font-size: 14px;
+    color: var(--ink);
+    letter-spacing: 0.04em;
+    min-width: 0;
+  }
+  .search-input::placeholder {
+    color: var(--silver);
+    font-family: var(--en-serif);
+    font-style: italic;
+    letter-spacing: 0.01em;
+  }
+  .search-input::-webkit-search-decoration,
+  .search-input::-webkit-search-cancel-button { -webkit-appearance: none; }
+  .search-clear {
+    flex-shrink: 0;
+    background: transparent;
+    border: 0;
+    padding: 10px 14px;
+    cursor: pointer;
+    color: var(--graphite);
+    font-size: 12px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .search-clear:hover { color: var(--indigo); }
+
+  .search-results {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: var(--paper-2);
+    border: 1px solid var(--stone);
+    max-height: min(60vh, 460px);
+    overflow-y: auto;
+    box-shadow: 0 16px 36px -16px rgba(31, 29, 25, 0.4);
+  }
+  .search-results[hidden] { display: none; }
+  .search-result {
+    padding: 12px 16px;
+    border-bottom: 1px dotted var(--silver);
+    cursor: pointer;
+    transition: background 0.12s, padding 0.15s;
+  }
+  .search-result:last-child { border-bottom: none; }
+  .search-result:hover,
+  .search-result.active {
+    background: var(--indigo-l);
+    padding-left: 20px;
+  }
+  .search-result-name {
+    font-family: var(--zh-serif);
+    font-size: 14px;
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .search-result-meta {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--ash);
+    letter-spacing: 0.08em;
+    margin-top: 3px;
+  }
+  .search-empty {
+    padding: 16px;
+    text-align: center;
+    font-family: var(--en-serif);
+    font-style: italic;
+    color: var(--ash);
+    font-size: 13px;
+  }
+  .search-loading {
+    padding: 14px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ash);
+    text-transform: uppercase;
+  }
+
   /* ── Tile loading indicator ─────────────────────── */
   .tile-spinner {
     position: absolute;
@@ -1318,18 +1432,26 @@
 
   /* ── Mobile · bottom sheet ─────────────────────── */
   @media (max-width: 768px) {
-    /* Floating city tag at top — quick context when sheet is peek'd */
+    /* Search box: full-width across the top so it doesn't fight the panel */
+    .search-box {
+      top: calc(12px + env(safe-area-inset-top, 0px));
+      left: 12px;
+      right: 12px;
+      transform: none;
+      width: auto;
+    }
+    /* City tag moves below the search box */
     .mobile-tag {
       display: flex;
       align-items: baseline;
       gap: 10px;
       position: absolute;
-      top: calc(14px + env(safe-area-inset-top, 0px));
+      top: calc(72px + env(safe-area-inset-top, 0px));
       left: 14px;
       z-index: 999;
       background: var(--paper-2);
       border: 1px solid var(--stone);
-      padding: 8px 14px;
+      padding: 6px 12px;
       pointer-events: none;
       max-width: calc(100vw - 28px);
     }
@@ -1508,9 +1630,9 @@
     .base-pills { margin-top: 4px; }
     .panel-foot { font-size: 12px; }
 
-    /* Reposition Leaflet zoom controls so sheet doesn't cover them */
+    /* Reposition Leaflet zoom controls so sheet + search + city tag don't cover them */
     .leaflet-top.leaflet-left {
-      top: calc(70px + env(safe-area-inset-top, 0px));
+      top: calc(126px + env(safe-area-inset-top, 0px));
       left: 14px;
     }
     .leaflet-control-zoom a {
@@ -1563,9 +1685,26 @@
 <body>
 <div id="map"></div>
 
-<!-- Mobile-only: tiny tag at top showing current city for quick context -->
+<!-- Floating top-centre search box -->
+<div class="search-box" id="search-box">
+  <span class="search-icon" aria-hidden="true">⌕</span>
+  <input
+    type="search"
+    id="search-input"
+    autocomplete="off"
+    autocapitalize="off"
+    autocorrect="off"
+    spellcheck="false"
+    placeholder="搜尋地點 · search a place"
+    aria-label="搜尋地點"
+  />
+  <button type="button" class="search-clear" id="search-clear" hidden aria-label="清除">✕</button>
+  <div class="search-results" id="search-results" hidden role="listbox"></div>
+</div>
+
 <div class="tile-spinner" id="tile-spinner" aria-hidden="true">Loading</div>
 
+<!-- Mobile-only: tiny tag at top showing current city for quick context -->
 <div class="mobile-tag" id="mobile-tag" aria-hidden="true">
   <span class="zh" id="tag-zh">—</span>
   <span class="en" id="tag-en">—</span>
@@ -3657,6 +3796,139 @@
       });
     }
   };
+
+  // ── Location search (Nominatim) ─────────────────
+  const searchInput = document.getElementById('search-input');
+  const searchClear = document.getElementById('search-clear');
+  const searchResults = document.getElementById('search-results');
+  let searchDebounce = null;
+  let searchAbort = null;
+  let lastSearchQuery = '';
+
+  function escapeHtml(s) {
+    return String(s)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;');
+  }
+
+  function showSearchPanel(html) {
+    searchResults.innerHTML = html;
+    searchResults.hidden = false;
+  }
+
+  async function runSearch(q) {
+    if (q === lastSearchQuery) return;
+    lastSearchQuery = q;
+    if (searchAbort) searchAbort.abort();
+    searchAbort = new AbortController();
+    showSearchPanel('<div class="search-loading">Searching…</div>');
+    try {
+      const url = 'https://nominatim.openstreetmap.org/search'
+        + '?q=' + encodeURIComponent(q)
+        + '&format=json'
+        + '&countrycodes=tw'
+        + '&limit=8'
+        + '&addressdetails=1'
+        + '&accept-language=zh-Hant';
+      const res = await fetch(url, {
+        signal: searchAbort.signal,
+        headers: { 'Accept': 'application/json' },
+      });
+      if (!res.ok) throw new Error('Nominatim ' + res.status);
+      const data = await res.json();
+      renderSearchResults(data, q);
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+      console.warn('search failed', err);
+      showSearchPanel('<div class="search-empty">查詢失敗 · search failed</div>');
+    }
+  }
+
+  function renderSearchResults(results, query) {
+    if (!results.length) {
+      showSearchPanel('<div class="search-empty">沒找到「' + escapeHtml(query) + '」</div>');
+      return;
+    }
+    const html = results.map(r => {
+      const parts = r.display_name.split(',').map(s => s.trim());
+      const name = parts[0] || r.display_name;
+      const meta = parts.slice(1, 4).join(' · ');
+      return '<div class="search-result"'
+        + ' data-lat="' + r.lat + '"'
+        + ' data-lon="' + r.lon + '"'
+        + ' data-name="' + escapeHtml(name) + '"'
+        + ' role="option">'
+        + '<div class="search-result-name">' + escapeHtml(name) + '</div>'
+        + '<div class="search-result-meta">' + escapeHtml(meta) + '</div>'
+        + '</div>';
+    }).join('');
+    showSearchPanel(html);
+  }
+
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim();
+    searchClear.hidden = !q;
+    if (searchDebounce) clearTimeout(searchDebounce);
+    if (searchAbort) { searchAbort.abort(); searchAbort = null; }
+    if (!q) {
+      searchResults.hidden = true;
+      lastSearchQuery = '';
+      return;
+    }
+    searchDebounce = setTimeout(() => runSearch(q), 400);
+  });
+
+  searchInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const q = searchInput.value.trim();
+      if (q) {
+        if (searchDebounce) clearTimeout(searchDebounce);
+        runSearch(q);
+      }
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      searchInput.value = '';
+      searchClear.hidden = true;
+      searchResults.hidden = true;
+      searchInput.blur();
+    }
+  });
+
+  searchClear.addEventListener('click', () => {
+    searchInput.value = '';
+    searchClear.hidden = true;
+    searchResults.hidden = true;
+    lastSearchQuery = '';
+    searchInput.focus();
+  });
+
+  searchResults.addEventListener('click', e => {
+    const row = e.target.closest('.search-result[data-lat]');
+    if (!row) return;
+    const lat = parseFloat(row.dataset.lat);
+    const lng = parseFloat(row.dataset.lon);
+    const name = row.dataset.name || '';
+    if (!isFinite(lat) || !isFinite(lng)) return;
+    map.flyTo([lat, lng], Math.max(map.getZoom(), 16), { duration: 0.8 });
+    searchInput.value = name;
+    searchClear.hidden = false;
+    searchResults.hidden = true;
+    searchInput.blur();
+    // Collapse the bottom sheet on mobile so the user sees the map
+    if (typeof setPeek === 'function' && window.matchMedia('(max-width: 768px)').matches) {
+      setPeek(true);
+    }
+  });
+
+  // Click outside closes the dropdown
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.search-box')) {
+      searchResults.hidden = true;
+    }
+  });
 
   // ── Service worker (PWA) ─────────────────────────
   if ('serviceWorker' in navigator) {
