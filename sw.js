@@ -9,16 +9,21 @@
  *     · HTML / manifest        → network-first, fall back to cache, so updates
  *                                ship as soon as the user is online again.
  *     · Leaflet CDN (unpkg)    → cache-first, stable versions; saves bandwidth.
- *     · Tile servers           → bypass — the SW is too aggressive a cache for
- *                                hundreds of thousands of map tiles, and the
- *                                tile servers handle their own HTTP caching.
+ *     · Tile servers           → cache-first with size cap + LRU eviction. Tile
+ *                                content is immutable so caching is safe.
  *     · Everything else        → cache-first, network fallback (icons, etc.).
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v1-2026-05-17';
+const CACHE_VERSION = 'v2-2026-05-22';
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
+const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
+
+// Roughly 100–150 MB at typical tile sizes (30–100 KB each). LRU evicts
+// oldest tiles when the cap is exceeded.
+const TILE_CACHE_MAX = 1200;
+const TILE_CACHE_TRIM_TARGET = 900; // trim down to this after eviction
 
 const SHELL_URLS = [
   './',
@@ -51,7 +56,7 @@ self.addEventListener('activate', event => {
     caches.keys()
       .then(keys => Promise.all(
         keys
-          .filter(k => k !== SHELL_CACHE && k !== RUNTIME_CACHE)
+          .filter(k => k !== SHELL_CACHE && k !== RUNTIME_CACHE && k !== TILE_CACHE)
           .map(k => caches.delete(k))
       ))
       .then(() => self.clients.claim())
@@ -64,8 +69,11 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(req.url);
 
-  // Tile servers: bypass SW entirely
-  if (TILE_HOST_PATTERNS.some(p => p.test(url.href))) return;
+  // Tile servers: cache-first with LRU eviction
+  if (TILE_HOST_PATTERNS.some(p => p.test(url.href))) {
+    event.respondWith(tileCacheFirst(req));
+    return;
+  }
 
   // HTML / manifest: network-first
   const accept = req.headers.get('accept') || '';
@@ -98,7 +106,6 @@ async function networkFirst(req) {
   } catch (err) {
     const cached = await caches.match(req);
     if (cached) return cached;
-    // Last resort: serve the shell index for navigation requests
     if (req.mode === 'navigate') {
       const shell = await caches.match('./index.html');
       if (shell) return shell;
@@ -119,5 +126,67 @@ async function cacheFirst(req) {
     return res;
   } catch (err) {
     throw err;
+  }
+}
+
+// Map tile cache with LRU-ish eviction. We don't store explicit timestamps —
+// Cache API returns keys in insertion order, so deleting the first N when
+// over cap acts as a simple FIFO. Re-fetching a tile re-adds it at the end,
+// approximating LRU well enough for an icon/tile workload.
+async function tileCacheFirst(req) {
+  const cache = await caches.open(TILE_CACHE);
+  const cached = await cache.match(req);
+  if (cached) {
+    // Refresh in insertion order so frequently-used tiles drift to the end
+    // of the FIFO and survive eviction longer. Don't await the network.
+    refreshTile(req, cache).catch(() => {});
+    return cached;
+  }
+  try {
+    const res = await fetch(req);
+    if (res && res.status === 200 && res.type !== 'opaque') {
+      const clone = res.clone();
+      // Only cache real tile bytes (Sinica returns 197-byte HTML for missing
+      // tiles, ~936 bytes for transparent placeholders).
+      try {
+        const peek = clone.clone();
+        const blob = await peek.blob();
+        if (blob.size > 1200) {
+          cache.put(req, clone).then(() => maybeEvict(cache)).catch(() => {});
+        }
+      } catch {}
+    }
+    return res;
+  } catch (err) {
+    throw err;
+  }
+}
+
+async function refreshTile(req, cache) {
+  // Touch the cache to move this tile to the end (FIFO refresh).
+  // Skip if browser doesn't actually return data — just keep existing entry.
+  try {
+    const fresh = await fetch(req, { cache: 'force-cache' });
+    if (fresh && fresh.status === 200) {
+      await cache.delete(req);
+      await cache.put(req, fresh);
+    }
+  } catch {}
+}
+
+let evicting = false;
+async function maybeEvict(cache) {
+  if (evicting) return;
+  evicting = true;
+  try {
+    const keys = await cache.keys();
+    if (keys.length > TILE_CACHE_MAX) {
+      const toDelete = keys.length - TILE_CACHE_TRIM_TARGET;
+      for (let i = 0; i < toDelete; i++) {
+        await cache.delete(keys[i]);
+      }
+    }
+  } finally {
+    evicting = false;
   }
 }
