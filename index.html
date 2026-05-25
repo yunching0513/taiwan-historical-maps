@@ -1139,6 +1139,252 @@
     margin-top: 2px;
   }
 
+  /* ── Postcards collection (#7) ──────────────────── */
+  .postcard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .postcard-cell {
+    position: relative;
+    aspect-ratio: 4 / 5.5;
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--paper-2);
+    border: 1px solid var(--mist);
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .postcard-cell:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(31, 29, 25, 0.12);
+  }
+  .postcard-cell img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .postcard-cell.locked img {
+    filter: grayscale(1) brightness(0.92) blur(2px);
+    opacity: 0.55;
+  }
+  .postcard-cell .pc-label {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 6px 8px;
+    background: linear-gradient(to top, rgba(31, 29, 25, 0.78) 0%, rgba(31, 29, 25, 0) 100%);
+    color: var(--paper);
+    font-family: var(--zh-serif);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .postcard-cell .pc-year {
+    display: block;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--paper-2);
+    opacity: 0.8;
+    letter-spacing: 0.1em;
+    margin-top: 1px;
+  }
+  .postcard-cell.locked .pc-label {
+    background: linear-gradient(to top, rgba(86, 83, 71, 0.78) 0%, rgba(86, 83, 71, 0) 100%);
+    color: var(--paper-2);
+  }
+  .postcard-cell .pc-badge {
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--vermilion);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  }
+  .postcard-count {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--ash);
+    margin-top: 12px;
+    text-align: right;
+  }
+  .postcard-count .num {
+    color: var(--vermilion);
+    font-weight: 600;
+  }
+
+  /* Map markers (camera pins) */
+  .pc-marker {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    line-height: 1;
+    box-shadow: 0 2px 6px rgba(31, 29, 25, 0.35);
+    transition: transform 0.18s, background 0.18s;
+  }
+  /* Far from user — faded, sketchy */
+  .pc-marker.far {
+    background: rgba(241, 239, 233, 0.55);
+    border: 1px dashed var(--ash);
+    color: var(--ash);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+  /* Within discovery radius — vivid + pulse */
+  .pc-marker.near {
+    background: var(--vermilion);
+    border: 2px solid var(--paper);
+    color: #fff;
+    animation: pc-pulse 1.4s ease-out infinite;
+  }
+  @keyframes pc-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(193, 95, 60, 0.55), 0 2px 6px rgba(31,29,25,0.35); }
+    70%  { box-shadow: 0 0 0 14px rgba(193, 95, 60, 0), 0 2px 6px rgba(31,29,25,0.35); }
+    100% { box-shadow: 0 0 0 0 rgba(193, 95, 60, 0), 0 2px 6px rgba(31,29,25,0.35); }
+  }
+  /* Collected — quiet, sealed */
+  .pc-marker.collected {
+    background: var(--graphite);
+    border: 2px solid var(--paper);
+    color: var(--paper-2);
+  }
+
+  /* Collection / detail modal */
+  .pc-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 29, 25, 0.78);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 9500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .pc-overlay.show { opacity: 1; pointer-events: auto; }
+  .pc-overlay.developing { background: rgba(120, 30, 20, 0.45); }
+  .pc-card {
+    position: relative;
+    max-width: 380px;
+    width: 100%;
+    background: var(--paper);
+    border-radius: 8px;
+    box-shadow: 0 28px 80px rgba(0,0,0,0.55);
+    padding: 18px 18px 16px;
+    transform: scale(0.94) translateY(20px);
+    transition: transform 0.36s cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+  .pc-overlay.show .pc-card { transform: none; }
+  .pc-card-close {
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--ash);
+    font-size: 18px;
+    cursor: pointer;
+  }
+  .pc-card-close:hover { background: var(--mist); color: var(--ink); }
+  .pc-card-img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5.5;
+    object-fit: cover;
+    border-radius: 4px;
+    background: var(--paper-2);
+  }
+  .pc-card-img.revealing {
+    animation: pc-develop 1.4s ease-out forwards;
+  }
+  @keyframes pc-develop {
+    0%   { filter: sepia(1) brightness(0.3) blur(8px); opacity: 0.2; }
+    50%  { filter: sepia(0.8) brightness(0.8) blur(2px); opacity: 0.85; }
+    100% { filter: none; opacity: 1; }
+  }
+  .pc-card-meta {
+    margin-top: 12px;
+    text-align: center;
+  }
+  .pc-card-tag {
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 12px;
+    color: var(--vermilion);
+    letter-spacing: 0.04em;
+    margin-bottom: 2px;
+  }
+  .pc-card-title {
+    font-family: var(--zh-serif);
+    font-weight: 600;
+    font-size: 22px;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+    margin: 0;
+  }
+  .pc-card-subtitle {
+    font-family: var(--zh-sans);
+    font-size: 12px;
+    color: var(--graphite);
+    margin-top: 3px;
+  }
+  .pc-card-year {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ash);
+    letter-spacing: 0.16em;
+    margin-top: 6px;
+  }
+  .pc-card-source {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--silver);
+    margin-top: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* Toast for "明信片發現了" */
+  .pc-toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 88px);
+    transform: translateX(-50%) translateY(20px);
+    background: var(--vermilion);
+    color: var(--paper);
+    padding: 10px 18px;
+    border-radius: 22px;
+    font-family: var(--zh-serif);
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    box-shadow: 0 8px 24px rgba(193, 95, 60, 0.35);
+    z-index: 9400;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+  .pc-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
   /* ── Camera button inside recording card ───────── */
   /* ── Offline pack ────────────────────────────────── */
   .btn-pack {
@@ -2196,6 +2442,16 @@
       <span class="num">0</span> / 22 visited
     </div>
 
+    <div class="section-label">
+      <span class="num">07 — Postcards</span>
+      <span class="en">明信片散策</span>
+    </div>
+
+    <div class="postcard-grid" id="postcard-grid"></div>
+    <div class="postcard-count" id="postcard-count">
+      <span class="num">0</span> / 0 collected · 走到地點附近自動沖洗
+    </div>
+
     <footer class="panel-foot">
       <span class="mono">Sources</span>
       歷史圖資 · <a href="https://gis.sinica.edu.tw" target="_blank" rel="noopener">中央研究院 GIS</a><br>
@@ -2256,6 +2512,22 @@
     </p>
   </div>
 </div>
+
+<!-- Postcard collection / detail modal -->
+<div class="pc-overlay" id="pc-overlay" aria-hidden="true">
+  <div class="pc-card" role="dialog" aria-labelledby="pc-modal-title">
+    <button type="button" class="pc-card-close" id="pc-card-close" aria-label="關閉">✕</button>
+    <img class="pc-card-img" id="pc-card-img" alt="" />
+    <div class="pc-card-meta">
+      <div class="pc-card-tag" id="pc-card-tag">Discovered</div>
+      <h3 class="pc-card-title" id="pc-modal-title">—</h3>
+      <div class="pc-card-subtitle" id="pc-card-subtitle">—</div>
+      <div class="pc-card-year" id="pc-card-year">—</div>
+      <div class="pc-card-source" id="pc-card-source">—</div>
+    </div>
+  </div>
+</div>
+<div class="pc-toast" id="pc-toast"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
@@ -2875,6 +3147,12 @@
     }
 
     if (isRecording) addTracePoint(latitude, longitude, accuracy, pos.timestamp);
+
+    // Postcard proximity: refresh marker states and pick up any new
+    // collectibles. Cheap (O(N) for ~12 cards), runs on every GPS tick.
+    if (typeof checkPostcardProximity === 'function') {
+      checkPostcardProximity(latitude, longitude);
+    }
   }
 
   function onPositionError(err) {
@@ -3447,6 +3725,213 @@
     const seal = e.target.closest('.seal');
     if (seal) selectCity(seal.dataset.id);
   });
+
+  // ── Postcards (location-based collectibles, #7) ──
+  // Each entry corresponds to a Japanese-era Taipei landmark. Walking
+  // within DISCOVERY_RADIUS_M of the coords (with GPS on) auto-collects
+  // the card and reveals the image. Pre-discovery the marker shows as a
+  // faded camera; within range it pulses; once collected it stays as a
+  // quiet graphite pin.
+  //
+  // Image files live at icons/postcards/<id>.jpg. The current set is
+  // hand-styled sepia placeholders — swap individual files with real
+  // public-domain photos when curated. Schema and IDs stay stable.
+  const POSTCARDS = [
+    { id: 'tp-001', title: '北門',         en: 'North Gate',                       subtitle: '臺北府城承恩門',     year: 1884, lat: 25.04786, lng: 121.51125, source: '臺北府城圖' },
+    { id: 'tp-002', title: '臺北驛',       en: 'Taihoku Station',                  subtitle: '縱貫鐵道起點',       year: 1908, lat: 25.04780, lng: 121.51720, source: '日治臺北寫真帖' },
+    { id: 'tp-003', title: '總督府',       en: 'Office of the Governor-General',   subtitle: '今總統府',           year: 1919, lat: 25.04005, lng: 121.51174, source: '臺灣建築會誌' },
+    { id: 'tp-004', title: '西門市場',     en: 'Seimon Market',                    subtitle: '今西門紅樓',         year: 1908, lat: 25.04244, lng: 121.50772, source: '臺北州報' },
+    { id: 'tp-005', title: '艋舺龍山寺',   en: 'Bangka Longshan Temple',           subtitle: '艋舺信仰中心',       year: 1919, lat: 25.03704, lng: 121.49978, source: '臺灣寺廟記' },
+    { id: 'tp-006', title: '臺灣神社',     en: 'Taiwan Jinja',                     subtitle: '今圓山飯店址',       year: 1901, lat: 25.07868, lng: 121.52506, source: '社寺寫真集' },
+    { id: 'tp-007', title: '菊元百貨',     en: 'Kikumoto Department Store',        subtitle: '島都七層樓',         year: 1932, lat: 25.04354, lng: 121.51270, source: '臺灣商工人名錄' },
+    { id: 'tp-008', title: '臺北橋',       en: 'Taihoku Bridge',                   subtitle: '淡水河鐵橋',         year: 1925, lat: 25.06340, lng: 121.51030, source: '臺北州土木課' },
+    { id: 'tp-009', title: '撫臺街洋樓',   en: 'Futai Street Mansion',             subtitle: '石造街屋',           year: 1910, lat: 25.04673, lng: 121.51043, source: '街屋寫真' },
+    { id: 'tp-010', title: '臺北郵便局',   en: 'Taihoku Post Office',              subtitle: '南拱形大廳',         year: 1930, lat: 25.04685, lng: 121.51063, source: '遞信寫真帖' },
+    { id: 'tp-011', title: '總督府博物館', en: 'Governor Museum',                  subtitle: '今國立臺灣博物館',   year: 1908, lat: 25.04500, lng: 121.51514, source: '博物館要覽' },
+    { id: 'tp-012', title: '北投公共浴場', en: 'Hokuto Public Bath',               subtitle: '今北投溫泉博物館',   year: 1913, lat: 25.13687, lng: 121.50625, source: '北投溫泉案內' },
+  ];
+  const DISCOVERY_RADIUS_M = 50;
+  const PROXIMITY_HINT_M   = 200; // within this range the pin is "near" (pulsing) on the map
+
+  let collectedPostcards = loadCollectedPostcards();
+  const postcardMarkers = new Map(); // id → leaflet marker
+
+  function loadCollectedPostcards() {
+    try {
+      const arr = JSON.parse(localStorage.getItem('taiwanOldMaps.postcards') || '[]');
+      return new Set(Array.isArray(arr) ? arr : []);
+    } catch { return new Set(); }
+  }
+  function persistCollectedPostcards() {
+    try {
+      localStorage.setItem('taiwanOldMaps.postcards', JSON.stringify([...collectedPostcards]));
+    } catch {}
+  }
+
+  function postcardMarkerHTML(state) {
+    // 📷 doesn't render consistently on all platforms; use a stylized "■"
+    // (camera-aperture-like glyph) that's universal.
+    return '<div class="pc-marker ' + state + '">◉</div>';
+  }
+  function makePostcardIcon(state) {
+    return L.divIcon({
+      className: 'pc-marker-wrap',
+      html: postcardMarkerHTML(state),
+      iconSize: [28, 28],
+      iconAnchor: [14, 14],
+    });
+  }
+
+  function renderPostcardMarkers(userLatLng) {
+    POSTCARDS.forEach(pc => {
+      const collected = collectedPostcards.has(pc.id);
+      let state;
+      if (collected) {
+        state = 'collected';
+      } else if (userLatLng) {
+        const d = haversine(userLatLng, { lat: pc.lat, lng: pc.lng });
+        state = d <= PROXIMITY_HINT_M ? 'near' : 'far';
+      } else {
+        state = 'far';
+      }
+      const existing = postcardMarkers.get(pc.id);
+      if (existing) {
+        // Only update the icon if state changed, to avoid flicker.
+        const currentClass = existing._pcState;
+        if (currentClass !== state) {
+          existing.setIcon(makePostcardIcon(state));
+          existing._pcState = state;
+        }
+      } else {
+        const marker = L.marker([pc.lat, pc.lng], {
+          icon: makePostcardIcon(state),
+          // Keep above tile layers but below recording polyline for clarity.
+          zIndexOffset: 600,
+          keyboard: false,
+        });
+        marker._pcState = state;
+        marker.on('click', () => openPostcardModal(pc, collectedPostcards.has(pc.id) ? 're-view' : 'preview'));
+        marker.addTo(map);
+        postcardMarkers.set(pc.id, marker);
+      }
+    });
+  }
+
+  function renderPostcardGrid() {
+    const grid = document.getElementById('postcard-grid');
+    if (!grid) return;
+    grid.innerHTML = POSTCARDS.map(pc => {
+      const collected = collectedPostcards.has(pc.id);
+      const imgSrc = collected ? `icons/postcards/${pc.id}.jpg` : 'icons/postcards/_unknown.jpg';
+      const label = collected
+        ? `${pc.title}<span class="pc-year">${pc.year}</span>`
+        : `??? <span class="pc-year">— · —</span>`;
+      return `
+        <div class="postcard-cell ${collected ? 'collected' : 'locked'}" data-id="${pc.id}">
+          <img src="${imgSrc}" alt="${collected ? pc.title : '未發掘'}" loading="lazy" />
+          <div class="pc-label">${label}</div>
+          ${collected ? '<div class="pc-badge">✓</div>' : ''}
+        </div>
+      `;
+    }).join('');
+    const countEl = document.querySelector('#postcard-count .num');
+    if (countEl) countEl.textContent = String(collectedPostcards.size);
+    const totalEl = document.getElementById('postcard-count');
+    if (totalEl) {
+      totalEl.innerHTML = `<span class="num">${collectedPostcards.size}</span> / ${POSTCARDS.length} collected · 走到地點附近自動沖洗`;
+    }
+  }
+
+  // Toast: brief on-screen notification when a postcard is collected.
+  let toastTimer = null;
+  function showPostcardToast(msg) {
+    const t = document.getElementById('pc-toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  function openPostcardModal(pc, mode) {
+    const overlay = document.getElementById('pc-overlay');
+    const img = document.getElementById('pc-card-img');
+    const collected = collectedPostcards.has(pc.id);
+
+    img.classList.remove('revealing');
+    // Reflow trick so animation can replay on subsequent opens.
+    void img.offsetWidth;
+    img.src = collected ? `icons/postcards/${pc.id}.jpg` : 'icons/postcards/_unknown.jpg';
+
+    document.getElementById('pc-card-tag').textContent =
+      mode === 'collect' ? 'Just Developed' :
+      collected ? 'Discovered' : 'Locked';
+    document.getElementById('pc-modal-title').textContent = collected ? pc.title : '未發掘';
+    document.getElementById('pc-card-subtitle').textContent = collected ? pc.subtitle : '走到附近 50 公尺內自動沖洗';
+    document.getElementById('pc-card-year').textContent =
+      collected ? `${pc.en.toUpperCase()} · ${pc.year}` : `— · ${pc.title.length > 0 ? '???' : '???'}`;
+    document.getElementById('pc-card-source').textContent =
+      collected ? `Source · ${pc.source}` : 'Source · pending discovery';
+
+    if (mode === 'collect') {
+      img.classList.add('revealing');
+      overlay.classList.add('developing');
+    } else {
+      overlay.classList.remove('developing');
+    }
+    overlay.classList.add('show');
+    overlay.setAttribute('aria-hidden', 'false');
+  }
+  function closePostcardModal() {
+    const overlay = document.getElementById('pc-overlay');
+    overlay.classList.remove('show', 'developing');
+    overlay.setAttribute('aria-hidden', 'true');
+  }
+  // Modal close wiring
+  document.getElementById('pc-card-close').addEventListener('click', closePostcardModal);
+  document.getElementById('pc-overlay').addEventListener('click', e => {
+    if (e.target.id === 'pc-overlay') closePostcardModal();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && document.getElementById('pc-overlay').classList.contains('show')) {
+      closePostcardModal();
+    }
+  });
+
+  // Panel-grid click: re-view a collected card or peek the locked silhouette.
+  document.getElementById('postcard-grid').addEventListener('click', e => {
+    const cell = e.target.closest('.postcard-cell');
+    if (!cell) return;
+    const pc = POSTCARDS.find(p => p.id === cell.dataset.id);
+    if (pc) openPostcardModal(pc, collectedPostcards.has(pc.id) ? 're-view' : 'preview');
+  });
+
+  // Proximity check — called from onPosition. Walks the postcard list,
+  // collects any within DISCOVERY_RADIUS_M, and updates marker state.
+  function checkPostcardProximity(lat, lng) {
+    const user = { lat, lng };
+    let newlyCollected = null;
+    for (const pc of POSTCARDS) {
+      if (collectedPostcards.has(pc.id)) continue;
+      const d = haversine(user, { lat: pc.lat, lng: pc.lng });
+      if (d <= DISCOVERY_RADIUS_M) {
+        collectedPostcards.add(pc.id);
+        if (!newlyCollected) newlyCollected = pc;
+      }
+    }
+    if (newlyCollected) {
+      persistCollectedPostcards();
+      renderPostcardGrid();
+      showPostcardToast(`🎴 沖洗了一張明信片：${newlyCollected.title}`);
+      openPostcardModal(newlyCollected, 'collect');
+    }
+    renderPostcardMarkers(user);
+  }
+
+  // Initial render — markers placed without user location so they all
+  // start in 'far' state; first GPS fix promotes nearby ones to 'near'.
+  renderPostcardMarkers(null);
+  renderPostcardGrid();
 
   function showTraceOnMap(id) {
     const trace = savedTraces.find(t => t.id === id);
