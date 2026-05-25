@@ -3733,22 +3733,25 @@
   // faded camera; within range it pulses; once collected it stays as a
   // quiet graphite pin.
   //
-  // Image files live at icons/postcards/<id>.jpg. The current set is
-  // hand-styled sepia placeholders — swap individual files with real
-  // public-domain photos when curated. Schema and IDs stay stable.
+  // Image files live at icons/postcards/<id>.jpg. 11/12 cards ship with
+  // real archival photos from Wikimedia Commons under Public Domain
+  // (mostly PD-Japan, expired copyright). tp-009 (撫臺街洋樓) has no
+  // verified PD Japanese-era photo on Commons — kept as a styled
+  // placeholder for now. Schema/IDs stay stable so real photos can
+  // drop in 1:1 over time.
   const POSTCARDS = [
-    { id: 'tp-001', title: '北門',         en: 'North Gate',                       subtitle: '臺北府城承恩門',     year: 1884, lat: 25.04786, lng: 121.51125, source: '臺北府城圖' },
-    { id: 'tp-002', title: '臺北驛',       en: 'Taihoku Station',                  subtitle: '縱貫鐵道起點',       year: 1908, lat: 25.04780, lng: 121.51720, source: '日治臺北寫真帖' },
-    { id: 'tp-003', title: '總督府',       en: 'Office of the Governor-General',   subtitle: '今總統府',           year: 1919, lat: 25.04005, lng: 121.51174, source: '臺灣建築會誌' },
-    { id: 'tp-004', title: '西門市場',     en: 'Seimon Market',                    subtitle: '今西門紅樓',         year: 1908, lat: 25.04244, lng: 121.50772, source: '臺北州報' },
-    { id: 'tp-005', title: '艋舺龍山寺',   en: 'Bangka Longshan Temple',           subtitle: '艋舺信仰中心',       year: 1919, lat: 25.03704, lng: 121.49978, source: '臺灣寺廟記' },
-    { id: 'tp-006', title: '臺灣神社',     en: 'Taiwan Jinja',                     subtitle: '今圓山飯店址',       year: 1901, lat: 25.07868, lng: 121.52506, source: '社寺寫真集' },
-    { id: 'tp-007', title: '菊元百貨',     en: 'Kikumoto Department Store',        subtitle: '島都七層樓',         year: 1932, lat: 25.04354, lng: 121.51270, source: '臺灣商工人名錄' },
-    { id: 'tp-008', title: '臺北橋',       en: 'Taihoku Bridge',                   subtitle: '淡水河鐵橋',         year: 1925, lat: 25.06340, lng: 121.51030, source: '臺北州土木課' },
-    { id: 'tp-009', title: '撫臺街洋樓',   en: 'Futai Street Mansion',             subtitle: '石造街屋',           year: 1910, lat: 25.04673, lng: 121.51043, source: '街屋寫真' },
-    { id: 'tp-010', title: '臺北郵便局',   en: 'Taihoku Post Office',              subtitle: '南拱形大廳',         year: 1930, lat: 25.04685, lng: 121.51063, source: '遞信寫真帖' },
-    { id: 'tp-011', title: '總督府博物館', en: 'Governor Museum',                  subtitle: '今國立臺灣博物館',   year: 1908, lat: 25.04500, lng: 121.51514, source: '博物館要覽' },
-    { id: 'tp-012', title: '北投公共浴場', en: 'Hokuto Public Bath',               subtitle: '今北投溫泉博物館',   year: 1913, lat: 25.13687, lng: 121.50625, source: '北投溫泉案內' },
+    { id: 'tp-001', title: '北門',         en: 'North Gate',                       subtitle: '臺北府城承恩門',     year: 1884, lat: 25.04786, lng: 121.51125, source: 'Wikimedia Commons · PD-Japan' },
+    { id: 'tp-002', title: '臺北驛',       en: 'Taihoku Station',                  subtitle: '縱貫鐵道起點',       year: 1908, lat: 25.04780, lng: 121.51720, source: 'Wikimedia Commons · PD-Japan' },
+    { id: 'tp-003', title: '總督府',       en: 'Office of the Governor-General',   subtitle: '今總統府',           year: 1919, lat: 25.04005, lng: 121.51174, source: 'Wikimedia Commons · PD-Japan' },
+    { id: 'tp-004', title: '西門市場',     en: 'Seimon Market',                    subtitle: '今西門紅樓',         year: 1908, lat: 25.04244, lng: 121.50772, source: 'Wikimedia Commons · PD-Taiwan' },
+    { id: 'tp-005', title: '艋舺龍山寺',   en: 'Bangka Longshan Temple',           subtitle: '艋舺信仰中心',       year: 1919, lat: 25.03704, lng: 121.49978, source: 'Wikimedia Commons · PD-Japan' },
+    { id: 'tp-006', title: '臺灣神社',     en: 'Taiwan Jinja',                     subtitle: '今圓山飯店址',       year: 1901, lat: 25.07868, lng: 121.52506, source: 'Wikimedia Commons · PD-Japan' },
+    { id: 'tp-007', title: '菊元百貨',     en: 'Kikumoto Department Store',        subtitle: '島都七層樓',         year: 1932, lat: 25.04354, lng: 121.51270, source: 'Wikimedia Commons · PD-Japan' },
+    { id: 'tp-008', title: '臺北橋',       en: 'Taihoku Bridge',                   subtitle: '淡水河鐵橋',         year: 1925, lat: 25.06340, lng: 121.51030, source: 'Wikimedia Commons · PD-Japan' },
+    { id: 'tp-009', title: '撫臺街洋樓',   en: 'Futai Street Mansion',             subtitle: '石造街屋',           year: 1910, lat: 25.04673, lng: 121.51043, source: '檔案徵集中 · photo pending' },
+    { id: 'tp-010', title: '臺北郵便局',   en: 'Taihoku Post Office',              subtitle: '南拱形大廳',         year: 1930, lat: 25.04685, lng: 121.51063, source: 'Wikimedia Commons · PD-Japan' },
+    { id: 'tp-011', title: '總督府博物館', en: 'Governor Museum',                  subtitle: '今國立臺灣博物館',   year: 1908, lat: 25.04500, lng: 121.51514, source: 'Wikimedia Commons · PD-Japan' },
+    { id: 'tp-012', title: '北投公共浴場', en: 'Hokuto Public Bath',               subtitle: '今北投溫泉博物館',   year: 1913, lat: 25.13687, lng: 121.50625, source: 'Wikimedia Commons · PD-Japan' },
   ];
   const DISCOVERY_RADIUS_M = 50;
   const PROXIMITY_HINT_M   = 200; // within this range the pin is "near" (pulsing) on the map
