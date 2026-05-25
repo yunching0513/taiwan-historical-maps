@@ -1141,10 +1141,42 @@
 
   /* ── Postcards collection (#7) ──────────────────── */
   .postcard-grid {
+    margin-top: 4px;
+  }
+  /* Each city gets a strip header + its own grid below */
+  .pc-city-strip {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 14px 0 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--mist);
+  }
+  .pc-city-strip:first-child { margin-top: 4px; }
+  .pc-city-zh {
+    font-family: var(--zh-serif);
+    font-size: 14px;
+    color: var(--ink);
+    letter-spacing: 0.06em;
+  }
+  .pc-city-en {
+    flex: 1;
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 11px;
+    color: var(--ash);
+    letter-spacing: 0.04em;
+  }
+  .pc-city-tally {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--vermilion);
+    letter-spacing: 0.1em;
+  }
+  .pc-city-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
-    margin-top: 4px;
   }
   .postcard-cell {
     position: relative;
@@ -3765,31 +3797,68 @@
   // verified PD Japanese-era photo on Commons — kept as a styled
   // placeholder for now. Schema/IDs stay stable so real photos can
   // drop in 1:1 over time.
+  // City label registry — keeps panel headings and source attribution
+  // in one place. Add a city entry here when extending to a new region.
+  const POSTCARD_CITIES = [
+    { id: 'taipei', zh: '臺北', en: 'Taihoku · Taipei' },
+    { id: 'tainan', zh: '臺南', en: 'Tainan · Tainan' },
+  ];
+
   const POSTCARDS = [
-    { id: 'tp-001', title: '北門',         en: 'North Gate',                       subtitle: '臺北府城承恩門',     year: 1884, lat: 25.04786, lng: 121.51125, source: 'Wikimedia Commons · PD-Japan',
+    // ── 臺北 Taihoku (12) ─────────────────────────────
+    { id: 'tp-001', city: 'taipei', title: '北門',         en: 'North Gate',                       subtitle: '臺北府城承恩門',     year: 1884, lat: 25.04786, lng: 121.51125, source: 'Wikimedia Commons · PD-Japan',
       desc: '清光緒十年（1884）落成的臺北府城北門，是城牆四門中唯一未被日本當局拆除的城樓，閩南式燕尾屋脊。位於忠孝西路與博愛路口，1992 年指定為國定古蹟，2017 年完成周邊景觀復原。' },
-    { id: 'tp-002', title: '臺北驛',       en: 'Taihoku Station',                  subtitle: '縱貫鐵道起點',       year: 1908, lat: 25.04780, lng: 121.51720, source: 'Wikimedia Commons · PD-Japan',
+    { id: 'tp-002', city: 'taipei', title: '臺北驛',       en: 'Taihoku Station',                  subtitle: '縱貫鐵道起點',       year: 1908, lat: 25.04780, lng: 121.51720, source: 'Wikimedia Commons · PD-Japan',
       desc: '1908 年縱貫鐵道全線通車時啟用的第二代臺北火車站，由總督府鐵道部設計，磚造維多利亞風格。位於今臺北車站基地，1941 年改建為第三代站體，1989 年方拆除。' },
-    { id: 'tp-003', title: '總督府',       en: 'Office of the Governor-General',   subtitle: '今總統府',           year: 1919, lat: 25.04005, lng: 121.51174, source: 'Wikimedia Commons · PD-Japan',
+    { id: 'tp-003', city: 'taipei', title: '總督府',       en: 'Office of the Governor-General',   subtitle: '今總統府',           year: 1919, lat: 25.04005, lng: 121.51174, source: 'Wikimedia Commons · PD-Japan',
       desc: '1919 年完工的臺灣總督府廳舍，由森山松之助設計，文藝復興與後期辰野式磚石風格。中央塔樓 60 公尺，曾為當時臺灣最高建築。戰後改為總統府，1998 年指定為國定古蹟。' },
-    { id: 'tp-004', title: '西門市場',     en: 'Seimon Market',                    subtitle: '今西門紅樓',         year: 1908, lat: 25.04244, lng: 121.50772, source: 'Wikimedia Commons · PD-Taiwan',
+    { id: 'tp-004', city: 'taipei', title: '西門市場',     en: 'Seimon Market',                    subtitle: '今西門紅樓',         year: 1908, lat: 25.04244, lng: 121.50772, source: 'Wikimedia Commons · PD-Taiwan',
       desc: '1908 年由近藤十郎設計的八角樓磚造市場，是日人居留地的肉魚蔬果集散地。戰後轉為紅樓劇院，2007 年活化為文創園區，是西門町百年來不變的精神地標。' },
-    { id: 'tp-005', title: '艋舺龍山寺',   en: 'Bangka Longshan Temple',           subtitle: '艋舺信仰中心',       year: 1919, lat: 25.03704, lng: 121.49978, source: 'Wikimedia Commons · PD-Japan',
+    { id: 'tp-005', city: 'taipei', title: '艋舺龍山寺',   en: 'Bangka Longshan Temple',           subtitle: '艋舺信仰中心',       year: 1919, lat: 25.03704, lng: 121.49978, source: 'Wikimedia Commons · PD-Japan',
       desc: '創建於 1738 年，日治時期 1919 年由王益順大師主持重修，奠定今日三進四殿格局。供奉觀世音菩薩，是艋舺（萬華）三大寺廟之首，1985 年指定為二級古蹟。' },
-    { id: 'tp-006', title: '臺灣神社',     en: 'Taiwan Jinja',                     subtitle: '今圓山飯店址',       year: 1901, lat: 25.07868, lng: 121.52506, source: 'Wikimedia Commons · PD-Japan',
+    { id: 'tp-006', city: 'taipei', title: '臺灣神社',     en: 'Taiwan Jinja',                     subtitle: '今圓山飯店址',       year: 1901, lat: 25.07868, lng: 121.52506, source: 'Wikimedia Commons · PD-Japan',
       desc: '1901 年落成，奉祀北白川宮能久親王與開拓三神，為臺灣神社界最高社格。1944 年昇格為臺灣神宮，戰末因美機墜落火災焚毀，原址 1952 年起改建為圓山大飯店。' },
-    { id: 'tp-007', title: '菊元百貨',     en: 'Kikumoto Department Store',        subtitle: '島都七層樓',         year: 1932, lat: 25.04354, lng: 121.51270, source: 'Wikimedia Commons · PD-Japan',
+    { id: 'tp-007', city: 'taipei', title: '菊元百貨',     en: 'Kikumoto Department Store',        subtitle: '島都七層樓',         year: 1932, lat: 25.04354, lng: 121.51270, source: 'Wikimedia Commons · PD-Japan',
       desc: '1932 年日商重田榮治創立，臺灣第一家百貨公司，俗稱「七重天」，與臺南林百貨並稱「南北雙塔」。位於今衡陽路博愛路口，戰後拆除改建，原樓僅存於老照片中。' },
-    { id: 'tp-008', title: '臺北橋',       en: 'Taihoku Bridge',                   subtitle: '淡水河鐵橋',         year: 1925, lat: 25.06340, lng: 121.51030, source: 'Wikimedia Commons · PD-Japan',
+    { id: 'tp-008', city: 'taipei', title: '臺北橋',       en: 'Taihoku Bridge',                   subtitle: '淡水河鐵橋',         year: 1925, lat: 25.06340, lng: 121.51030, source: 'Wikimedia Commons · PD-Japan',
       desc: '1925 年完工的鋼桁架鐵橋，連接大稻埕與三重，是淡水河上的交通動脈。前身為 1889 年劉銘傳所建木造橋，鐵橋 1969 年拆除，今日所見已是第三代混凝土橋。' },
-    { id: 'tp-009', title: '撫臺街洋樓',   en: 'Futai Street Mansion',             subtitle: '石造街屋',           year: 1910, lat: 25.04673, lng: 121.51043, source: '檔案徵集中 · photo pending',
+    { id: 'tp-009', city: 'taipei', title: '撫臺街洋樓',   en: 'Futai Street Mansion',             subtitle: '石造街屋',           year: 1910, lat: 25.04673, lng: 121.51043, source: '檔案徵集中 · photo pending',
       desc: '1910 年由日商高石組興建的洋風街屋，石材立面結合木造屋身，曾為高石組商店、料理屋與報社所在。位於延平南路，2006 年指定為市定古蹟並完成修復，現作展覽空間。' },
-    { id: 'tp-010', title: '臺北郵便局',   en: 'Taihoku Post Office',              subtitle: '南拱形大廳',         year: 1930, lat: 25.04685, lng: 121.51063, source: 'Wikimedia Commons · PD-Japan',
+    { id: 'tp-010', city: 'taipei', title: '臺北郵便局',   en: 'Taihoku Post Office',              subtitle: '南拱形大廳',         year: 1930, lat: 25.04685, lng: 121.51063, source: 'Wikimedia Commons · PD-Japan',
       desc: '1930 年由栗山俊一設計的三層鋼筋混凝土建築，列柱拱廊式大廳為特色。位於忠孝西路與博愛路交叉口，戰後續為臺北郵局使用至今，1992 年指定為市定古蹟。' },
-    { id: 'tp-011', title: '總督府博物館', en: 'Governor Museum',                  subtitle: '今國立臺灣博物館',   year: 1908, lat: 25.04500, lng: 121.51514, source: 'Wikimedia Commons · PD-Japan',
+    { id: 'tp-011', city: 'taipei', title: '總督府博物館', en: 'Governor Museum',                  subtitle: '今國立臺灣博物館',   year: 1908, lat: 25.04500, lng: 121.51514, source: 'Wikimedia Commons · PD-Japan',
       desc: '1908 年為紀念縱貫鐵道通車所設，1915 年遷入野村一郎、荒木榮一設計的新館。後期文藝復興式建築立於 228 和平公園內，是臺灣現存最古老的公立自然史博物館。' },
-    { id: 'tp-012', title: '北投公共浴場', en: 'Hokuto Public Bath',               subtitle: '今北投溫泉博物館',   year: 1913, lat: 25.13687, lng: 121.50625, source: 'Wikimedia Commons · PD-Japan',
+    { id: 'tp-012', city: 'taipei', title: '北投公共浴場', en: 'Hokuto Public Bath',               subtitle: '今北投溫泉博物館',   year: 1913, lat: 25.13687, lng: 121.50625, source: 'Wikimedia Commons · PD-Japan',
       desc: '1913 年由臺北廳長井村大吉籌建，仿英式磚造二層建築，當時東亞最大的公共浴場。一樓為大眾湯，二樓為休憩交誼空間。1998 年活化為北投溫泉博物館。' },
+
+    // ── 臺南 Tainan (12) ──────────────────────────────
+    // Tainan has a notably rich PD photo archive on Wikimedia Commons —
+    // all 12 ship with real Japanese-era photos verified as PD-Japan or
+    // PD-Taiwan (copyright expired).
+    { id: 'tn-001', city: 'tainan', title: '赤崁樓',       en: 'Chihkan Tower',                    subtitle: '荷蘭普羅民遮城',     year: 1653, lat: 22.99729, lng: 120.20247, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1653 年荷蘭東印度公司興建的普羅民遮城（Provintia），鄭成功 1661 年攻佔後改為承天府署。日治時期 1944 年指定為史蹟，戰後修復為歷史建築，是臺南最具代表性的古蹟。' },
+    { id: 'tn-002', city: 'tainan', title: '臺南驛',       en: 'Tainan Station',                   subtitle: '今臺南車站舊基',     year: 1900, lat: 22.99728, lng: 120.21219, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1900 年縱貫鐵道南段通車時設立的臺南火車站，木造日式風格。1936 年由宇敷赳夫設計改建為新古典主義鋼筋混凝土建築，是臺灣現存唯一仍使用的日治站體。' },
+    { id: 'tn-003', city: 'tainan', title: '臺南神社',     en: 'Tainan Jinja',                     subtitle: '今體育公園址',       year: 1925, lat: 22.99293, lng: 120.20457, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1925 年從臺灣神社分靈奉祀北白川宮能久親王，建於原清代臺廈兵備道署遺址。戰後神殿拆除，原址今為體育公園與忠義國小，僅存部分石燈籠基座。' },
+    { id: 'tn-004', city: 'tainan', title: '末廣町銀座',   en: 'Suehirochō Ginza',                 subtitle: '林百貨所在街區',     year: 1932, lat: 22.99315, lng: 120.20431, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1932 年完工的末廣町銀座通，是臺南最現代化的商業街區。林百貨於此開業，6 層鋼筋混凝土建築由林方一所建，與臺北菊元百貨並稱「南北雙塔」。2014 年活化重啟。' },
+    { id: 'tn-005', city: 'tainan', title: '臺南州廳',     en: 'Tainan Prefecture Hall',           subtitle: '今臺灣文學館',       year: 1916, lat: 22.99166, lng: 120.20422, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1916 年由森山松之助設計，文藝復興式中央山牆、左右兩翼對稱。戰後曾為臺南市政府，後遷出。1997 年完成修復，2003 年活化為國立臺灣文學館。' },
+    { id: 'tn-006', city: 'tainan', title: '臺南地方法院', en: 'Tainan District Court',            subtitle: '今司法博物館',       year: 1914, lat: 22.98966, lng: 120.20255, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1914 年由森山松之助設計，巴洛克式入口與中央圓頂並列雙塔，是當時南臺灣最氣派的公共建築。1991 年遷出後成空屋，2016 年活化為司法博物館。' },
+    { id: 'tn-007', city: 'tainan', title: '安平古堡',     en: 'Anping Old Fort',                  subtitle: '原熱蘭遮城',         year: 1624, lat: 23.00150, lng: 120.16077, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1624 年荷蘭東印度公司興建的熱蘭遮城（Zeelandia），是臺灣最早的歐式城堡。鄭氏 1662 年攻佔後改為王城，日治時期 1930 年代修建觀景台與紀念碑，是臺南最古老的歷史地標。' },
+    { id: 'tn-008', city: 'tainan', title: '臺南圖書館',   en: 'Tainan Library',                   subtitle: '臺灣最早公共圖書館', year: 1923, lat: 22.99500, lng: 120.20520, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1923 年完工的臺南州立圖書館，紅磚仿巴洛克風格。戰後輾轉為救國團、市府辦公處，2001 年遷出後閒置，曾是臺灣最早的公共圖書館之一。' },
+    { id: 'tn-009', city: 'tainan', title: '臺南公會堂',   en: 'Tainan Public Hall',               subtitle: '今吳園藝文中心',     year: 1911, lat: 22.99423, lng: 120.20570, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1911 年完工，原名兩廣會館，是來臺廣東商人聚會所，後改作市民集會與展覽用途。日治時期蔭蔽園林（吳園）與會堂並存，2007 年活化為吳園藝文中心。' },
+    { id: 'tn-010', city: 'tainan', title: '勸業銀行',     en: 'Nippon Kangyō Bank',               subtitle: '今臺南土地銀行',     year: 1937, lat: 22.99204, lng: 120.20431, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1937 年由總督府營繕課設計，14 根高聳列柱仿希臘神殿，是臺南最具新古典氣勢的金融建築。戰後改為臺灣土地銀行臺南分行，至今仍營運，亦為市定古蹟。' },
+    { id: 'tn-011', city: 'tainan', title: '臺南一中',     en: 'Tainan First High',                subtitle: '今臺南二中',         year: 1922, lat: 23.00077, lng: 120.21302, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1922 年成立，為日治時期臺南最高等級男子中學，主要供日人子弟就讀。戰後改稱臺南二中，紅磚校舍仍存於使用中，2002 年指定為市定古蹟。' },
+    { id: 'tn-012', city: 'tainan', title: '臺南公園',     en: 'Tainan Park',                      subtitle: '臺南最大都會公園',   year: 1917, lat: 22.99774, lng: 120.20650, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1917 年完工，是臺南最大的都會公園，內有日治時期植栽的椰林大道與池塘。原稱中山公園，是市民散步休憩的核心場域，公園周邊曾是赤崁城與荷蘭時期遺跡。' },
   ];
   const DISCOVERY_RADIUS_M = 50;
   const PROXIMITY_HINT_M   = 200; // within this range the pin is "near" (pulsing) on the map
@@ -3861,22 +3930,44 @@
   function renderPostcardGrid() {
     const grid = document.getElementById('postcard-grid');
     if (!grid) return;
-    grid.innerHTML = POSTCARDS.map(pc => {
-      const collected = collectedPostcards.has(pc.id);
-      const imgSrc = collected ? `icons/postcards/${pc.id}.jpg` : 'icons/postcards/_unknown.jpg';
-      const label = collected
-        ? `${pc.title}<span class="pc-year">${pc.year}</span>`
-        : `??? <span class="pc-year">— · —</span>`;
-      return `
-        <div class="postcard-cell ${collected ? 'collected' : 'locked'}" data-id="${pc.id}">
-          <img src="${imgSrc}" alt="${collected ? pc.title : '未發掘'}" loading="lazy" />
-          <div class="pc-label">${label}</div>
-          ${collected ? '<div class="pc-badge">✓</div>' : ''}
+    // Group cards by city so the panel shows a header strip per city
+    // followed by that city's 2-col grid.
+    const byCity = new Map();
+    POSTCARDS.forEach(pc => {
+      const arr = byCity.get(pc.city) || [];
+      arr.push(pc);
+      byCity.set(pc.city, arr);
+    });
+    const html = [];
+    POSTCARD_CITIES.forEach(city => {
+      const cards = byCity.get(city.id);
+      if (!cards || !cards.length) return;
+      const collectedHere = cards.filter(c => collectedPostcards.has(c.id)).length;
+      html.push(`
+        <div class="pc-city-strip">
+          <span class="pc-city-zh">${city.zh}</span>
+          <span class="pc-city-en">${city.en}</span>
+          <span class="pc-city-tally">${collectedHere} / ${cards.length}</span>
         </div>
-      `;
-    }).join('');
-    const countEl = document.querySelector('#postcard-count .num');
-    if (countEl) countEl.textContent = String(collectedPostcards.size);
+        <div class="pc-city-grid">
+          ${cards.map(pc => {
+            const collected = collectedPostcards.has(pc.id);
+            const imgSrc = collected ? `icons/postcards/${pc.id}.jpg` : 'icons/postcards/_unknown.jpg';
+            const label = collected
+              ? `${pc.title}<span class="pc-year">${pc.year}</span>`
+              : `??? <span class="pc-year">— · —</span>`;
+            return `
+              <div class="postcard-cell ${collected ? 'collected' : 'locked'}" data-id="${pc.id}">
+                <img src="${imgSrc}" alt="${collected ? pc.title : '未發掘'}" loading="lazy" />
+                <div class="pc-label">${label}</div>
+                ${collected ? '<div class="pc-badge">✓</div>' : ''}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `);
+    });
+    grid.innerHTML = html.join('');
     const totalEl = document.getElementById('postcard-count');
     if (totalEl) {
       totalEl.innerHTML = `<span class="num">${collectedPostcards.size}</span> / ${POSTCARDS.length} collected · 走到地點附近自動沖洗`;
