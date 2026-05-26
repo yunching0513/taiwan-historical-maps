@@ -1139,7 +1139,56 @@
     margin-top: 2px;
   }
 
-  /* ── Postcards collection (#7) ──────────────────── */
+  /* ── Postcards collection (#3) ──────────────────── */
+  /* Variant of section-label that aligns content + a toggle on one row */
+  .section-label.section-label--row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  /* Small inline toggle switch — used by Postcards map-pin visibility */
+  .pc-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ash);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pc-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+  .pc-toggle-track {
+    position: relative;
+    width: 26px;
+    height: 14px;
+    border-radius: 8px;
+    background: var(--mist);
+    transition: background 0.18s ease;
+  }
+  .pc-toggle-thumb {
+    position: absolute;
+    top: 1px; left: 1px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--paper);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    transition: transform 0.18s cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+  .pc-toggle input:checked + .pc-toggle-track {
+    background: var(--vermilion);
+  }
+  .pc-toggle input:checked + .pc-toggle-track .pc-toggle-thumb {
+    transform: translateX(12px);
+  }
+  .pc-toggle input:focus-visible + .pc-toggle-track {
+    outline: 2px solid var(--vermilion);
+    outline-offset: 2px;
+  }
+
   .postcard-grid {
     margin-top: 4px;
   }
@@ -2444,8 +2493,25 @@
       <div class="trace-empty">尚無記錄 · No saved traces</div>
     </div>
 
+    <div class="section-label section-label--row">
+      <span>
+        <span class="num">03 — Postcards</span>
+        <span class="en">明信片散策</span>
+      </span>
+      <label class="pc-toggle" for="postcards-toggle" title="是否在地圖上顯示明信片地點">
+        <input type="checkbox" id="postcards-toggle" checked />
+        <span class="pc-toggle-track"><span class="pc-toggle-thumb"></span></span>
+        <span class="pc-toggle-label">地圖標記</span>
+      </label>
+    </div>
+
+    <div class="postcard-grid" id="postcard-grid"></div>
+    <div class="postcard-count" id="postcard-count">
+      <span class="num">0</span> / 0 collected · 走到地點附近自動沖洗
+    </div>
+
     <div class="section-label">
-      <span class="num">03 — Strata</span>
+      <span class="num">04 — Strata</span>
       <span class="en">historical layers</span>
     </div>
 
@@ -2461,7 +2527,7 @@
     <div id="historical-layers"></div>
 
     <div class="section-label">
-      <span class="num">04 — Offline</span>
+      <span class="num">05 — Offline</span>
       <span class="en">offline packs</span>
     </div>
 
@@ -2476,7 +2542,7 @@
     </div>
 
     <div class="section-label">
-      <span class="num">05 — Calendar</span>
+      <span class="num">06 — Calendar</span>
       <span class="en">月曆</span>
     </div>
 
@@ -2490,23 +2556,13 @@
     <div class="cal-summary" id="cal-summary"></div>
 
     <div class="section-label">
-      <span class="num">06 — Seals</span>
+      <span class="num">07 — Seals</span>
       <span class="en">縣市印章</span>
     </div>
 
     <div class="seal-grid" id="seal-grid"></div>
     <div class="seal-count" id="seal-count">
       <span class="num">0</span> / 22 visited
-    </div>
-
-    <div class="section-label">
-      <span class="num">07 — Postcards</span>
-      <span class="en">明信片散策</span>
-    </div>
-
-    <div class="postcard-grid" id="postcard-grid"></div>
-    <div class="postcard-count" id="postcard-count">
-      <span class="num">0</span> / 0 collected · 走到地點附近自動沖洗
     </div>
 
     <footer class="panel-foot">
@@ -4044,6 +4100,27 @@
   let collectedPostcards = loadCollectedPostcards();
   const postcardMarkers = new Map(); // id → leaflet marker
 
+  // Map-pin visibility toggle (persisted). When false, no postcard
+  // markers render on the map; the panel grid and collection mechanic
+  // are unaffected — proximity check still fires from onPosition.
+  let postcardsLayerOn = (() => {
+    try {
+      const v = localStorage.getItem('taiwanOldMaps.showPostcardMarkers');
+      return v === null ? true : v === 'true';
+    } catch { return true; }
+  })();
+  function setPostcardsLayer(show) {
+    postcardsLayerOn = !!show;
+    try { localStorage.setItem('taiwanOldMaps.showPostcardMarkers', String(postcardsLayerOn)); } catch {}
+    postcardMarkers.forEach(m => {
+      if (postcardsLayerOn) {
+        if (!map.hasLayer(m)) m.addTo(map);
+      } else {
+        if (map.hasLayer(m)) map.removeLayer(m);
+      }
+    });
+  }
+
   function loadCollectedPostcards() {
     try {
       const arr = JSON.parse(localStorage.getItem('taiwanOldMaps.postcards') || '[]');
@@ -4099,7 +4176,7 @@
         });
         marker._pcState = state;
         marker.on('click', () => openPostcardModal(pc, collectedPostcards.has(pc.id) ? 're-view' : 'preview'));
-        marker.addTo(map);
+        if (postcardsLayerOn) marker.addTo(map);
         postcardMarkers.set(pc.id, marker);
       }
     });
@@ -4250,6 +4327,14 @@
   // start in 'far' state; first GPS fix promotes nearby ones to 'near'.
   renderPostcardMarkers(null);
   renderPostcardGrid();
+
+  // Wire up the layer toggle checkbox (03 — Postcards header).
+  (function bindPostcardsToggle() {
+    const el = document.getElementById('postcards-toggle');
+    if (!el) return;
+    el.checked = postcardsLayerOn;
+    el.addEventListener('change', e => setPostcardsLayer(e.target.checked));
+  })();
 
   function showTraceOnMap(id) {
     const trace = savedTraces.find(t => t.id === id);
