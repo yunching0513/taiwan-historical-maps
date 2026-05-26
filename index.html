@@ -3807,6 +3807,7 @@
     { id: 'taichung',  zh: '臺中', en: 'Taichū · Taichung' },
     { id: 'tainan',    zh: '臺南', en: 'Tainan · Tainan' },
     { id: 'kaohsiung', zh: '高雄', en: 'Takao · Kaohsiung' },
+    { id: 'school',    zh: '學校', en: 'Gakuen · Taihoku Schools' },
   ];
 
   const POSTCARDS = [
@@ -3994,6 +3995,32 @@
       desc: '1924 年開設的西子灣海水浴場，是臺灣最早的公共海水浴場之一。臨壽山與打狗港口，現為西子灣風景區與中山大學校區。' },
     { id: 'kh-012', city: 'kaohsiung', title: '高雄公學校',     en: 'Takao Primary School',       subtitle: '今鼓山國小',               year: 1907, lat: 22.62208, lng: 120.27264, source: 'Wikimedia Commons · PD-Japan',
       desc: '1907 年創立的高雄公學校，是高雄第一所為臺人子弟設立的公學校。戰後改稱鼓山國小，紅磚校舍部分保存。' },
+
+    // ── 學校 Taihoku Schools — Japanese-era higher education in Taipei (12) ──
+    { id: 'su-001', city: 'school', title: '臺北帝大',       en: 'Taihoku Imperial University',   subtitle: '椰林大道 · 今臺灣大學',       year: 1928, lat: 25.01694, lng: 121.53972, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1928 年創立的臺北帝國大學，是日治臺灣最高學府。位於富田町椰林大道，初設文政、農林、醫、理工四學部。戰後接收為國立臺灣大學，總圖、文學院、行政大樓等磚造建築仍保存使用。' },
+    { id: 'su-002', city: 'school', title: '帝大文政學部',   en: 'Liberal Arts Faculty',          subtitle: '今臺大文學院',               year: 1928, lat: 25.01750, lng: 121.53980, source: 'Wikimedia Commons · PD-Japan',
+      desc: '臺北帝大文政學部 1928 年設立，下分哲學、史學、文學、政學四科。羅宗洛、伊能嘉矩等著名學者任教於此，戰後改為臺大文學院。紅磚校舍今仍使用中。' },
+    { id: 'su-003', city: 'school', title: '帝大農林部',     en: 'Agriculture & Forestry Branch', subtitle: '今臺大農學院',               year: 1928, lat: 25.01694, lng: 121.53850, source: 'Wikimedia Commons · PD-Japan',
+      desc: '臺北帝大農林專門部由 1922 年創立的臺北高等農林學校改制而來。培養農林技術人才，是日治臺灣熱帶農學研究核心。戰後改為臺大農學院。' },
+    { id: 'su-004', city: 'school', title: '帝大醫學部',     en: 'Imperial Medical School',       subtitle: '今臺大醫學院',               year: 1936, lat: 25.04097, lng: 121.51681, source: 'Wikimedia Commons · PD-Japan',
+      desc: '臺北帝大醫學部由 1899 年成立的臺灣總督府醫學校改制而來，1936 年正式併入帝大。位於仁愛路一段，是日治臺灣最高醫學研究機構。今為臺大醫學人文博物館。' },
+    { id: 'su-005', city: 'school', title: '臺北高校',       en: 'Taihoku High School',           subtitle: '今國立臺灣師範大學',         year: 1922, lat: 25.02611, lng: 121.52639, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1922 年創立的臺北高等學校，是日治臺灣唯一的舊制高等學校，為帝大預科。培養出辜寬敏、李登輝等多位戰後臺灣領袖。戰後改制為臺灣省立師範學院，今國立臺灣師範大學。' },
+    { id: 'su-006', city: 'school', title: '臺北高商',       en: 'Higher Commercial School',      subtitle: '今臺北大學城中校區',         year: 1919, lat: 25.04611, lng: 121.52306, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1919 年創立的臺灣總督府臺北高等商業學校，培養商業專才。位於樺山町（今林森南路一帶），戰後改為臺灣省立法商學院，今國立臺北大學城中校區。' },
+    { id: 'su-007', city: 'school', title: '臺北工業',       en: 'Prefectural Industrial School', subtitle: '今國立臺北科技大學',         year: 1912, lat: 25.04222, lng: 121.53000, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1912 年創立的臺北工業學校（後改州立工業學校），培養機械、電氣、土木等技術人才。位於樺山町，戰後改為省立臺北工專，今國立臺北科技大學。校門紅磚建築仍存。' },
+    { id: 'su-008', city: 'school', title: '臺北師範',       en: 'Taihoku Normal School',         subtitle: '今國立臺北教育大學',         year: 1896, lat: 25.02556, lng: 121.52597, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1896 年由芝山岩學堂演變而來的臺北師範學校，是日治臺灣最早的師範教育機構。培養公學校教員，戰後分立為國立臺北教育大學（北師）與臺北市立大學（南師）。' },
+    { id: 'su-009', city: 'school', title: '北一高女',       en: 'Taihoku First Girls High',      subtitle: '今北一女中',                 year: 1904, lat: 25.03861, lng: 121.51444, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1904 年創立的臺北州立第一高等女學校（北一女），是日治時期供日人女子就讀的最高女子中學。戰後改稱臺北市立第一女子高級中學，校舍紅磚建築仍存於凱達格蘭大道。' },
+    { id: 'su-010', city: 'school', title: '北三高女',       en: 'Taihoku Third Girls High',      subtitle: '今中山女高',                 year: 1897, lat: 25.05111, lng: 121.53389, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1897 年創立的臺北州立第三高等女學校（北三女），是日治時期供臺人女子就讀的高等女學校。戰後改稱臺北市立中山女子高級中學，紅磚校舍仍部分保存。' },
+    { id: 'su-011', city: 'school', title: '臺北高農',       en: 'Higher Agriculture & Forestry', subtitle: '今臺大農學院前身',           year: 1922, lat: 25.02500, lng: 121.53700, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1922 年創立的臺北高等農林學校，是熱帶農林研究的搖籃。1928 年併入帝大農林專門部，戰後改為臺大農學院。校舍部分仍保留於臺大校總區。' },
+    { id: 'su-012', city: 'school', title: '師範附屬',       en: 'Normal School Affiliate',       subtitle: '今國北教大附小',             year: 1898, lat: 25.02556, lng: 121.52650, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1898 年附設於臺北師範學校的附屬國民學校，是師範生實習與都市子弟就讀的學校。戰後改為國北教大附小，是臺灣最古老的小學之一。照片為遠足合影。' },
   ];
   const DISCOVERY_RADIUS_M = 50;
   const PROXIMITY_HINT_M   = 200; // within this range the pin is "near" (pulsing) on the map
