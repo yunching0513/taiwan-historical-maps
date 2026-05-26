@@ -3801,6 +3801,7 @@
   // in one place. Add a city entry here when extending to a new region.
   const POSTCARD_CITIES = [
     { id: 'taipei',    zh: '臺北', en: 'Taihoku · Taipei' },
+    { id: 'wenshan',   zh: '文山', en: 'Bunsan · Wenshan' },
     { id: 'newtaipei', zh: '新北', en: 'Shintoku · New Taipei' },
     { id: 'taoyuan',   zh: '桃園', en: 'Tōen · Taoyuan' },
     { id: 'hsinchu',   zh: '新竹', en: 'Shinchiku · Hsinchu' },
@@ -4021,6 +4022,21 @@
       desc: '1922 年創立的臺北高等農林學校，是熱帶農林研究的搖籃。1928 年併入帝大農林專門部，戰後改為臺大農學院。校舍部分仍保留於臺大校總區。' },
     { id: 'su-012', city: 'school', title: '師範附屬',       en: 'Normal School Affiliate',       subtitle: '今國北教大附小',             year: 1898, lat: 25.02556, lng: 121.52650, source: 'Wikimedia Commons · PD-Japan',
       desc: '1898 年附設於臺北師範學校的附屬國民學校，是師範生實習與都市子弟就讀的學校。戰後改為國北教大附小，是臺灣最古老的小學之一。照片為遠足合影。' },
+
+    // ── 文山 Bunsan-gun — Wenshan + Shenkeng (6) ──
+    // PD 影像稀少，目前 6 張涵蓋日治時期文山郡的核心地標。
+    { id: 'wn-001', city: 'wenshan', title: '景美集應廟',     en: 'Keibi Jiying Temple',     subtitle: '梘尾居民信仰中心',    year: 1853, lat: 24.99250, lng: 121.54028, source: 'Wikimedia Commons · PD-Japan',
+      desc: '創建於 1853 年的景美集應廟（梘尾集應廟），是文山地區安溪移民從唐山分靈的保儀尊王廟。日治時期前期人群聚集廟前的照片，今為文山區重要古蹟。' },
+    { id: 'wn-002', city: 'wenshan', title: '文山郡役所',     en: 'Bunsan County Office',    subtitle: '今文山公民會館',      year: 1920, lat: 24.99528, lng: 121.54250, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1920 年地方制度改正後設立的文山郡役所，位於景尾，管轄景尾、深坑、石碇、坪林、新店、烏來等地。戰後拆除，原址今約為文山公民會館一帶。' },
+    { id: 'wn-003', city: 'wenshan', title: '指南宮',         en: 'Shinan Temple',           subtitle: '木柵指南山頂',        year: 1890, lat: 24.97778, lng: 121.58806, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1890 年創建的指南宮，奉祀孚佑帝君（呂洞賓），位於木柵指南山頂。日治時期 1920 年代擴建，是文山地區最具規模的道教廟宇。' },
+    { id: 'wn-004', city: 'wenshan', title: '指南宮山門',     en: 'Shinan Gateway',          subtitle: '今指南宮入口',        year: 1925, lat: 24.97778, lng: 121.58820, source: 'Wikimedia Commons · PD-Japan',
+      desc: '指南宮山門與石階參道，1932 年由日人攝影師拍攝。今為文山區登山步道起點，從山下到指南宮共 1185 階石階。' },
+    { id: 'wn-005', city: 'wenshan', title: '萬新鐵路',       en: 'Mange-Shinten Line',      subtitle: '萬華—新店輕便鐵道', year: 1921, lat: 24.99250, lng: 121.53917, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1921 年通車的萬華—新店線（萬新鐵路），是日治時期文山郡的交通動脈。穿越景尾、公館、新店等地。1965 年停駛拆除，今路線改為汀州路與羅斯福路。' },
+    { id: 'wn-006', city: 'wenshan', title: '深坑庄役場',     en: 'Shinkeng Township Office', subtitle: '日治屬文山郡',        year: 1924, lat: 25.00111, lng: 121.61500, source: 'Wikimedia Commons · PD-Japan',
+      desc: '1924 年設立的深坑庄役場，是日治時期文山郡深坑庄的行政中心。深坑當時與景尾、新店並列文山郡三大聚落，今屬新北市深坑區。' },
   ];
   const DISCOVERY_RADIUS_M = 50;
   const PROXIMITY_HINT_M   = 200; // within this range the pin is "near" (pulsing) on the map
