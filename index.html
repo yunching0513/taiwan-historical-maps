@@ -1192,16 +1192,38 @@
   .postcard-grid {
     margin-top: 4px;
   }
-  /* Each city gets a strip header + its own grid below */
-  .pc-city-strip {
+  /* Each city is a collapsible <details>. Default closed so the panel
+     doesn't drown in 200+ cells; tap the strip to expand. */
+  .pc-city {
+    margin: 14px 0 0;
+  }
+  .pc-city:first-child { margin-top: 4px; }
+  .pc-city > summary {
+    list-style: none;
+    cursor: pointer;
     display: flex;
     align-items: baseline;
     gap: 8px;
-    margin: 14px 0 8px;
-    padding-bottom: 4px;
+    padding: 6px 0 6px;
     border-bottom: 1px solid var(--mist);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
-  .pc-city-strip:first-child { margin-top: 4px; }
+  .pc-city > summary::-webkit-details-marker { display: none; }
+  .pc-city > summary::marker { content: ''; }
+  .pc-city-caret {
+    display: inline-block;
+    width: 10px;
+    color: var(--ash);
+    font-size: 10px;
+    line-height: 1;
+    transition: transform 0.18s ease;
+    transform-origin: 50% 50%;
+  }
+  .pc-city[open] > summary .pc-city-caret {
+    transform: rotate(90deg);
+    color: var(--vermilion);
+  }
   .pc-city-zh {
     font-family: var(--zh-serif);
     font-size: 14px;
@@ -1222,10 +1244,12 @@
     color: var(--vermilion);
     letter-spacing: 0.1em;
   }
+  .pc-city[open] > summary .pc-city-zh { color: var(--vermilion); }
   .pc-city-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
+    margin-top: 10px;
   }
   .postcard-cell {
     position: relative;
@@ -4359,6 +4383,16 @@
   let collectedPostcards = loadCollectedPostcards();
   const postcardMarkers = new Map(); // id → leaflet marker
 
+  // City groups that the user has manually expanded in the panel.
+  // Default empty Set = everything collapsed on first visit; reloading
+  // preserves whatever the user opened.
+  const postcardOpenCities = (() => {
+    try {
+      const raw = JSON.parse(localStorage.getItem('taiwanOldMaps.postcardOpenCities') || '[]');
+      return new Set(Array.isArray(raw) ? raw : []);
+    } catch { return new Set(); }
+  })();
+
   // Map-pin visibility toggle (persisted). When false, no postcard
   // markers render on the map; the panel grid and collection mechanic
   // are unaffected — proximity check still fires from onPosition.
@@ -4457,12 +4491,18 @@
       const cards = byCity.get(city.id);
       if (!cards || !cards.length) return;
       const collectedHere = cards.filter(c => collectedPostcards.has(c.id)).length;
+      // Persist the open city via a localStorage Set so toggle survives
+      // a reload. Default closed — keeps the panel scannable with
+      // 200+ total cards.
+      const isOpen = postcardOpenCities.has(city.id);
       html.push(`
-        <div class="pc-city-strip">
+        <details class="pc-city" data-city="${city.id}"${isOpen ? ' open' : ''}>
+        <summary>
+          <span class="pc-city-caret">▸</span>
           <span class="pc-city-zh">${city.zh}</span>
           <span class="pc-city-en">${city.en}</span>
           <span class="pc-city-tally">${collectedHere} / ${cards.length}</span>
-        </div>
+        </summary>
         <div class="pc-city-grid">
           ${cards.map(pc => {
             const collected = collectedPostcards.has(pc.id);
@@ -4479,6 +4519,7 @@
             `;
           }).join('')}
         </div>
+        </details>
       `);
     });
     grid.innerHTML = html.join('');
@@ -4486,6 +4527,18 @@
     if (totalEl) {
       totalEl.innerHTML = `<span class="num">${collectedPostcards.size}</span> / ${POSTCARDS.length} collected · 走到地點附近自動沖洗`;
     }
+    // Wire up open/close persistence on each <details>
+    grid.querySelectorAll('details.pc-city').forEach(el => {
+      el.addEventListener('toggle', () => {
+        const id = el.dataset.city;
+        if (el.open) postcardOpenCities.add(id);
+        else postcardOpenCities.delete(id);
+        try {
+          localStorage.setItem('taiwanOldMaps.postcardOpenCities',
+            JSON.stringify([...postcardOpenCities]));
+        } catch {}
+      });
+    });
   }
 
   // Toast: brief on-screen notification when a postcard is collected.
