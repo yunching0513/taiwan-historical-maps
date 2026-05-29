@@ -4803,14 +4803,28 @@
   // download link when the browser lacks Web Share Level 2.
   async function sharePostcard(pc) {
     const APP_URL = 'https://yunching0513.github.io/taiwan-historical-maps/';
-    const text =
-      `我在散策時沖洗到了一張明信片：\n` +
-      `${pc.title}（${pc.en}） ${pc.year}\n` +
-      `${pc.subtitle}\n\n` +
-      `#台灣舊地圖散策 #${pc.title.replace(/\s+/g, '')} #日治臺灣\n\n` +
-      `來源：Wikimedia Commons · PD-Japan\n` +
-      `${pc.sourceUrl || ''}\n` +
-      `${APP_URL}`;
+    // Caption shape: opener → bilingual title/year → subtitle →
+    // historical description (the story) → hashtags → attribution.
+    // Leading 「｜」 keeps the title row distinct on platforms like
+    // IG / Threads / Line where indentation sometimes collapses.
+    const parts = [
+      '我在散策時沖洗到了一張明信片：',
+      '',
+      `｜ ${pc.title} · ${pc.en} · ${pc.year}`,
+      `   ${pc.subtitle}`,
+    ];
+    if (pc.desc) {
+      parts.push('', pc.desc);
+    }
+    parts.push(
+      '',
+      `#台灣舊地圖散策 #${pc.title.replace(/\s+/g, '')} #日治臺灣`,
+      '',
+      '來源：Wikimedia Commons · PD-Japan',
+    );
+    if (pc.sourceUrl) parts.push(pc.sourceUrl);
+    parts.push(APP_URL);
+    const text = parts.join('\n');
     const title = `散策明信片：${pc.title}`;
 
     let file = null;
