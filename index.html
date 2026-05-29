@@ -4801,21 +4801,149 @@
   // caption, and hands it to the OS share sheet so the user can pick
   // Instagram / Threads / Line / IG Stories / etc. Falls back to a
   // download link when the browser lacks Web Share Level 2.
+  // Promise-wrapped <img> loader so we can await postcard JPGs.
+  function loadImageAsync(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+  }
+
+  // Compose a Canvas share card that baby-feeds the postcard photo +
+  // the historical description into a single self-contained image. We
+  // emit JPEG via canvas.toBlob() so the OS share sheet treats it as
+  // a normal photo — works on IG Stories (where caption is hidden),
+  // Threads, Line, Twitter, Mail. The vermilion / paper palette and
+  // Noto Serif TC match the in-app aesthetic.
+  async function generateShareCard(pc) {
+    // Wait until Google Fonts are ready, otherwise the first share
+    // call lands before Noto Serif TC has loaded and the description
+    // renders in the browser's fallback font.
+    if (document.fonts && document.fonts.ready) {
+      try { await document.fonts.ready; } catch {}
+    }
+
+    const postcardImg = await loadImageAsync(`icons/postcards/${pc.id}.jpg`);
+
+    const W = 1080;
+    const SIDE = 140;
+    const INNER = W - SIDE * 2; // 800 — matches postcard native width
+    const pcRatio = postcardImg.width / postcardImg.height;
+    const pcW = INNER;
+    const pcH = INNER / pcRatio;
+
+    // ── Pass 1: measure description height ──
+    const lineHeight = 46;
+    const descFontSize = 28;
+    const tmp = document.createElement('canvas').getContext('2d');
+    tmp.font = `${descFontSize}px "Noto Serif TC", serif`;
+    let measureLines = 1;
+    let buf = '';
+    for (const ch of (pc.desc || '')) {
+      if (tmp.measureText(buf + ch).width > INNER) {
+        measureLines++;
+        buf = ch;
+      } else {
+        buf += ch;
+      }
+    }
+    const descHeight = measureLines * lineHeight;
+
+    // ── Allocate canvas ──
+    // Layout: 80 top + postcard + 60 + divider + 50 + desc + 60 + 50 hashtags
+    //         + 40 source + 40 url + 80 bottom
+    const H = 80 + pcH + 60 + 50 + descHeight + 60 + 50 + 40 + 40 + 80;
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    // Aged-paper gradient background
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, '#F4F2EC');
+    grad.addColorStop(1, '#E6E2D6');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    let y = 80;
+
+    // Postcard image with drop shadow
+    ctx.shadowColor = 'rgba(31, 29, 25, 0.35)';
+    ctx.shadowBlur = 40;
+    ctx.shadowOffsetY = 14;
+    ctx.drawImage(postcardImg, SIDE, y, pcW, pcH);
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+    y += pcH + 60;
+
+    // Three vermilion dots as divider
+    ctx.fillStyle = '#C15F3C';
+    for (const dx of [-32, 0, 32]) {
+      ctx.beginPath();
+      ctx.arc(W / 2 + dx, y, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    y += 50;
+
+    // Description (the story) — Chinese single-character word wrap
+    ctx.font = `${descFontSize}px "Noto Serif TC", serif`;
+    ctx.fillStyle = '#565347';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    let line = '';
+    for (const ch of (pc.desc || '')) {
+      if (ctx.measureText(line + ch).width > INNER) {
+        ctx.fillText(line, SIDE, y);
+        line = ch;
+        y += lineHeight;
+      } else {
+        line += ch;
+      }
+    }
+    if (line) {
+      ctx.fillText(line, SIDE, y);
+      y += lineHeight;
+    }
+    y += 20;
+
+    // Hashtags (vermilion italic)
+    ctx.font = 'italic 26px "EB Garamond", Georgia, serif';
+    ctx.fillStyle = '#C15F3C';
+    ctx.textAlign = 'center';
+    const hashtags = `#台灣舊地圖散策   #${pc.title.replace(/\s+/g, '')}   #日治臺灣`;
+    ctx.fillText(hashtags, W / 2, y);
+    y += 50;
+
+    // Source attribution
+    ctx.font = '20px "JetBrains Mono", monospace';
+    ctx.fillStyle = '#807C73';
+    ctx.fillText('SOURCE · WIKIMEDIA COMMONS · PD-JAPAN', W / 2, y);
+    y += 40;
+
+    // App URL (italic serif)
+    ctx.font = 'italic 22px "EB Garamond", Georgia, serif';
+    ctx.fillStyle = '#A6A399';
+    ctx.fillText('yunching0513.github.io/taiwan-historical-maps', W / 2, y);
+
+    return new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92));
+  }
+
   async function sharePostcard(pc) {
     const APP_URL = 'https://yunching0513.github.io/taiwan-historical-maps/';
-    // Caption shape: opener → bilingual title/year → subtitle →
-    // historical description (the story) → hashtags → attribution.
-    // Leading 「｜」 keeps the title row distinct on platforms like
-    // IG / Threads / Line where indentation sometimes collapses.
+    // Text caption — still goes to platforms that show it (IG Feed,
+    // Threads, Line, Mail). The composed image below carries the same
+    // info for platforms that hide caption (IG Stories).
     const parts = [
       '我在散策時沖洗到了一張明信片：',
       '',
       `｜ ${pc.title} · ${pc.en} · ${pc.year}`,
       `   ${pc.subtitle}`,
     ];
-    if (pc.desc) {
-      parts.push('', pc.desc);
-    }
+    if (pc.desc) parts.push('', pc.desc);
     parts.push(
       '',
       `#台灣舊地圖散策 #${pc.title.replace(/\s+/g, '')} #日治臺灣`,
@@ -4827,17 +4955,30 @@
     const text = parts.join('\n');
     const title = `散策明信片：${pc.title}`;
 
+    // Try the composited story card first; fall back to the raw postcard
+    // JPG if Canvas ever misbehaves (e.g. tainted canvas due to CORS).
     let file = null;
     try {
-      const res = await fetch(`icons/postcards/${pc.id}.jpg`, { cache: 'force-cache' });
-      const blob = await res.blob();
-      file = new File([blob], `${pc.id}-${pc.title}.jpg`,
-        { type: blob.type || 'image/jpeg' });
+      const blob = await generateShareCard(pc);
+      if (blob) {
+        file = new File([blob], `${pc.id}-${pc.title}-share.jpg`,
+          { type: 'image/jpeg' });
+      }
     } catch (err) {
-      console.warn('postcard image fetch failed', err);
+      console.warn('Canvas share-card generation failed, using raw JPG', err);
+    }
+    if (!file) {
+      try {
+        const res = await fetch(`icons/postcards/${pc.id}.jpg`, { cache: 'force-cache' });
+        const blob = await res.blob();
+        file = new File([blob], `${pc.id}-${pc.title}.jpg`,
+          { type: blob.type || 'image/jpeg' });
+      } catch (err) {
+        console.warn('postcard image fetch failed', err);
+      }
     }
 
-    // Try Web Share Level 2 (with files) → Level 1 (text/url only) → fallback
+    // Web Share L2 (with files) → L1 (text/url only) → fallback open
     if (navigator.canShare && file && navigator.canShare({ files: [file] })) {
       try { await navigator.share({ title, text, files: [file] }); return; }
       catch (err) { if (err.name !== 'AbortError') console.warn(err); else return; }
@@ -4846,7 +4987,6 @@
       try { await navigator.share({ title, text, url: APP_URL }); return; }
       catch (err) { if (err.name !== 'AbortError') console.warn(err); else return; }
     }
-    // Fallback: open the postcard image in a new tab so user can long-press → save
     window.open(`icons/postcards/${pc.id}.jpg`, '_blank', 'noopener');
     showPostcardToast('長按圖片即可儲存或分享');
   }
