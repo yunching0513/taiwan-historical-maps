@@ -14,6 +14,47 @@
 <link rel="apple-touch-icon" href="icons/icon-180.png" />
 <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png" />
 <title>台灣舊地圖散策 — Taiwan Old-Map Stroll</title>
+
+<!-- ── SEO ──────────────────────────────────────────── -->
+<meta name="description" content="把 1904 年以來的 19 張臺灣歷史地圖疊在今日街道上。今昔對照、GPS 散策記錄、沖洗日治時期老明信片——歷史不在課本裡，就在你走的這條路上。" />
+<meta name="keywords" content="台灣歷史地圖, 臺灣堡圖, 日治時期, 古地圖, 今昔對照, 文化資產, 散策, Taiwan historical maps, old maps" />
+<meta name="author" content="吳昀慶 Yunching Wu" />
+<link rel="canonical" href="https://yunching0513.github.io/taiwan-historical-maps/" />
+
+<!-- ── Open Graph（LINE / Facebook / Slack 分享預覽）──── -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="台灣舊地圖散策" />
+<meta property="og:title" content="台灣舊地圖散策 — Taiwan Old-Map Stroll" />
+<meta property="og:description" content="把百年前的臺灣歷史地圖疊在今日街道上：今昔對照、GPS 散策、收集日治老明信片。免費、免安裝、開瀏覽器就能走進歷史。" />
+<meta property="og:url" content="https://yunching0513.github.io/taiwan-historical-maps/" />
+<meta property="og:image" content="https://yunching0513.github.io/taiwan-historical-maps/play-assets/feature-graphic-1024x500.png" />
+<meta property="og:image:width" content="1024" />
+<meta property="og:image:height" content="500" />
+<meta property="og:locale" content="zh_TW" />
+<meta property="og:locale:alternate" content="en_US" />
+<meta property="og:locale:alternate" content="ja_JP" />
+
+<!-- ── Twitter Card ─────────────────────────────────── -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="台灣舊地圖散策 — Taiwan Old-Map Stroll" />
+<meta name="twitter:description" content="把百年前的臺灣地圖疊在今日街道上：今昔對照、GPS 散策、收集日治老明信片。" />
+<meta name="twitter:image" content="https://yunching0513.github.io/taiwan-historical-maps/play-assets/feature-graphic-1024x500.png" />
+
+<!-- ── 結構化資料（Google 搜尋富摘要）──────────────── -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "台灣舊地圖散策 Taiwan Old-Map Stroll",
+  "url": "https://yunching0513.github.io/taiwan-historical-maps/",
+  "applicationCategory": "EducationApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "TWD" },
+  "inLanguage": ["zh-Hant", "en", "ja"],
+  "description": "把 1904 年以來的 19 張臺灣歷史地圖疊在今日街道上，今昔對照、GPS 散策記錄、收集日治時期老明信片的歷史教育 PWA。",
+  "author": { "@type": "Person", "name": "吳昀慶 Yunching Wu", "url": "https://github.com/yunching0513" }
+}
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
@@ -32,6 +73,8 @@
     --indigo:   #C15F3C;
     --indigo-d: #9E4B2E;
     --indigo-l: rgba(193, 95, 60, 0.08);
+    /* Alias — several components reference the accent by its real name. */
+    --vermilion: #C15F3C;
 
     --zh-serif: 'Noto Serif TC', 'Songti TC', 'PingFang TC', serif;
     --zh-sans:  'Noto Sans TC', system-ui, sans-serif;
@@ -2118,6 +2161,186 @@
     margin-bottom: 6px;
   }
 
+  /* ── Onboarding（首次開啟導覽）─────────────────── */
+  .ob-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 29, 25, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+  }
+  .ob-overlay.show { opacity: 1; pointer-events: auto; }
+  .ob-card {
+    position: relative;
+    background: var(--paper);
+    border: 1px solid var(--stone);
+    box-shadow: 0 1px 0 var(--mist), 0 24px 60px -28px rgba(31, 29, 25, 0.45);
+    width: 100%;
+    max-width: 380px;
+    padding: 30px 30px 22px;
+    color: var(--ink);
+    transform: translateY(12px) scale(0.97);
+    transition: transform 0.24s cubic-bezier(0.2, 0.7, 0.3, 1);
+    overflow: hidden;
+  }
+  .ob-overlay.show .ob-card { transform: none; }
+  .ob-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 30px;
+    width: 48px; height: 3px;
+    background: var(--vermilion);
+  }
+  .ob-skip {
+    position: absolute;
+    top: 12px; right: 14px;
+    border: none;
+    background: transparent;
+    color: var(--silver);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 6px 8px;
+  }
+  .ob-skip:hover { color: var(--graphite); }
+  .ob-step { display: none; }
+  .ob-step.active { display: block; animation: ob-fade 0.3s ease; }
+  @keyframes ob-fade {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .ob-kicker {
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--vermilion);
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+  .ob-title {
+    font-family: var(--zh-serif);
+    font-weight: 600;
+    font-size: 21px;
+    letter-spacing: 0.14em;
+    color: var(--sumi);
+    margin-bottom: 12px;
+  }
+  .ob-body {
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--graphite);
+    letter-spacing: 0.03em;
+    min-height: 96px;
+  }
+  .ob-years {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 14px 0 4px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--silver);
+  }
+  .ob-years .y { color: var(--graphite); }
+  .ob-years .line {
+    flex: 1;
+    height: 1px;
+    border-bottom: 1px dotted var(--silver);
+  }
+  .ob-lang-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dotted var(--silver);
+  }
+  .ob-lang-row .lang-pill {
+    border: 1px solid var(--stone);
+    background: transparent;
+    color: var(--graphite);
+    font-family: var(--zh-sans);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 4px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .ob-lang-row .lang-pill.active {
+    background: var(--vermilion);
+    border-color: var(--vermilion);
+    color: #fff;
+  }
+  .ob-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding-top: 14px;
+    border-top: 1px solid var(--mist);
+  }
+  .ob-dots { display: flex; gap: 7px; }
+  .ob-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--mist);
+    transition: background 0.2s, transform 0.2s;
+  }
+  .ob-dot.active { background: var(--vermilion); transform: scale(1.25); }
+  .ob-nav { display: flex; gap: 8px; }
+  .ob-btn {
+    border: 1px solid var(--stone);
+    background: transparent;
+    color: var(--graphite);
+    font-family: var(--zh-sans);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .ob-btn:hover { border-color: var(--graphite); color: var(--ink); }
+  .ob-btn.primary {
+    background: var(--vermilion);
+    border-color: var(--vermilion);
+    color: #fff;
+  }
+  .ob-btn.primary:hover { background: var(--indigo-d); border-color: var(--indigo-d); }
+
+  /* Floating「？」— reopen the tour anytime */
+  .help-fab {
+    position: absolute;
+    left: 14px;
+    bottom: 18px;
+    z-index: 1000;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--stone);
+    background: var(--paper-2);
+    color: var(--graphite);
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 17px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px -6px rgba(31, 29, 25, 0.25);
+    transition: all 0.15s;
+  }
+  .help-fab:hover {
+    border-color: var(--vermilion);
+    color: var(--vermilion);
+  }
+
   /* ── Mobile-only elements (hidden on desktop) ──── */
   .toggle-btn { display: none; }
   .sheet-handle { display: none; }
@@ -2532,6 +2755,11 @@
     }
     .leaflet-control-attribution { display: none; }
 
+    /* Keep the help「？」above the collapsed bottom sheet */
+    .help-fab {
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 74px);
+    }
+
     /* Disable hover-only effects on touch devices to avoid sticky states */
     .layer-row:hover .row-zh { color: var(--graphite); }
     .city-current:hover .city-zh { color: var(--ink); }
@@ -2813,6 +3041,56 @@
 <div class="compare-side-label right" id="compare-label-right" data-i18n="compare.then">THEN</div>
 <div class="compare-divider" id="compare-divider" hidden></div>
 
+<!-- Floating help button — reopen onboarding tour -->
+<button type="button" class="help-fab" id="btn-help" aria-label="操作說明" data-i18n="ob.help.aria" data-i18n-attr="aria-label">?</button>
+
+<!-- First-run onboarding tour -->
+<div class="ob-overlay" id="ob-overlay" aria-hidden="true">
+  <div class="ob-card" role="dialog" aria-labelledby="ob-title-1">
+    <button type="button" class="ob-skip" id="ob-skip" data-i18n="ob.skip">略過</button>
+
+    <div class="ob-step active" data-step="0">
+      <div class="ob-kicker">01 / 04 · Welcome</div>
+      <h2 class="ob-title" id="ob-title-1" data-i18n="ob.s1.title">歡迎來到 舊地圖散策</h2>
+      <p class="ob-body" data-i18n="ob.s1.body">把 1904 年以來的 19 張臺灣歷史地圖，疊在今日的街道上。你腳下的馬路，百年前可能是水圳、糖鐵，或一座消失的聚落。</p>
+      <div class="ob-years"><span class="y">1904</span><span class="line"></span><span class="y">1944</span><span class="line"></span><span class="y">2003</span><span class="line"></span><span class="y">NOW</span></div>
+      <div class="ob-lang-row">
+        <button type="button" class="lang-pill" data-lang="zh" title="繁體中文">繁中</button>
+        <button type="button" class="lang-pill" data-lang="en" title="English">EN</button>
+        <button type="button" class="lang-pill" data-lang="ja" title="日本語">日本語</button>
+      </div>
+    </div>
+
+    <div class="ob-step" data-step="1">
+      <div class="ob-kicker">02 / 04 · Then &amp; Now</div>
+      <h2 class="ob-title" data-i18n="ob.s2.title">拉開今昔</h2>
+      <p class="ob-body" data-i18n="ob.s2.body">「對照拉條」讓你左右滑動比對 NOW 與 THEN；「四代對照」一次並排四個年代，看城市如何長成今天的樣子。</p>
+    </div>
+
+    <div class="ob-step" data-step="2">
+      <div class="ob-kicker">03 / 04 · Postcards</div>
+      <h2 class="ob-title" data-i18n="ob.s3.title">沖洗老明信片</h2>
+      <p class="ob-body" data-i18n="ob.s3.body">全臺 217 個歷史現場藏著日治時期的老明信片。實際走到地點 50 公尺內，明信片就會自動「顯影」，收進你的圖鑑。</p>
+    </div>
+
+    <div class="ob-step" data-step="3">
+      <div class="ob-kicker">04 / 04 · Stroll</div>
+      <h2 class="ob-title" data-i18n="ob.s4.title">出發吧</h2>
+      <p class="ob-body" data-i18n="ob.s4.body">開啟 GPS 記錄你的散策路線、沿途拍照，收集 22 縣市印章。歷史不在課本裡，就在你走的這條路上。</p>
+    </div>
+
+    <div class="ob-foot">
+      <div class="ob-dots" id="ob-dots">
+        <span class="ob-dot active"></span><span class="ob-dot"></span><span class="ob-dot"></span><span class="ob-dot"></span>
+      </div>
+      <div class="ob-nav">
+        <button type="button" class="ob-btn" id="ob-prev" data-i18n="ob.prev" hidden>上一步</button>
+        <button type="button" class="ob-btn primary" id="ob-next" data-i18n="ob.next">下一步</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Four-era collage modal -->
 <div class="era-modal" id="era-modal" hidden>
   <div class="era-modal-head">
@@ -3023,6 +3301,19 @@
       'bg.title': '舊地圖散策',
       'bg.message': '正在記錄你的散策路徑',
       'lb.aria.close': '關閉',
+      'ob.skip': '略過',
+      'ob.next': '下一步',
+      'ob.prev': '上一步',
+      'ob.start': '開始散策',
+      'ob.help.aria': '操作說明',
+      'ob.s1.title': '歡迎來到 舊地圖散策',
+      'ob.s1.body': '把 1904 年以來的 19 張臺灣歷史地圖，疊在今日的街道上。你腳下的馬路，百年前可能是水圳、糖鐵，或一座消失的聚落。',
+      'ob.s2.title': '拉開今昔',
+      'ob.s2.body': '「對照拉條」讓你左右滑動比對 NOW 與 THEN；「四代對照」一次並排四個年代，看城市如何長成今天的樣子。',
+      'ob.s3.title': '沖洗老明信片',
+      'ob.s3.body': '全臺 217 個歷史現場藏著日治時期的老明信片。實際走到地點 50 公尺內，明信片就會自動「顯影」，收進你的圖鑑。',
+      'ob.s4.title': '出發吧',
+      'ob.s4.body': '開啟 GPS 記錄你的散策路線、沿途拍照，收集 22 縣市印章。歷史不在課本裡，就在你走的這條路上。',
     },
     en: {
       'app.tagline': 'Taiwan · Old-Map Stroll',
@@ -3143,6 +3434,19 @@
       'bg.title': 'Old-Map Stroll',
       'bg.message': 'Recording your stroll route',
       'lb.aria.close': 'Close',
+      'ob.skip': 'Skip',
+      'ob.next': 'Next',
+      'ob.prev': 'Back',
+      'ob.start': 'Start strolling',
+      'ob.help.aria': 'How it works',
+      'ob.s1.title': 'Welcome to Old-Map Stroll',
+      'ob.s1.body': 'Overlay 19 historical maps of Taiwan (1904 onward) on today\'s streets. The road under your feet may once have been an irrigation canal, a sugar railway, or a vanished village.',
+      'ob.s2.title': 'Slide between eras',
+      'ob.s2.body': 'Swipe Compare lets you drag between NOW and THEN; Four Eras shows the same spot across four periods, side by side.',
+      'ob.s3.title': 'Develop vintage postcards',
+      'ob.s3.body': '217 historic sites across Taiwan hide Japanese-era postcards. Walk within 50 m of one and the postcard "develops" into your collection.',
+      'ob.s4.title': 'Set off',
+      'ob.s4.body': 'Record your stroll with GPS, snap photos along the way, and collect seals from all 22 cities and counties. History isn\'t in a textbook — it\'s on the street you\'re walking.',
     },
     ja: {
       'app.tagline': '台灣 · 旧地図散策',
@@ -3263,6 +3567,19 @@
       'bg.title': '旧地図散策',
       'bg.message': '散策ルートを記録中',
       'lb.aria.close': '閉じる',
+      'ob.skip': 'スキップ',
+      'ob.next': '次へ',
+      'ob.prev': '戻る',
+      'ob.start': '散策を始める',
+      'ob.help.aria': '使い方',
+      'ob.s1.title': '旧地図散策へようこそ',
+      'ob.s1.body': '1904年以降の台湾歴史地図19枚を、今日の街並みに重ねます。足元の道は、百年前は水路や製糖鉄道、消えた集落だったかもしれません。',
+      'ob.s2.title': '今と昔をスライド比較',
+      'ob.s2.body': '「比較スライダー」で NOW と THEN を左右に見比べ、「四代対照」で同じ場所の四つの時代を並べて眺められます。',
+      'ob.s3.title': '古い絵葉書を現像',
+      'ob.s3.body': '全台217か所の歴史スポットに日本統治時代の絵葉書が隠れています。現地から50m以内に近づくと、絵葉書が自動的に「現像」されコレクションに加わります。',
+      'ob.s4.title': 'さあ、出発',
+      'ob.s4.body': 'GPSで散策ルートを記録し、写真を撮り、22県市の印章を集めましょう。歴史は教科書の中ではなく、いま歩いているこの道にあります。',
     },
   };
 
@@ -6839,6 +7156,65 @@
         copyBtn.textContent = t('donate.copy');
       }, 1600);
     });
+  })();
+
+  // ── First-run onboarding tour ────────────────────
+  (function setupOnboarding() {
+    const ONBOARDED_KEY = 'taiwanOldMaps.onboarded';
+    const overlay = document.getElementById('ob-overlay');
+    const helpBtn = document.getElementById('btn-help');
+    if (!overlay || !helpBtn) return;
+    const steps = Array.from(overlay.querySelectorAll('.ob-step'));
+    const dots = Array.from(overlay.querySelectorAll('.ob-dot'));
+    const prevBtn = document.getElementById('ob-prev');
+    const nextBtn = document.getElementById('ob-next');
+    const skipBtn = document.getElementById('ob-skip');
+    let step = 0;
+
+    function paint() {
+      steps.forEach((el, i) => el.classList.toggle('active', i === step));
+      dots.forEach((el, i) => el.classList.toggle('active', i === step));
+      prevBtn.hidden = step === 0;
+      const last = step === steps.length - 1;
+      // Swap the i18n key so a mid-tour language switch keeps the right label.
+      nextBtn.dataset.i18n = last ? 'ob.start' : 'ob.next';
+      nextBtn.textContent = t(last ? 'ob.start' : 'ob.next');
+    }
+    function open() {
+      step = 0;
+      paint();
+      overlay.classList.add('show');
+      overlay.setAttribute('aria-hidden', 'false');
+    }
+    function close() {
+      overlay.classList.remove('show');
+      overlay.setAttribute('aria-hidden', 'true');
+      try { localStorage.setItem(ONBOARDED_KEY, '1'); } catch {}
+    }
+
+    nextBtn.addEventListener('click', () => {
+      if (step === steps.length - 1) { close(); return; }
+      step += 1;
+      paint();
+    });
+    prevBtn.addEventListener('click', () => {
+      if (step > 0) { step -= 1; paint(); }
+    });
+    skipBtn.addEventListener('click', close);
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) close();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && overlay.classList.contains('show')) close();
+    });
+    helpBtn.addEventListener('click', open);
+
+    // Auto-show on first visit only — and never in scripted scenes
+    // (deep links used for screenshots / shared views).
+    const scripted = params.get('panel') || params.get('picker') || params.get('layer');
+    let seen = false;
+    try { seen = localStorage.getItem(ONBOARDED_KEY) === '1'; } catch {}
+    if (!seen && !scripted) setTimeout(open, 600);
   })();
 
   // ── Language picker wiring + initial paint ───────

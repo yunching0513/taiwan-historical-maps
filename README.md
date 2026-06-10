@@ -1,8 +1,25 @@
-# 臺灣古今地圖疊圖
+# 台灣舊地圖散策 · Taiwan Old-Map Stroll
 
 > **Live Demo** · [yunching0513.github.io/taiwan-historical-maps](https://yunching0513.github.io/taiwan-historical-maps/)
 >
 > 快速連結：[臺北](https://yunching0513.github.io/taiwan-historical-maps/?city=taipei) · [臺中](https://yunching0513.github.io/taiwan-historical-maps/?city=taichung) · [臺南](https://yunching0513.github.io/taiwan-historical-maps/?city=tainan) · [高雄](https://yunching0513.github.io/taiwan-historical-maps/?city=kaohsiung)
+
+![台灣舊地圖散策](play-assets/feature-graphic-1024x500.png)
+
+**把 1904 年以來的臺灣歷史地圖，疊在今日的街道上。** 你腳下的馬路，百年前可能是水圳、糖鐵，或一座消失的聚落——歷史不在課本裡，就在你走的這條路上。
+
+| 疊圖比對 | 四代對照 | 沖洗老明信片 |
+|---|---|---|
+| ![1944 疊圖](play-assets/screenshots/01-map-1944-overlay.png) | ![四代對照](play-assets/screenshots/02-four-eras-collage.png) | ![明信片](play-assets/screenshots/04-postcard-luodong-forest.png) |
+
+## ✨ 特色
+
+- 🗺️ **19 張全臺歷史地圖**（1904 臺灣堡圖 → 2003 經建版），中研院百年圖磚直接疊在現代街道上
+- ↔️ **今昔對照**：拉條左右滑動比對 NOW / THEN，「四代對照」並排四個年代
+- 🎴 **明信片散策**：實際走到全臺 217 個歷史現場 50 公尺內，日治老明信片自動「顯影」收藏
+- 👣 **GPS 散策記錄**：記錄路線、沿途拍照、收集 22 縣市印章，可分享成精美卡片
+- 📱 **PWA 免安裝**：開瀏覽器就能用，也可安裝成手機 App，支援離線圖磚包
+- 🌏 **三語介面**：繁體中文 · English · 日本語
 
 仿照 [xinyi-water-map](https://github.com/yunching0513/xinyi-water-map) 的歷史圖層功能，做成一個涵蓋全臺 22 個直轄市／縣市的單頁應用。視覺套用《昀慶手拙 · 個人設計風格指導書》——清水混凝土系灰階配朱（vermilion）單一強調色，Noto Serif TC + EB Garamond italic + JetBrains Mono 三套字體。
 
