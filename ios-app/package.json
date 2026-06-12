@@ -1,0 +1,17 @@
+{
+  "name": "old-map-stroll-ios",
+  "private": true,
+  "version": "1.0.0",
+  "description": "台灣舊地圖散策 — iOS (Capacitor) wrapper",
+  "scripts": {
+    "sync-www": "bash sync-www.sh",
+    "ios": "npm run sync-www && npx cap sync ios && npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/ios": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0"
+  }
+}
