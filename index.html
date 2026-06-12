@@ -2282,6 +2282,41 @@
     border-color: var(--vermilion);
     color: #fff;
   }
+  .ob-body--short { min-height: 0; }
+  .ob-pick-label {
+    margin-top: 12px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    color: var(--silver);
+    text-transform: uppercase;
+  }
+  .ob-city-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+    max-height: 168px;
+    overflow-y: auto;
+    padding-bottom: 2px;
+  }
+  .ob-city-pill {
+    border: 1px solid var(--stone);
+    background: transparent;
+    color: var(--graphite);
+    font-family: var(--zh-sans);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    padding: 5px 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .ob-city-pill:hover, .ob-city-pill.current {
+    background: var(--vermilion);
+    border-color: var(--vermilion);
+    color: #fff;
+  }
+
   .ob-foot {
     display: flex;
     align-items: center;
@@ -3076,7 +3111,9 @@
     <div class="ob-step" data-step="3">
       <div class="ob-kicker">04 / 04 · Stroll</div>
       <h2 class="ob-title" data-i18n="ob.s4.title">出發吧</h2>
-      <p class="ob-body" data-i18n="ob.s4.body">開啟 GPS 記錄你的散策路線、沿途拍照，收集 22 縣市印章。歷史不在課本裡，就在你走的這條路上。</p>
+      <p class="ob-body ob-body--short" data-i18n="ob.s4.body">開啟 GPS 記錄你的散策路線、沿途拍照，收集 22 縣市印章。歷史不在課本裡，就在你走的這條路上。</p>
+      <div class="ob-pick-label" data-i18n="ob.s4.pick">選擇你的城市，從那裡開始：</div>
+      <div class="ob-city-grid" id="ob-city-grid"></div>
     </div>
 
     <div class="ob-foot">
@@ -3314,6 +3351,7 @@
       'ob.s3.body': '全臺 217 個歷史現場藏著日治時期的老明信片。實際走到地點 50 公尺內，明信片就會自動「顯影」，收進你的圖鑑。',
       'ob.s4.title': '出發吧',
       'ob.s4.body': '開啟 GPS 記錄你的散策路線、沿途拍照，收集 22 縣市印章。歷史不在課本裡，就在你走的這條路上。',
+      'ob.s4.pick': '選擇你的城市，從那裡開始：',
     },
     en: {
       'app.tagline': 'Taiwan · Old-Map Stroll',
@@ -3447,6 +3485,7 @@
       'ob.s3.body': '217 historic sites across Taiwan hide Japanese-era postcards. Walk within 50 m of one and the postcard "develops" into your collection.',
       'ob.s4.title': 'Set off',
       'ob.s4.body': 'Record your stroll with GPS, snap photos along the way, and collect seals from all 22 cities and counties. History isn\'t in a textbook — it\'s on the street you\'re walking.',
+      'ob.s4.pick': 'Pick your city to start there:',
     },
     ja: {
       'app.tagline': '台灣 · 旧地図散策',
@@ -3580,6 +3619,7 @@
       'ob.s3.body': '全台217か所の歴史スポットに日本統治時代の絵葉書が隠れています。現地から50m以内に近づくと、絵葉書が自動的に「現像」されコレクションに加わります。',
       'ob.s4.title': 'さあ、出発',
       'ob.s4.body': 'GPSで散策ルートを記録し、写真を撮り、22県市の印章を集めましょう。歴史は教科書の中ではなく、いま歩いているこの道にあります。',
+      'ob.s4.pick': 'あなたの街を選んで、そこから始めましょう：',
     },
   };
 
@@ -3726,7 +3766,14 @@
   // ── State & helpers ──────────────────────────────
   const DEFAULT_CITY = 'taipei';
   const params = new URLSearchParams(location.search);
-  const initialCityId = (params.get('city') && CITIES.find(c => c.id === params.get('city'))) ? params.get('city') : DEFAULT_CITY;
+  // 城市優先序：深連結 ?city= → 上次造訪的城市（localStorage）→ 預設臺北
+  const LAST_CITY_KEY = 'taiwanOldMaps.lastCity';
+  let storedCityId = null;
+  try { storedCityId = localStorage.getItem(LAST_CITY_KEY); } catch {}
+  const initialCityId =
+    (params.get('city') && CITIES.find(c => c.id === params.get('city'))) ? params.get('city') :
+    (storedCityId && CITIES.find(c => c.id === storedCityId)) ? storedCityId :
+    DEFAULT_CITY;
 
   let currentCity = CITIES.find(c => c.id === initialCityId);
   const layerCache = {};
@@ -3862,6 +3909,7 @@
     const city = CITIES.find(c => c.id === id);
     if (!city) return;
     currentCity = city;
+    try { localStorage.setItem(LAST_CITY_KEY, id); } catch {}
     map.flyTo(city.center, city.zoom, { duration: opts.instant ? 0 : 0.9 });
     updateCityUI();
     // Update URL without reload
@@ -7191,6 +7239,20 @@
     const skipBtn = document.getElementById('ob-skip');
     let step = 0;
 
+    function renderCityGrid() {
+      const grid = document.getElementById('ob-city-grid');
+      if (!grid) return;
+      grid.innerHTML = CITIES.map(c => `
+        <button type="button" class="ob-city-pill${c.id === currentCity.id ? ' current' : ''}"
+                data-id="${c.id}">${currentLang === 'zh' ? c.zh : c.en}</button>`).join('');
+      grid.querySelectorAll('.ob-city-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          selectCity(pill.dataset.id);
+          close();
+        });
+      });
+    }
+
     function paint() {
       steps.forEach((el, i) => el.classList.toggle('active', i === step));
       dots.forEach((el, i) => el.classList.toggle('active', i === step));
@@ -7199,6 +7261,7 @@
       // Swap the i18n key so a mid-tour language switch keeps the right label.
       nextBtn.dataset.i18n = last ? 'ob.start' : 'ob.next';
       nextBtn.textContent = t(last ? 'ob.start' : 'ob.next');
+      if (last) renderCityGrid();
     }
     function open() {
       step = 0;
