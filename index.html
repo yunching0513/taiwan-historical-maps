@@ -1367,6 +1367,16 @@
     justify-content: center;
     box-shadow: 0 1px 3px rgba(0,0,0,0.25);
   }
+  /* 抽到但尚未走到現場的卡：泛黃預覽，與全彩收藏區隔 */
+  .postcard-cell.drawn img {
+    filter: sepia(0.5) contrast(0.92);
+    opacity: 0.88;
+  }
+  .postcard-cell .pc-badge--drawn {
+    background: var(--paper);
+    border: 1px solid var(--stone);
+    font-size: 10px;
+  }
   .postcard-count {
     font-family: var(--mono);
     font-size: 10px;
@@ -5559,6 +5569,21 @@
   const PROXIMITY_HINT_M   = 200; // within this range the pin is "near" (pulsing) on the map
 
   let collectedPostcards = loadCollectedPostcards();
+
+  // 每日抽卡抽到的卡（已顯影、但還沒走到現場收藏）——留在卡夾裡可回味。
+  let drawnPostcards = loadDrawnPostcards();
+  let openDrawnPostcard = null; // 由 setupWelcomePostcard 指派
+  function loadDrawnPostcards() {
+    try {
+      const arr = JSON.parse(localStorage.getItem('taiwanOldMaps.drawnPostcards') || '[]');
+      return new Set(Array.isArray(arr) ? arr : []);
+    } catch { return new Set(); }
+  }
+  function persistDrawnPostcards() {
+    try {
+      localStorage.setItem('taiwanOldMaps.drawnPostcards', JSON.stringify([...drawnPostcards]));
+    } catch {}
+  }
   const postcardMarkers = new Map(); // id → leaflet marker
 
   // City groups that the user has manually expanded in the panel.
@@ -5684,19 +5709,20 @@
         <div class="pc-city-grid">
           ${cards.map(pc => {
             const collected = collectedPostcards.has(pc.id);
-            const imgSrc = collected ? `icons/postcards/${pc.id}.jpg` : 'icons/postcards/_unknown.jpg';
+            const drawn = !collected && drawnPostcards.has(pc.id);
+            const imgSrc = (collected || drawn) ? `icons/postcards/${pc.id}.jpg` : 'icons/postcards/_unknown.jpg';
             // English locale: surface the existing pc.en field on each
             // postcard. zh + ja: keep pc.title (kanji place names read
             // well in Japanese; descriptions remain zh per Phase A scope).
             const tileTitle = (currentLang === 'en' && pc.en) ? pc.en : pc.title;
-            const label = collected
+            const label = (collected || drawn)
               ? `${tileTitle}<span class="pc-year">${pc.year}</span>`
               : `??? <span class="pc-year">— · —</span>`;
             return `
-              <div class="postcard-cell ${collected ? 'collected' : 'locked'}" data-id="${pc.id}">
-                <img src="${imgSrc}" alt="${collected ? tileTitle : t('pc.locked.title')}" loading="lazy" />
+              <div class="postcard-cell ${collected ? 'collected' : drawn ? 'drawn' : 'locked'}" data-id="${pc.id}">
+                <img src="${imgSrc}" alt="${(collected || drawn) ? tileTitle : t('pc.locked.title')}" loading="lazy" />
                 <div class="pc-label">${label}</div>
-                ${collected ? '<div class="pc-badge">✓</div>' : ''}
+                ${collected ? '<div class="pc-badge">✓</div>' : drawn ? '<div class="pc-badge pc-badge--drawn">🎴</div>' : ''}
               </div>
             `;
           }).join('')}
@@ -6020,12 +6046,19 @@
     }
   });
 
-  // Panel-grid click: re-view a collected card or peek the locked silhouette.
+  // Panel-grid click: re-view a collected card, revisit a drawn card in the
+  // daily-draw viewer, or peek the locked silhouette.
   document.getElementById('postcard-grid').addEventListener('click', e => {
     const cell = e.target.closest('.postcard-cell');
     if (!cell) return;
     const pc = POSTCARDS.find(p => p.id === cell.dataset.id);
-    if (pc) openPostcardModal(pc, collectedPostcards.has(pc.id) ? 're-view' : 'preview');
+    if (!pc) return;
+    if (!collectedPostcards.has(pc.id) && drawnPostcards.has(pc.id) &&
+        typeof openDrawnPostcard === 'function') {
+      openDrawnPostcard(pc);
+      return;
+    }
+    openPostcardModal(pc, collectedPostcards.has(pc.id) ? 're-view' : 'preview');
   });
 
   // Proximity check — called from onPosition. Walks the postcard list,
@@ -7471,9 +7504,22 @@
       overlay.setAttribute('aria-hidden', 'true');
     }
 
-    function open() {
-      const pc = POSTCARDS[Math.floor(Math.random() * POSTCARDS.length)];
+    function drawCard() {
+      // 優先從「還沒抽過、也還沒收藏」的卡池抽，避免重複；抽完整池才放寬。
+      const fresh = POSTCARDS.filter(p => !drawnPostcards.has(p.id) && !collectedPostcards.has(p.id));
+      const pool = fresh.length ? fresh : POSTCARDS;
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function open(pcArg) {
+      const pc = pcArg || drawCard();
       currentPc = pc;
+      if (!pcArg) {
+        // 每日抽卡：抽到的卡進卡夾（泛黃預覽態），走到現場才升級全彩收藏
+        drawnPostcards.add(pc.id);
+        persistDrawnPostcards();
+        try { renderPostcardGrid(); } catch {}
+      }
       const img = document.getElementById('wpc-img');
       // 顯影效果：等圖載入後才開始沖洗動畫
       img.classList.remove('developing');
@@ -7498,6 +7544,9 @@
       overlay.classList.add('show');
       overlay.setAttribute('aria-hidden', 'false');
     }
+
+    // 卡夾點擊「抽到的卡」時重看（postcard-grid 的 click handler 會呼叫）
+    openDrawnPostcard = open;
 
     closeBtn.addEventListener('click', close);
     dismissBtn.addEventListener('click', close);
