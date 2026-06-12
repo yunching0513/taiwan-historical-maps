@@ -4,6 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#F1EFE9" />
+<!-- App 內建 zh/en/ja 三語，停用 Chrome 的自動翻譯提議（常誤判為簡中） -->
+<meta name="google" content="notranslate" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content="散策" />
@@ -3315,7 +3317,7 @@
       'credits.meta.basemaps.val': 'CARTO · OpenStreetMap contributors',
       'credits.meta.postcards.val': 'Wikimedia Commons · CC0 / PD-Japan / PD-Taiwan',
       'alert.no_geo': '此瀏覽器不支援地理定位',
-      'alert.geo.denied': '位置權限被拒絕',
+      'alert.geo.denied': '位置權限目前是拒絕狀態，需要手動開啟：\n\n📱 手機 App：設定 → 應用程式 → 散策 → 權限 → 位置 → 允許\n🌐 瀏覽器：點網址列的鎖頭圖示 → 權限 → 允許位置\n\n開啟後再按一次「定位」即可。',
       'alert.geo.unavail': '無法取得位置',
       'alert.geo.timeout': '定位逾時',
       'alert.geo.fail': '定位失敗',
@@ -3449,7 +3451,7 @@
       'credits.meta.basemaps.val': 'CARTO · OpenStreetMap contributors',
       'credits.meta.postcards.val': 'Wikimedia Commons · CC0 / PD-Japan / PD-Taiwan',
       'alert.no_geo': 'This browser does not support geolocation',
-      'alert.geo.denied': 'Location permission denied',
+      'alert.geo.denied': 'Location permission is currently denied. To enable it:\n\n📱 App: Settings → Apps → 散策 → Permissions → Location → Allow\n🌐 Browser: tap the lock icon in the address bar → Permissions → allow Location\n\nThen tap "Locate" again.',
       'alert.geo.unavail': 'Location unavailable',
       'alert.geo.timeout': 'Location timeout',
       'alert.geo.fail': 'Location failed',
@@ -3583,7 +3585,7 @@
       'credits.meta.basemaps.val': 'CARTO · OpenStreetMap contributors',
       'credits.meta.postcards.val': 'Wikimedia Commons · CC0 / PD-Japan / PD-Taiwan',
       'alert.no_geo': 'このブラウザは位置情報をサポートしていません',
-      'alert.geo.denied': '位置情報の権限が拒否されました',
+      'alert.geo.denied': '位置情報の権限が拒否されています。有効にするには：\n\n📱 アプリ：設定 → アプリ → 散策 → 権限 → 位置情報 → 許可\n🌐 ブラウザ：アドレスバーの鍵アイコン → 権限 → 位置情報を許可\n\nその後もう一度「現在地」をタップしてください。',
       'alert.geo.unavail': '位置情報を取得できません',
       'alert.geo.timeout': '位置情報がタイムアウトしました',
       'alert.geo.fail': '位置情報の取得に失敗',
@@ -4323,7 +4325,10 @@
 
   function onPositionError(err) {
     const msgs = { 1: t('alert.geo.denied'), 2: t('alert.geo.unavail'), 3: t('alert.geo.timeout') };
-    alert((msgs[err.code] || t('alert.geo.fail')) + (err.message ? '\n' + err.message : ''));
+    // 權限被拒（code 1）時不附上瀏覽器原生的 "User denied Geolocation"
+    // 字串——對使用者沒有資訊量，徒增驚嚇。
+    const detail = err.code !== 1 && err.message ? '\n' + err.message : '';
+    alert((msgs[err.code] || t('alert.geo.fail')) + detail);
     stopLocate();
   }
 
