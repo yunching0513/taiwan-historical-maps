@@ -2363,6 +2363,119 @@
   }
   .ob-btn.primary:hover { background: var(--indigo-d); border-color: var(--indigo-d); }
 
+  /* ── 開場時光明信片 ─────────────────────────────── */
+  .wpc-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 29, 25, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9400;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+  }
+  .wpc-overlay.show { opacity: 1; pointer-events: auto; }
+  .wpc-card {
+    position: relative;
+    background: var(--paper);
+    border: 1px solid var(--stone);
+    box-shadow: 0 1px 0 var(--mist), 0 24px 60px -28px rgba(31, 29, 25, 0.45);
+    width: 100%;
+    max-width: 360px;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    padding: 26px 26px 20px;
+    color: var(--ink);
+    transform: translateY(12px) scale(0.97);
+    transition: transform 0.24s cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+  .wpc-overlay.show .wpc-card { transform: none; }
+  .wpc-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 26px;
+    width: 48px; height: 3px;
+    background: var(--vermilion);
+  }
+  .wpc-tag {
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--vermilion);
+    letter-spacing: 0.06em;
+    margin-bottom: 12px;
+  }
+  .wpc-img {
+    display: block;
+    width: 100%;
+    border: 1px solid var(--mist);
+    background: var(--paper-2);
+    margin-bottom: 12px;
+    opacity: 0.15;
+    min-height: 120px;
+  }
+  /* 沖洗顯影：沿用收集流程的 pc-develop 動畫，相紙緩緩浮現 */
+  .wpc-img.developing { animation: pc-develop 2.2s ease-out forwards; }
+  .wpc-title {
+    font-family: var(--zh-serif);
+    font-weight: 600;
+    font-size: 19px;
+    letter-spacing: 0.12em;
+    color: var(--sumi);
+    margin: 0 0 2px;
+  }
+  .wpc-sub {
+    font-size: 12px;
+    color: var(--graphite);
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+  .wpc-year {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    color: var(--silver);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .wpc-desc {
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--graphite);
+    letter-spacing: 0.02em;
+    max-height: 116px;
+    overflow-y: auto;
+    margin: 0 0 8px;
+  }
+  .wpc-source {
+    display: block;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    color: var(--silver);
+    text-decoration: none;
+    margin-bottom: 10px;
+  }
+  .wpc-source:hover { color: var(--vermilion); }
+  .wpc-hint {
+    font-size: 11px;
+    color: var(--ash);
+    letter-spacing: 0.04em;
+    padding-top: 10px;
+    border-top: 1px dotted var(--silver);
+    margin-bottom: 14px;
+  }
+  .wpc-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
   /* Floating「？」— reopen the tour anytime */
   .help-fab {
     position: absolute;
@@ -3089,6 +3202,25 @@
 <!-- Floating help button — reopen onboarding tour -->
 <button type="button" class="help-fab" id="btn-help" aria-label="操作說明" data-i18n="ob.help.aria" data-i18n-attr="aria-label">?</button>
 
+<!-- Welcome postcard — a random vintage postcard greets each app open -->
+<div class="wpc-overlay" id="wpc-overlay" aria-hidden="true">
+  <div class="wpc-card" role="dialog" aria-labelledby="wpc-title">
+    <button type="button" class="donate-card-close" id="wpc-close" aria-label="關閉" data-i18n="lb.aria.close" data-i18n-attr="aria-label">✕</button>
+    <div class="wpc-tag" data-i18n="wpc.tag">今日的時光明信片</div>
+    <img class="wpc-img" id="wpc-img" alt="" />
+    <h3 class="wpc-title" id="wpc-title">—</h3>
+    <div class="wpc-sub" id="wpc-sub">—</div>
+    <div class="wpc-year" id="wpc-year">—</div>
+    <p class="wpc-desc" id="wpc-desc"></p>
+    <a class="wpc-source" id="wpc-source" target="_blank" rel="noopener">—</a>
+    <div class="wpc-hint" data-i18n="wpc.hint">走到現場 50 公尺內，就能把它收進你的圖鑑</div>
+    <div class="wpc-actions">
+      <button type="button" class="ob-btn" id="wpc-dismiss" data-i18n="wpc.close">開始散策</button>
+      <button type="button" class="ob-btn primary" id="wpc-go" data-i18n="wpc.go">帶我去這裡</button>
+    </div>
+  </div>
+</div>
+
 <!-- First-run onboarding tour -->
 <div class="ob-overlay" id="ob-overlay" aria-hidden="true">
   <div class="ob-card" role="dialog" aria-labelledby="ob-title-1">
@@ -3362,6 +3494,10 @@
       'ob.s4.title': '出發吧',
       'ob.s4.body': '開啟 GPS 記錄你的散策路線、沿途拍照，收集 22 縣市印章。歷史不在課本裡，就在你走的這條路上。',
       'ob.s4.pick': '選擇你的城市，從那裡開始：',
+      'wpc.tag': '今日的時光明信片',
+      'wpc.hint': '走到現場 50 公尺內，就能把它收進你的圖鑑',
+      'wpc.close': '開始散策',
+      'wpc.go': '帶我去這裡',
     },
     en: {
       'app.tagline': 'Taiwan · Old-Map Stroll',
@@ -3496,6 +3632,10 @@
       'ob.s4.title': 'Set off',
       'ob.s4.body': 'Record your stroll with GPS, snap photos along the way, and collect seals from all 22 cities and counties. History isn\'t in a textbook — it\'s on the street you\'re walking.',
       'ob.s4.pick': 'Pick your city to start there:',
+      'wpc.tag': 'Today\'s postcard from the past',
+      'wpc.hint': 'Walk within 50 m of this spot to add it to your collection',
+      'wpc.close': 'Start strolling',
+      'wpc.go': 'Take me there',
     },
     ja: {
       'app.tagline': '台灣 · 旧地図散策',
@@ -3630,6 +3770,10 @@
       'ob.s4.title': 'さあ、出発',
       'ob.s4.body': 'GPSで散策ルートを記録し、写真を撮り、22県市の印章を集めましょう。歴史は教科書の中ではなく、いま歩いているこの道にあります。',
       'ob.s4.pick': 'あなたの街を選んで、そこから始めましょう：',
+      'wpc.tag': '今日の時間旅行絵葉書',
+      'wpc.hint': '現地から50m以内に近づくと、コレクションに加わります',
+      'wpc.close': '散策を始める',
+      'wpc.go': 'ここに連れて行って',
     },
   };
 
@@ -7311,6 +7455,78 @@
     let seen = false;
     try { seen = localStorage.getItem(ONBOARDED_KEY) === '1'; } catch {}
     if (!seen && !scripted) setTimeout(open, 600);
+  })();
+
+  // ── Welcome postcard：每次開啟隨機致贈一張時光明信片 ──
+  (function setupWelcomePostcard() {
+    const overlay = document.getElementById('wpc-overlay');
+    if (!overlay) return;
+    const closeBtn = document.getElementById('wpc-close');
+    const dismissBtn = document.getElementById('wpc-dismiss');
+    const goBtn = document.getElementById('wpc-go');
+    let currentPc = null;
+
+    function close() {
+      overlay.classList.remove('show');
+      overlay.setAttribute('aria-hidden', 'true');
+    }
+
+    function open() {
+      const pc = POSTCARDS[Math.floor(Math.random() * POSTCARDS.length)];
+      currentPc = pc;
+      const img = document.getElementById('wpc-img');
+      // 顯影效果：等圖載入後才開始沖洗動畫
+      img.classList.remove('developing');
+      img.onload = () => {
+        void img.offsetWidth; // reflow，讓動畫可重播
+        img.classList.add('developing');
+      };
+      img.src = `icons/postcards/${pc.id}.jpg`;
+      document.getElementById('wpc-title').textContent =
+        currentLang === 'en' && pc.en ? pc.en : pc.title;
+      document.getElementById('wpc-sub').textContent =
+        currentLang === 'en' ? (pc.subtitleEn || pc.subtitle) :
+        currentLang === 'ja' ? (pc.subtitleJa || pc.subtitle) :
+        pc.subtitle;
+      const cityDef = CITIES.find(c => c.id === pc.city);
+      document.getElementById('wpc-year').textContent =
+        `${(pc.en || '').toUpperCase()} · ${pc.year}` + (cityDef ? ` · ${currentLang === 'zh' ? cityDef.zh : cityDef.en}` : '');
+      document.getElementById('wpc-desc').textContent = pc.desc || '';
+      const srcEl = document.getElementById('wpc-source');
+      srcEl.textContent = `Source · ${pc.source}`;
+      if (pc.sourceUrl) srcEl.setAttribute('href', pc.sourceUrl);
+      overlay.classList.add('show');
+      overlay.setAttribute('aria-hidden', 'false');
+    }
+
+    closeBtn.addEventListener('click', close);
+    dismissBtn.addEventListener('click', close);
+    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && overlay.classList.contains('show')) close();
+    });
+    goBtn.addEventListener('click', () => {
+      if (!currentPc) return;
+      close();
+      selectCity(currentPc.city, { instant: true });
+      map.flyTo([currentPc.lat, currentPc.lng], 16, { duration: 1.4 });
+    });
+
+    // 每日抽卡：一天一張（localStorage 記日期），培養每天打開的儀式感。
+    // 非深連結場景、非首次開啟（讓位給新手導覽）才顯示。
+    // 注意：不能把 ?city= 算進 scripted——selectCity 會把它寫回網址，
+    // 否則使用者切過城市後就永遠抽不到卡。
+    const scripted = params.get('panel') || params.get('picker') || params.get('layer');
+    const today = new Date().toISOString().slice(0, 10);
+    let onboarded = false, lastDraw = null;
+    try {
+      onboarded = localStorage.getItem('taiwanOldMaps.onboarded') === '1';
+      lastDraw = localStorage.getItem('taiwanOldMaps.wpcDate');
+    } catch {}
+    if (onboarded && !scripted && lastDraw !== today) {
+      try { localStorage.setItem('taiwanOldMaps.wpcDate', today); } catch {}
+      setTimeout(open, 1400);
+    }
   })();
 
   // ── Language picker wiring + initial paint ───────
