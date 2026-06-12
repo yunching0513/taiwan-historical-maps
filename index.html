@@ -7115,6 +7115,24 @@
     const accountEl = document.getElementById('donate-account');
     if (!trigger || !overlay) return;
 
+    // Google Play 付款政策不允許 App 內導向外部轉帳，因此在 TWA（Play 版
+    // App）內隱藏贊助按鈕。TWA 冷啟動的 referrer 是 android-app://<套件名>，
+    // 精確比對套件名以免誤判從其他 Android App 點連結開啟的瀏覽器使用者；
+    // 偵測結果存 sessionStorage，整個工作階段內維持隱藏。
+    const TWA_REF = 'android-app://io.github.yunching0513.oldmapstroll';
+    let isTwa = false;
+    try {
+      isTwa = sessionStorage.getItem('taiwanOldMaps.twa') === '1';
+      if (document.referrer.startsWith(TWA_REF)) {
+        isTwa = true;
+        sessionStorage.setItem('taiwanOldMaps.twa', '1');
+      }
+    } catch {}
+    if (isTwa) {
+      trigger.style.display = 'none';
+      return;
+    }
+
     function open() {
       overlay.classList.add('show');
       overlay.setAttribute('aria-hidden', 'false');
