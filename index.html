@@ -7119,16 +7119,18 @@
     // App）內隱藏贊助按鈕。TWA 冷啟動的 referrer 是 android-app://<套件名>，
     // 精確比對套件名以免誤判從其他 Android App 點連結開啟的瀏覽器使用者；
     // 偵測結果存 sessionStorage，整個工作階段內維持隱藏。
+    // Apple 3.1.1 同樣禁止 App 內外部付款，iOS（Capacitor）版以
+    // capacitor: 協定／Capacitor bridge 偵測，一併隱藏。
     const TWA_REF = 'android-app://io.github.yunching0513.oldmapstroll';
-    let isTwa = false;
+    let isNativeApp = location.protocol === 'capacitor:' || !!window.Capacitor;
     try {
-      isTwa = sessionStorage.getItem('taiwanOldMaps.twa') === '1';
+      isNativeApp = isNativeApp || sessionStorage.getItem('taiwanOldMaps.twa') === '1';
       if (document.referrer.startsWith(TWA_REF)) {
-        isTwa = true;
+        isNativeApp = true;
         sessionStorage.setItem('taiwanOldMaps.twa', '1');
       }
     } catch {}
-    if (isTwa) {
+    if (isNativeApp) {
       trigger.style.display = 'none';
       return;
     }
