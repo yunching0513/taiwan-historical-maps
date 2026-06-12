@@ -2013,7 +2013,8 @@
     text-transform: uppercase;
     margin-right: 4px;
   }
-  .panel-foot .lang-pill {
+  .panel-foot .lang-pill,
+  .panel-foot .sfx-pill {
     appearance: none;
     border: 1px solid var(--stone);
     background: var(--paper-2);
@@ -2026,11 +2027,13 @@
     cursor: pointer;
     transition: background 0.18s, border-color 0.18s, color 0.18s;
   }
-  .panel-foot .lang-pill:hover {
+  .panel-foot .lang-pill:hover,
+  .panel-foot .sfx-pill:hover {
     border-color: var(--vermilion);
     color: var(--vermilion);
   }
-  .panel-foot .lang-pill.active {
+  .panel-foot .lang-pill.active,
+  .panel-foot .sfx-pill.active {
     background: var(--vermilion);
     border-color: var(--vermilion);
     color: var(--paper);
@@ -3200,6 +3203,12 @@
         <button type="button" class="lang-pill" data-lang="en" title="English">EN</button>
         <button type="button" class="lang-pill" data-lang="ja" title="日本語">日本語</button>
       </div>
+
+      <!-- ── Sound toggle ──────────────────────────────────── -->
+      <div class="lang-row" role="group" aria-label="Sound">
+        <span class="mono" data-i18n="sfx.label">音效</span>
+        <button type="button" class="sfx-pill" id="sfx-toggle">🔊 開</button>
+      </div>
     </footer>
   </div>
 </aside>
@@ -3508,6 +3517,9 @@
       'wpc.hint': '走到現場 50 公尺內，就能把它收進你的圖鑑',
       'wpc.close': '開始散策',
       'wpc.go': '帶我去這裡',
+      'sfx.label': '音效',
+      'sfx.on': '🔊 開',
+      'sfx.off': '🔇 關',
     },
     en: {
       'app.tagline': 'Taiwan · Old-Map Stroll',
@@ -3646,6 +3658,9 @@
       'wpc.hint': 'Walk within 50 m of this spot to add it to your collection',
       'wpc.close': 'Start strolling',
       'wpc.go': 'Take me there',
+      'sfx.label': 'Sound',
+      'sfx.on': '🔊 On',
+      'sfx.off': '🔇 Off',
     },
     ja: {
       'app.tagline': '台灣 · 旧地図散策',
@@ -3784,6 +3799,9 @@
       'wpc.hint': '現地から50m以内に近づくと、コレクションに加わります',
       'wpc.close': '散策を始める',
       'wpc.go': 'ここに連れて行って',
+      'sfx.label': '効果音',
+      'sfx.on': '🔊 オン',
+      'sfx.off': '🔇 オフ',
     },
   };
 
@@ -4527,6 +4545,7 @@
       renderTraceList();
       renderSeals();
       renderCalendar();
+      try { sfx.stamp(); } catch {}
     }
     currentTrace = null;
     recStatus.classList.remove('show');
@@ -6077,6 +6096,7 @@
     if (newlyCollected) {
       persistCollectedPostcards();
       renderPostcardGrid();
+      try { sfx.collect(); } catch {}
       showPostcardToast(`${t('pc.toast.collected')}${currentLang === 'en' && newlyCollected.en ? newlyCollected.en : newlyCollected.title}`);
       openPostcardModal(newlyCollected, 'collect');
     }
@@ -7490,6 +7510,87 @@
     if (!seen && !scripted) setTimeout(open, 600);
   })();
 
+  // ── 音效（Web Audio 合成，無音檔；音量刻意壓低求舒適）──
+  const sfx = (function () {
+    const KEY = 'taiwanOldMaps.sound';
+    let enabled = true;
+    try { enabled = localStorage.getItem(KEY) !== '0'; } catch {}
+    let ctx = null;
+    function ac() {
+      if (!ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        ctx = new AC();
+      }
+      if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+      return ctx;
+    }
+    // 瀏覽器要求先有使用者互動才放音；首次點擊先喚醒 context，
+    // 之後 GPS 觸發的收藏音效才放得出來。
+    document.addEventListener('pointerdown', () => { if (enabled) ac(); }, { once: true });
+
+    function tone(c, t0, freq, dur, vol, type = 'sine') {
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = type; o.frequency.value = freq;
+      g.gain.setValueAtTime(0, t0);
+      g.gain.linearRampToValueAtTime(vol, t0 + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g).connect(c.destination);
+      o.start(t0); o.stop(t0 + dur + 0.05);
+    }
+    function noise(c, t0, dur, vol, fStart, fEnd) {
+      const len = Math.ceil(c.sampleRate * dur);
+      const buf = c.createBuffer(1, len, c.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      const src = c.createBufferSource(); src.buffer = buf;
+      const f = c.createBiquadFilter(); f.type = 'lowpass';
+      f.frequency.setValueAtTime(fStart, t0);
+      f.frequency.exponentialRampToValueAtTime(Math.max(fEnd, 40), t0 + dur);
+      const g = c.createGain();
+      g.gain.setValueAtTime(0, t0);
+      g.gain.linearRampToValueAtTime(vol, t0 + dur * 0.35);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      src.connect(f); f.connect(g); g.connect(c.destination);
+      src.start(t0); src.stop(t0 + dur + 0.05);
+    }
+    function guard(fn) {
+      return function () {
+        if (!enabled) return;
+        const c = ac();
+        if (!c || c.state !== 'running') return;
+        try { fn(c, c.currentTime + 0.02); } catch {}
+      };
+    }
+    return {
+      // 顯影：濾波氣息緩緩開啟，遠處一聲風鈴——相紙浮現的瞬間
+      develop: guard((c, t) => {
+        noise(c, t, 1.3, 0.05, 350, 2400);
+        tone(c, t + 0.55, 1318.5, 0.9, 0.05);
+        tone(c, t + 0.55, 2637, 0.5, 0.015);
+      }),
+      // 收藏成功：木琴般的兩音上行（E5 → A5），溫暖不刺耳
+      collect: guard((c, t) => {
+        tone(c, t, 659.3, 0.55, 0.09);
+        tone(c, t, 1318.5, 0.3, 0.02);
+        tone(c, t + 0.15, 880, 0.7, 0.09);
+        tone(c, t + 0.15, 1760, 0.35, 0.02);
+      }),
+      // 蓋印：完成一段散策的沉穩「咚」
+      stamp: guard((c, t) => {
+        tone(c, t, 110, 0.22, 0.16);
+        noise(c, t, 0.06, 0.04, 1200, 300);
+      }),
+      get enabled() { return enabled; },
+      toggle() {
+        enabled = !enabled;
+        try { localStorage.setItem(KEY, enabled ? '1' : '0'); } catch {}
+        if (enabled) { ac(); this.collect(); } // 開啟時立刻給一聲回饋
+        return enabled;
+      },
+    };
+  })();
+
   // ── Welcome postcard：每次開啟隨機致贈一張時光明信片 ──
   (function setupWelcomePostcard() {
     const overlay = document.getElementById('wpc-overlay');
@@ -7526,6 +7627,7 @@
       img.onload = () => {
         void img.offsetWidth; // reflow，讓動畫可重播
         img.classList.add('developing');
+        try { sfx.develop(); } catch {}
       };
       img.src = `icons/postcards/${pc.id}.jpg`;
       document.getElementById('wpc-title').textContent =
@@ -7576,6 +7678,20 @@
       try { localStorage.setItem('taiwanOldMaps.wpcDate', today); } catch {}
       setTimeout(open, 1400);
     }
+  })();
+
+  // ── Sound toggle wiring ──────────────────────────
+  (function setupSfxToggle() {
+    const btn = document.getElementById('sfx-toggle');
+    if (!btn) return;
+    function paint() {
+      // 動態換 i18n key，語言切換時 applyI18n 會維持正確文案
+      btn.dataset.i18n = sfx.enabled ? 'sfx.on' : 'sfx.off';
+      btn.textContent = t(sfx.enabled ? 'sfx.on' : 'sfx.off');
+      btn.classList.toggle('active', sfx.enabled);
+    }
+    btn.addEventListener('click', () => { sfx.toggle(); paint(); });
+    paint();
   })();
 
   // ── Language picker wiring + initial paint ───────
