@@ -4524,6 +4524,23 @@
   let geoPermWatched = false;
   async function requestLocate() {
     if (isLocating) { stopLocate(); return; }
+
+    // 原生 App（Capacitor）：走系統單一權限流程，沒有瀏覽器那層。
+    // 明確請求系統定位權限（必定跳出系統授權窗），授權後再開始定位。
+    const Cap = window.Capacitor;
+    if (Cap && typeof Cap.isNativePlatform === 'function' && Cap.isNativePlatform()) {
+      try {
+        const Geo = Cap.Plugins && Cap.Plugins.Geolocation;
+        if (Geo && Geo.requestPermissions) {
+          const r = await Geo.requestPermissions({ permissions: ['location'] });
+          const st = r && (r.location || r.coarseLocation);
+          if (st === 'denied') { showGeoHelper('denied'); return; }
+        }
+      } catch {}
+      startLocate();
+      return;
+    }
+
     let state = 'prompt';
     try {
       if (navigator.permissions?.query) {
