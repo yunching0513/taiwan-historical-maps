@@ -3567,6 +3567,8 @@
       'geo.steps.android': '點網址列左邊的 <b>鎖頭 🔒</b>（或 ⓘ）|選「<b>權限</b>」→ 把「位置」打開|回到這裡，按下方「再試一次」',
       'geo.steps.ios': '點網址列左邊的 <b>ㄅㄚ字 「ぁA」</b>|選「<b>網站設定</b>」→「位置」→「允許」|回到這裡，按下方「再試一次」',
       'geo.steps.desktop': '點網址列左邊的 <b>鎖頭 🔒</b>|把「<b>位置</b>」改成「允許」|重新整理頁面後再按定位',
+      'geo.steps.androidapp': '開啟手機「<b>設定 → 應用程式 → 台灣舊地圖散策 → 權限 → 位置</b>」並允許|回到 App 即會自動定位｜若仍抓不到，請<b>移除 App 重新安裝</b>一次（會重置卡住的權限）',
+      'geo.steps.iosapp': '開啟手機「<b>設定 → 隱私權與安全性 → 定位服務</b>」確認已開|往下找「<b>台灣舊地圖散策</b>」→ 設為「使用 App 期間」|回到 App 即會自動定位',
       'alert.compare.no_layer': '先啟用一個歷史圖層再開對照拉條',
       'alert.photo.no_record': '需要先開始記錄路線才能拍照',
       'alert.photo.no_gps': '還沒收到 GPS 位置，請稍候',
@@ -3725,6 +3727,8 @@
       'geo.steps.android': 'Tap the <b>lock 🔒</b> (or ⓘ) at the left of the address bar|Choose <b>Permissions</b> → turn Location on|Come back here and tap Try again',
       'geo.steps.ios': 'Tap <b>「ぁA」</b> at the left of the address bar|Choose <b>Website Settings</b> → Location → Allow|Come back here and tap Try again',
       'geo.steps.desktop': 'Click the <b>lock 🔒</b> at the left of the address bar|Set <b>Location</b> to Allow|Reload the page, then tap Locate',
+      'geo.steps.androidapp': 'Open phone <b>Settings → Apps → Taiwan Old-Map Stroll → Permissions → Location</b> and allow|Return to the app — locating starts automatically｜If it still fails, <b>uninstall &amp; reinstall</b> the app once (resets a stuck permission)',
+      'geo.steps.iosapp': 'Open <b>Settings → Privacy &amp; Security → Location Services</b> (make sure it\'s on)|Find <b>Taiwan Old-Map Stroll</b> → set to "While Using"|Return to the app — locating starts automatically',
       'alert.compare.no_layer': 'Enable a historical layer first to use Swipe Compare',
       'alert.photo.no_record': 'Start recording a route before taking a photo',
       'alert.photo.no_gps': 'Waiting for GPS — please hold on',
@@ -3883,6 +3887,8 @@
       'geo.steps.android': 'アドレスバー左の <b>鍵 🔒</b>（または ⓘ）をタップ|「<b>権限</b>」→「位置情報」をオン|ここに戻って「再試行」をタップ',
       'geo.steps.ios': 'アドレスバー左の <b>「ぁA」</b> をタップ|「<b>Webサイトの設定</b>」→「位置情報」→「許可」|ここに戻って「再試行」をタップ',
       'geo.steps.desktop': 'アドレスバー左の <b>鍵 🔒</b> をクリック|「<b>位置情報</b>」を「許可」に|ページを再読み込みして位置情報をタップ',
+      'geo.steps.androidapp': '「<b>設定 → アプリ → 台灣舊地圖散策 → 権限 → 位置情報</b>」で許可|アプリに戻ると自動で位置取得が始まります｜それでも取得できない場合は<b>アプリを一度削除して再インストール</b>（固まった権限をリセット）',
+      'geo.steps.iosapp': '「<b>設定 → プライバシーとセキュリティ → 位置情報サービス</b>」がオンか確認|「<b>台灣舊地圖散策</b>」→「使用中のみ」に設定|アプリに戻ると自動で位置取得が始まります',
       'alert.compare.no_layer': '比較スライダーを使用する前に歴史レイヤーを有効化してください',
       'alert.photo.no_record': '写真撮影には散策の記録を開始してください',
       'alert.photo.no_gps': 'GPS 信号を待機中です',
@@ -4558,12 +4564,19 @@
       action.textContent = t('geo.prime.action');
       action.onclick = () => { closeGeoHelper(); startLocate(); };
     } else {
-      // denied：依平台組裝最短恢復步驟
+      // denied：依平台組裝最短恢復步驟。安裝版（TWA / PWA standalone）沒有
+      // 網址列，不能叫使用者找鎖頭——改走系統設定路徑。
       const plat = detectPlatform();
+      const standalone = !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+        || document.referrer.startsWith('android-app://')
+        || navigator.standalone === true;
+      let key = 'geo.steps.' + plat;
+      if (standalone && plat === 'android') key = 'geo.steps.androidapp';
+      else if (standalone && plat === 'ios') key = 'geo.steps.iosapp';
       title.textContent = t('geo.denied.title');
       body.textContent = t('geo.denied.body');
       body.hidden = false;
-      steps.innerHTML = t('geo.steps.' + plat)
+      steps.innerHTML = t(key)
         .split('|').map(s => `<li>${s}</li>`).join('');
       steps.hidden = false;
       action.textContent = t('geo.denied.retry');
