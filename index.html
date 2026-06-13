@@ -3266,7 +3266,7 @@
     <div class="ob-step" data-step="2">
       <div class="ob-kicker">03 / 04 · Postcards</div>
       <h2 class="ob-title" data-i18n="ob.s3.title">沖洗老明信片</h2>
-      <p class="ob-body" data-i18n="ob.s3.body">全臺 217 個歷史現場藏著日治時期的老明信片。實際走到地點 50 公尺內，明信片就會自動「顯影」，收進你的圖鑑。</p>
+      <p class="ob-body" data-i18n="ob.s3.body">全臺 217 個歷史現場藏著日治時期的老明信片。散步時讓 App 開著、按下「定位」，走到地點 50 公尺內，明信片就會自動「顯影」收進圖鑑。</p>
     </div>
 
     <div class="ob-step" data-step="3">
@@ -3425,7 +3425,7 @@
       'strata.four_era': '四代對照',
       'strata.four_era.sub': 'Four Eras',
       'pc.toggle': '地圖標記',
-      'pc.count.suffix': 'collected · 走到地點附近自動沖洗',
+      'pc.count.suffix': '收進卡夾 · 開著 App 按定位、走近現場自動沖洗',
       'pc.locked.title': '未發掘',
       'pc.locked.subtitle': '走到附近 50 公尺內自動沖洗',
       'pc.locked.desc': '走到地點附近 50 公尺內，明信片才會顯影',
@@ -3510,7 +3510,7 @@
       'ob.s2.title': '拉開今昔',
       'ob.s2.body': '「對照拉條」讓你左右滑動比對 NOW 與 THEN；「四代對照」一次並排四個年代，看城市如何長成今天的樣子。',
       'ob.s3.title': '沖洗老明信片',
-      'ob.s3.body': '全臺 217 個歷史現場藏著日治時期的老明信片。實際走到地點 50 公尺內，明信片就會自動「顯影」，收進你的圖鑑。',
+      'ob.s3.body': '全臺 217 個歷史現場藏著日治時期的老明信片。散步時讓 App 開著、按下「定位」，走到地點 50 公尺內，明信片就會自動「顯影」收進圖鑑。',
       'ob.s4.title': '出發吧',
       'ob.s4.body': '開啟 GPS 記錄你的散策路線、沿途拍照，收集 22 縣市印章。歷史不在課本裡，就在你走的這條路上。',
       'ob.s4.pick': '選擇你的城市，從那裡開始：',
@@ -3567,7 +3567,7 @@
       'strata.four_era': 'Four Eras',
       'strata.four_era.sub': '',
       'pc.toggle': 'Pins',
-      'pc.count.suffix': 'collected · walk near a site to develop',
+      'pc.count.suffix': 'in binder · keep app open, tap Locate, walk near a site',
       'pc.locked.title': 'Undeveloped',
       'pc.locked.subtitle': 'Walk within 50 m to develop',
       'pc.locked.desc': 'Walk within 50 m of the site to reveal this postcard.',
@@ -3652,7 +3652,7 @@
       'ob.s2.title': 'Slide between eras',
       'ob.s2.body': 'Swipe Compare lets you drag between NOW and THEN; Four Eras shows the same spot across four periods, side by side.',
       'ob.s3.title': 'Develop vintage postcards',
-      'ob.s3.body': '217 historic sites across Taiwan hide Japanese-era postcards. Walk within 50 m of one and the postcard "develops" into your collection.',
+      'ob.s3.body': 'Keep the app open and tap Locate as you stroll — walk within 50 m of any of 217 historic sites and its Japanese-era postcard "develops" into your collection.',
       'ob.s4.title': 'Set off',
       'ob.s4.body': 'Record your stroll with GPS, snap photos along the way, and collect seals from all 22 cities and counties. History isn\'t in a textbook — it\'s on the street you\'re walking.',
       'ob.s4.pick': 'Pick your city to start there:',
@@ -3709,7 +3709,7 @@
       'strata.four_era': '四世代比較',
       'strata.four_era.sub': 'Four Eras',
       'pc.toggle': '地図ピン',
-      'pc.count.suffix': '収集済 · 場所の近くを歩くと現像されます',
+      'pc.count.suffix': '収集済 · アプリを開き現在地をオン、近づくと現像',
       'pc.locked.title': '未現像',
       'pc.locked.subtitle': '50 メートル以内に近づくと自動現像',
       'pc.locked.desc': '50 メートル以内に近づくと絵葉書が現像されます。',
@@ -3794,7 +3794,7 @@
       'ob.s2.title': '今と昔をスライド比較',
       'ob.s2.body': '「比較スライダー」で NOW と THEN を左右に見比べ、「四代対照」で同じ場所の四つの時代を並べて眺められます。',
       'ob.s3.title': '古い絵葉書を現像',
-      'ob.s3.body': '全台217か所の歴史スポットに日本統治時代の絵葉書が隠れています。現地から50m以内に近づくと、絵葉書が自動的に「現像」されコレクションに加わります。',
+      'ob.s3.body': '散策中はアプリを開いて「現在地」をタップ。全台217か所の歴史スポットの50m以内に近づくと、日本統治時代の絵葉書が自動的に「現像」されコレクションに加わります。',
       'ob.s4.title': 'さあ、出発',
       'ob.s4.body': 'GPSで散策ルートを記録し、写真を撮り、22県市の印章を集めましょう。歴史は教科書の中ではなく、いま歩いているこの道にあります。',
       'ob.s4.pick': 'あなたの街を選んで、そこから始めましょう：',
@@ -5737,7 +5737,9 @@
     POSTCARD_CITIES.forEach(city => {
       const cards = byCity.get(city.id);
       if (!cards || !cards.length) return;
-      const collectedHere = cards.filter(c => collectedPostcards.has(c.id)).length;
+      // 卡夾數：已收藏（走到現場）＋已抽到（每日卡），去重計算——
+      // 兩種都算「進了卡夾」，所以抽每日卡時城市小計與總數都會增加。
+      const inBinderHere = cards.filter(c => collectedPostcards.has(c.id) || drawnPostcards.has(c.id)).length;
       // Persist the open city via a localStorage Set so toggle survives
       // a reload. Default closed — keeps the panel scannable with
       // 200+ total cards.
@@ -5748,7 +5750,7 @@
           <span class="pc-city-caret">▸</span>
           <span class="pc-city-zh">${city.zh}</span>
           <span class="pc-city-en">${city.en}</span>
-          <span class="pc-city-tally">${collectedHere} / ${cards.length}</span>
+          <span class="pc-city-tally">${inBinderHere} / ${cards.length}</span>
         </summary>
         <div class="pc-city-grid">
           ${cards.map(pc => {
@@ -5777,7 +5779,9 @@
     grid.innerHTML = html.join('');
     const totalEl = document.getElementById('postcard-count');
     if (totalEl) {
-      totalEl.innerHTML = `<span class="num">${collectedPostcards.size}</span> / ${POSTCARDS.length} ${t('pc.count.suffix')}`;
+      // 去重：抽到又走到現場收藏的卡只算一次
+      const inBinder = new Set([...collectedPostcards, ...drawnPostcards]).size;
+      totalEl.innerHTML = `<span class="num">${inBinder}</span> / ${POSTCARDS.length} ${t('pc.count.suffix')}`;
     }
     // Wire up open/close persistence on each <details>
     grid.querySelectorAll('details.pc-city').forEach(el => {
