@@ -3512,7 +3512,7 @@
       'geo.prime.body': '散策想知道你的位置，才能在地圖上標出你、讓你沿路收集走過的明信片。你的位置只留在這支手機裡，不會上傳。',
       'geo.prime.action': '開啟定位',
       'geo.denied.title': '定位權限被關閉了',
-      'geo.denied.body': '基於安全，瀏覽器不讓 App 自動開啟權限，要請你手動點兩下。完成後回來按「再試一次」：',
+      'geo.denied.body': '只要兩下就好，而且改好後會「自動」開始定位，不用再回來按任何按鈕：',
       'geo.denied.retry': '我開好了，再試一次',
       'geo.steps.android': '點網址列左邊的 <b>鎖頭 🔒</b>（或 ⓘ）|選「<b>權限</b>」→ 把「位置」打開|回到這裡，按下方「再試一次」',
       'geo.steps.ios': '點網址列左邊的 <b>ㄅㄚ字 「ぁA」</b>|選「<b>網站設定</b>」→「位置」→「允許」|回到這裡，按下方「再試一次」',
@@ -3664,7 +3664,7 @@
       'geo.prime.body': 'Old-Map Stroll uses your location to place you on the map and let you collect postcards as you walk past their sites. Your location stays on this device — never uploaded.',
       'geo.prime.action': 'Turn on location',
       'geo.denied.title': 'Location is currently blocked',
-      'geo.denied.body': 'For security, browsers won\'t let an app re-enable this for you — it takes two quick taps. Then come back and tap Try again:',
+      'geo.denied.body': 'Just two quick taps — and once you allow it, locating starts automatically. You don\'t even need to come back:',
       'geo.denied.retry': 'Done — try again',
       'geo.steps.android': 'Tap the <b>lock 🔒</b> (or ⓘ) at the left of the address bar|Choose <b>Permissions</b> → turn Location on|Come back here and tap Try again',
       'geo.steps.ios': 'Tap <b>「ぁA」</b> at the left of the address bar|Choose <b>Website Settings</b> → Location → Allow|Come back here and tap Try again',
@@ -3816,7 +3816,7 @@
       'geo.prime.body': '旧地図散策は、地図上にあなたを表示し、通りかかった場所の絵葉書を集めるために位置情報を使います。位置はこの端末内にのみ保存され、アップロードされません。',
       'geo.prime.action': '位置情報をオンにする',
       'geo.denied.title': '位置情報がブロックされています',
-      'geo.denied.body': 'セキュリティ上、アプリが自動で再有効化できないため、2タップだけお願いします。完了したら「再試行」を押してください：',
+      'geo.denied.body': '2タップだけ。許可すれば自動で位置取得が始まるので、戻ってボタンを押す必要もありません：',
       'geo.denied.retry': '完了、再試行',
       'geo.steps.android': 'アドレスバー左の <b>鍵 🔒</b>（または ⓘ）をタップ|「<b>権限</b>」→「位置情報」をオン|ここに戻って「再試行」をタップ',
       'geo.steps.ios': 'アドレスバー左の <b>「ぁA」</b> をタップ|「<b>Webサイトの設定</b>」→「位置情報」→「許可」|ここに戻って「再試行」をタップ',
@@ -4447,6 +4447,7 @@
   //  · granted → 直接定位
   //  · prompt / 未知 → 友善說明卡，一鍵觸發系統權限窗（源頭預防誤拒）
   //  · denied → 平台客製的恢復指引（網頁無法自動開設定，只能給最短路徑）
+  let geoPermWatched = false;
   async function requestLocate() {
     if (isLocating) { stopLocate(); return; }
     let state = 'prompt';
@@ -4454,6 +4455,17 @@
       if (navigator.permissions?.query) {
         const s = await navigator.permissions.query({ name: 'geolocation' });
         state = s.state; // 'granted' | 'prompt' | 'denied'
+        // 無腦關鍵：一旦使用者在設定裡把權限改成「允許」，立刻自動定位，
+        // 不必回來按任何按鈕。監聽只掛一次。
+        if (!geoPermWatched) {
+          geoPermWatched = true;
+          s.onchange = () => {
+            if (s.state === 'granted' && !isLocating) {
+              closeGeoHelper();
+              startLocate();
+            }
+          };
+        }
       }
     } catch { /* Safari 舊版不支援 → 當作 prompt */ }
 
