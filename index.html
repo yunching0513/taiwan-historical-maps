@@ -4,6 +4,19 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#F1EFE9" />
+<!-- 極早套用主題/字體偏好，避免開啟時閃一下淺色 -->
+<script>
+  try {
+    var d = localStorage.getItem('taiwanOldMaps.theme') === 'dark';
+    if (d) {
+      document.documentElement.classList.add('theme-dark');
+      var m = document.querySelector('meta[name="theme-color"]');
+      if (m) m.setAttribute('content', '#1A1A1A');
+    }
+    if (localStorage.getItem('taiwanOldMaps.pcFont') === 'gothic')
+      document.documentElement.classList.add('pc-gothic');
+  } catch (e) {}
+</script>
 <!-- App 內建 zh/en/ja 三語，停用 Chrome 的自動翻譯提議（常誤判為簡中） -->
 <meta name="google" content="notranslate" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -97,6 +110,24 @@
   html.pc-gothic {
     --pc-font: 'Noto Sans JP', 'Noto Sans TC', system-ui, sans-serif;
   }
+
+  /* 深色主題：對應「舊地圖散策分享小卡」配色——墨黑底、紙色字、朱色不變。
+     反轉灰階明度階：紙色階（背景）轉暗、墨色階（文字）轉亮，朱色保留。 */
+  html.theme-dark {
+    --paper:    #1A1A1A;   /* 主背景＝分享小卡底色 */
+    --paper-2:  #242320;   /* 面板／卡片，略微浮起 */
+    --mist:     #302E2A;   /* 細分隔線 */
+    --stone:    #3D3A35;   /* 邊框 */
+    --silver:   #6E6A62;   /* 最淡的編號/提示 */
+    --ash:      #918C82;   /* 次要標籤 */
+    --graphite: #C6C1B7;   /* 內文（轉亮） */
+    --ink:      #F1EFE9;   /* 主要文字＝分享小卡字色 */
+    --sumi:     #FFFFFF;   /* 最高對比標題 */
+    --indigo-l: rgba(193, 95, 60, 0.18); /* 朱色底色在暗背景上加深才看得見 */
+  }
+  /* 深色模式唯一需手動處理：寫死白底的搜尋框 */
+  html.theme-dark .search-box { background: var(--paper-2); }
+  html.theme-dark .search-input { color: var(--ink); }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
@@ -3240,6 +3271,12 @@
         <span class="mono" data-i18n="pcfont.label">明信片字體</span>
         <button type="button" class="sfx-pill" id="pcfont-toggle">日本明體</button>
       </div>
+
+      <!-- ── Theme toggle ─────────────────────────────────────── -->
+      <div class="lang-row" role="group" aria-label="Theme">
+        <span class="mono" data-i18n="theme.label">配色</span>
+        <button type="button" class="sfx-pill" id="theme-toggle">紙色</button>
+      </div>
     </footer>
   </div>
 </aside>
@@ -3581,6 +3618,9 @@
       'pcfont.label': '明信片字體',
       'pcfont.mincho': '日本明體',
       'pcfont.gothic': '黑體',
+      'theme.label': '配色',
+      'theme.light': '紙色',
+      'theme.dark': '墨黑',
     },
     en: {
       'app.tagline': 'Taiwan · Old-Map Stroll',
@@ -3736,6 +3776,9 @@
       'pcfont.label': 'Postcard font',
       'pcfont.mincho': 'Mincho 明體',
       'pcfont.gothic': 'Gothic 黑體',
+      'theme.label': 'Theme',
+      'theme.light': 'Paper',
+      'theme.dark': 'Ink black',
     },
     ja: {
       'app.tagline': '台灣 · 旧地図散策',
@@ -3891,6 +3934,9 @@
       'pcfont.label': '絵葉書の書体',
       'pcfont.mincho': '明朝体',
       'pcfont.gothic': 'ゴシック体',
+      'theme.label': '配色',
+      'theme.light': '紙色',
+      'theme.dark': '墨黒',
     },
   };
 
@@ -7925,6 +7971,29 @@
     btn.addEventListener('click', () => {
       gothic = !gothic;
       try { localStorage.setItem(KEY, gothic ? 'gothic' : 'mincho'); } catch {}
+      apply();
+    });
+    apply();
+  })();
+
+  // ── Theme toggle（紙色 / 墨黑，後者對應分享小卡）────
+  (function setupThemeToggle() {
+    const btn = document.getElementById('theme-toggle');
+    if (!btn) return;
+    const KEY = 'taiwanOldMaps.theme';
+    const themeMeta = document.querySelector('meta[name="theme-color"]');
+    let dark = false;
+    try { dark = localStorage.getItem(KEY) === 'dark'; } catch {}
+    function apply() {
+      document.documentElement.classList.toggle('theme-dark', dark);
+      btn.dataset.i18n = dark ? 'theme.dark' : 'theme.light';
+      btn.textContent = t(dark ? 'theme.dark' : 'theme.light');
+      // 同步瀏覽器列／狀態列顏色
+      if (themeMeta) themeMeta.setAttribute('content', dark ? '#1A1A1A' : '#F1EFE9');
+    }
+    btn.addEventListener('click', () => {
+      dark = !dark;
+      try { localStorage.setItem(KEY, dark ? 'dark' : 'light'); } catch {}
       apply();
     });
     apply();
