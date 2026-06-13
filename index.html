@@ -77,6 +77,8 @@
     --indigo-l: rgba(193, 95, 60, 0.08);
     /* Alias — several components reference the accent by its real name. */
     --vermilion: #C15F3C;
+    /* 明信片字體（頁尾可切換）：預設日本明體，可切黑體 */
+    --pc-font: 'Noto Serif JP', 'Noto Serif TC', serif;
 
     /* 日文字體墊底：假名與日式漢字不在 TC 字符集裡，沒有 JP 系列時
        會掉到系統字體造成字體混雜 */
@@ -90,6 +92,10 @@
   html[lang='ja'] {
     --zh-serif: 'Noto Serif JP', 'Noto Serif TC', serif;
     --zh-sans:  'Noto Sans JP', 'Noto Sans TC', system-ui, sans-serif;
+  }
+  /* 明信片字體切換：黑體模式 */
+  html.pc-gothic {
+    --pc-font: 'Noto Sans JP', 'Noto Sans TC', system-ui, sans-serif;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1510,7 +1516,7 @@
     margin-bottom: 2px;
   }
   .pc-card-title {
-    font-family: var(--zh-serif);
+    font-family: var(--pc-font);
     font-weight: 600;
     font-size: 22px;
     color: var(--ink);
@@ -1532,7 +1538,7 @@
   }
   .pc-card-desc {
     margin: 14px 6px 0;
-    font-family: var(--zh-serif);
+    font-family: var(--pc-font);
     font-size: 13px;
     line-height: 1.7;
     color: var(--graphite);
@@ -2441,7 +2447,7 @@
   /* 沖洗顯影：沿用收集流程的 pc-develop 動畫，相紙緩緩浮現 */
   .wpc-img.developing { animation: pc-develop 2.2s ease-out forwards; }
   .wpc-title {
-    font-family: var(--zh-serif);
+    font-family: var(--pc-font);
     font-weight: 600;
     font-size: 19px;
     letter-spacing: 0.12em;
@@ -2463,6 +2469,7 @@
     margin-bottom: 8px;
   }
   .wpc-desc {
+    font-family: var(--pc-font);
     font-size: 12px;
     line-height: 1.8;
     color: var(--graphite);
@@ -3227,6 +3234,12 @@
         <span class="mono" data-i18n="sfx.label">音效</span>
         <button type="button" class="sfx-pill" id="sfx-toggle">🔊 開</button>
       </div>
+
+      <!-- ── Postcard font toggle ─────────────────────────────── -->
+      <div class="lang-row" role="group" aria-label="Postcard font">
+        <span class="mono" data-i18n="pcfont.label">明信片字體</span>
+        <button type="button" class="sfx-pill" id="pcfont-toggle">日本明體</button>
+      </div>
     </footer>
   </div>
 </aside>
@@ -3565,6 +3578,9 @@
       'sfx.label': '音效',
       'sfx.on': '🔊 開',
       'sfx.off': '🔇 關',
+      'pcfont.label': '明信片字體',
+      'pcfont.mincho': '日本明體',
+      'pcfont.gothic': '黑體',
     },
     en: {
       'app.tagline': 'Taiwan · Old-Map Stroll',
@@ -3717,6 +3733,9 @@
       'sfx.label': 'Sound',
       'sfx.on': '🔊 On',
       'sfx.off': '🔇 Off',
+      'pcfont.label': 'Postcard font',
+      'pcfont.mincho': 'Mincho 明體',
+      'pcfont.gothic': 'Gothic 黑體',
     },
     ja: {
       'app.tagline': '台灣 · 旧地図散策',
@@ -3869,6 +3888,9 @@
       'sfx.label': '効果音',
       'sfx.on': '🔊 オン',
       'sfx.off': '🔇 オフ',
+      'pcfont.label': '絵葉書の書体',
+      'pcfont.mincho': '明朝体',
+      'pcfont.gothic': 'ゴシック体',
     },
   };
 
@@ -7886,6 +7908,26 @@
     }
     btn.addEventListener('click', () => { sfx.toggle(); paint(); });
     paint();
+  })();
+
+  // ── Postcard font toggle（黑體 / 日本明體）──────────
+  (function setupPcFontToggle() {
+    const btn = document.getElementById('pcfont-toggle');
+    if (!btn) return;
+    const KEY = 'taiwanOldMaps.pcFont';
+    let gothic = false;
+    try { gothic = localStorage.getItem(KEY) === 'gothic'; } catch {}
+    function apply() {
+      document.documentElement.classList.toggle('pc-gothic', gothic);
+      btn.dataset.i18n = gothic ? 'pcfont.gothic' : 'pcfont.mincho';
+      btn.textContent = t(gothic ? 'pcfont.gothic' : 'pcfont.mincho');
+    }
+    btn.addEventListener('click', () => {
+      gothic = !gothic;
+      try { localStorage.setItem(KEY, gothic ? 'gothic' : 'mincho'); } catch {}
+      apply();
+    });
+    apply();
   })();
 
   // ── Language picker wiring + initial paint ───────
