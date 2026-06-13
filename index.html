@@ -3472,6 +3472,7 @@
       'alert.geo.unavail': '無法取得位置',
       'alert.geo.timeout': '定位逾時',
       'alert.geo.fail': '定位失敗',
+      'geo.searching': '定位中…GPS 收訊需要一點時間，室內或高樓間會比較慢，請走到開闊處再試。',
       'alert.compare.no_layer': '先啟用一個歷史圖層再開對照拉條',
       'alert.photo.no_record': '需要先開始記錄路線才能拍照',
       'alert.photo.no_gps': '還沒收到 GPS 位置，請稍候',
@@ -3613,6 +3614,7 @@
       'alert.geo.unavail': 'Location unavailable',
       'alert.geo.timeout': 'Location timeout',
       'alert.geo.fail': 'Location failed',
+      'geo.searching': 'Locating… GPS needs a moment. It\'s slower indoors or among tall buildings — try an open area.',
       'alert.compare.no_layer': 'Enable a historical layer first to use Swipe Compare',
       'alert.photo.no_record': 'Start recording a route before taking a photo',
       'alert.photo.no_gps': 'Waiting for GPS — please hold on',
@@ -3754,6 +3756,7 @@
       'alert.geo.unavail': '位置情報を取得できません',
       'alert.geo.timeout': '位置情報がタイムアウトしました',
       'alert.geo.fail': '位置情報の取得に失敗',
+      'geo.searching': '位置を取得中…GPSの受信には少し時間がかかります。屋内や高層ビル街では遅くなるので、開けた場所でお試しください。',
       'alert.compare.no_layer': '比較スライダーを使用する前に歴史レイヤーを有効化してください',
       'alert.photo.no_record': '写真撮影には散策の記録を開始してください',
       'alert.photo.no_gps': 'GPS 信号を待機中です',
@@ -4239,6 +4242,7 @@
   let watchId = null;
   let isLocating = false;
   let hasFirstFix = false;
+  let geoHintShown = false;
 
   let isRecording = false;
   let currentTrace = null;
@@ -4372,6 +4376,7 @@
     }
     isLocating = true;
     hasFirstFix = false;
+    geoHintShown = false;
     updateButtons();
 
     if (BG) {
@@ -4417,11 +4422,23 @@
       }
     }
 
-    // Web fallback (pure PWA / desktop browsers).
+    // Web fallback (pure PWA / desktop browsers / Android TWA).
+    // Two-stage so the user sees their location fast and the watch survives
+    // GPS warm-up:
+    //   1) A quick coarse fix (cell / Wi-Fi, no GPS warm-up) — accepts a
+    //      cached position up to 60s old so a dot appears almost instantly.
+    //   2) A high-accuracy watch for ongoing refinement. Transient errors on
+    //      this watch (timeout / unavailable) do NOT tear it down — the watch
+    //      keeps retrying on its own.
+    navigator.geolocation.getCurrentPosition(
+      pos => { if (isLocating) onPosition(pos); },
+      () => {}, // ignore — the watch below keeps trying
+      { enableHighAccuracy: false, timeout: 12000, maximumAge: 60000 }
+    );
     watchId = navigator.geolocation.watchPosition(
       onPosition,
       onPositionError,
-      { enableHighAccuracy: true, maximumAge: 4000, timeout: 25000 }
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 }
     );
   }
 
@@ -4496,12 +4513,20 @@
   }
 
   function onPositionError(err) {
-    const msgs = { 1: t('alert.geo.denied'), 2: t('alert.geo.unavail'), 3: t('alert.geo.timeout') };
-    // 權限被拒（code 1）時不附上瀏覽器原生的 "User denied Geolocation"
-    // 字串——對使用者沒有資訊量，徒增驚嚇。
-    const detail = err.code !== 1 && err.message ? '\n' + err.message : '';
-    alert((msgs[err.code] || t('alert.geo.fail')) + detail);
-    stopLocate();
+    // 只有「權限被拒」是真正的終止錯誤（web code 1 / 原生外掛 'NOT_AUTHORIZED'）：
+    // 引導使用者去設定開啟，並停止監聽。
+    if (err && (err.code === 1 || err.code === 'NOT_AUTHORIZED' || err.code === 'NOT_PERMITTED')) {
+      alert(t('alert.geo.denied'));
+      stopLocate();
+      return;
+    }
+    // POSITION_UNAVAILABLE / TIMEOUT 是暫時性的——watchPosition 會自己繼續
+    // 重試，所以絕對不能 stopLocate()。在拿到第一個定位前，最多顯示一次
+    // 溫柔的非阻斷提示（吐司），不用嚇人的彈窗打斷散策。
+    if (!hasFirstFix && !geoHintShown) {
+      geoHintShown = true;
+      try { showPostcardToast(t('geo.searching')); } catch {}
+    }
   }
 
   function startRecording() {
