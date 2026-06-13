@@ -2489,6 +2489,18 @@
     gap: 8px;
   }
 
+  /* 定位權限指引的步驟清單 */
+  .geo-steps {
+    margin: 6px 0 4px;
+    padding-left: 20px;
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--graphite);
+    letter-spacing: 0.02em;
+  }
+  .geo-steps li { margin-bottom: 4px; }
+  .geo-steps b { color: var(--vermilion); font-weight: 600; }
+
   /* Floating「？」— reopen the tour anytime */
   .help-fab {
     position: absolute;
@@ -3328,6 +3340,22 @@
   </div>
 </div>
 
+<!-- Location permission helper: priming (prompt) + recovery (denied) -->
+<div class="ob-overlay" id="geo-overlay" aria-hidden="true">
+  <div class="ob-card" role="dialog" aria-labelledby="geo-title">
+    <button type="button" class="ob-skip" id="geo-close" data-i18n="geo.later">稍後</button>
+    <div class="ob-kicker" id="geo-kicker">📍 Location</div>
+    <h2 class="ob-title" id="geo-title">開啟定位</h2>
+    <p class="ob-body" id="geo-body" style="min-height:0"></p>
+    <ol class="geo-steps" id="geo-steps" hidden></ol>
+    <div class="ob-foot" style="justify-content:flex-end">
+      <div class="ob-nav">
+        <button type="button" class="ob-btn primary" id="geo-action">開啟定位</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Postcard collection / detail modal -->
 <div class="pc-overlay" id="pc-overlay" aria-hidden="true">
   <div class="pc-card" role="dialog" aria-labelledby="pc-modal-title">
@@ -3473,6 +3501,16 @@
       'alert.geo.timeout': '定位逾時',
       'alert.geo.fail': '定位失敗',
       'geo.searching': '定位中…GPS 收訊需要一點時間，室內或高樓間會比較慢，請走到開闊處再試。',
+      'geo.later': '稍後',
+      'geo.prime.title': '開啟定位，看見腳下的歷史',
+      'geo.prime.body': '散策想知道你的位置，才能在地圖上標出你、讓你沿路收集走過的明信片。你的位置只留在這支手機裡，不會上傳。',
+      'geo.prime.action': '開啟定位',
+      'geo.denied.title': '定位權限被關閉了',
+      'geo.denied.body': '基於安全，瀏覽器不讓 App 自動開啟權限，要請你手動點兩下。完成後回來按「再試一次」：',
+      'geo.denied.retry': '我開好了，再試一次',
+      'geo.steps.android': '點網址列左邊的 <b>鎖頭 🔒</b>（或 ⓘ）|選「<b>權限</b>」→ 把「位置」打開|回到這裡，按下方「再試一次」',
+      'geo.steps.ios': '點網址列左邊的 <b>ㄅㄚ字 「ぁA」</b>|選「<b>網站設定</b>」→「位置」→「允許」|回到這裡，按下方「再試一次」',
+      'geo.steps.desktop': '點網址列左邊的 <b>鎖頭 🔒</b>|把「<b>位置</b>」改成「允許」|重新整理頁面後再按定位',
       'alert.compare.no_layer': '先啟用一個歷史圖層再開對照拉條',
       'alert.photo.no_record': '需要先開始記錄路線才能拍照',
       'alert.photo.no_gps': '還沒收到 GPS 位置，請稍候',
@@ -3615,6 +3653,16 @@
       'alert.geo.timeout': 'Location timeout',
       'alert.geo.fail': 'Location failed',
       'geo.searching': 'Locating… GPS needs a moment. It\'s slower indoors or among tall buildings — try an open area.',
+      'geo.later': 'Later',
+      'geo.prime.title': 'Turn on location',
+      'geo.prime.body': 'Old-Map Stroll uses your location to place you on the map and let you collect postcards as you walk past their sites. Your location stays on this device — never uploaded.',
+      'geo.prime.action': 'Turn on location',
+      'geo.denied.title': 'Location is currently blocked',
+      'geo.denied.body': 'For security, browsers won\'t let an app re-enable this for you — it takes two quick taps. Then come back and tap Try again:',
+      'geo.denied.retry': 'Done — try again',
+      'geo.steps.android': 'Tap the <b>lock 🔒</b> (or ⓘ) at the left of the address bar|Choose <b>Permissions</b> → turn Location on|Come back here and tap Try again',
+      'geo.steps.ios': 'Tap <b>「ぁA」</b> at the left of the address bar|Choose <b>Website Settings</b> → Location → Allow|Come back here and tap Try again',
+      'geo.steps.desktop': 'Click the <b>lock 🔒</b> at the left of the address bar|Set <b>Location</b> to Allow|Reload the page, then tap Locate',
       'alert.compare.no_layer': 'Enable a historical layer first to use Swipe Compare',
       'alert.photo.no_record': 'Start recording a route before taking a photo',
       'alert.photo.no_gps': 'Waiting for GPS — please hold on',
@@ -3757,6 +3805,16 @@
       'alert.geo.timeout': '位置情報がタイムアウトしました',
       'alert.geo.fail': '位置情報の取得に失敗',
       'geo.searching': '位置を取得中…GPSの受信には少し時間がかかります。屋内や高層ビル街では遅くなるので、開けた場所でお試しください。',
+      'geo.later': '後で',
+      'geo.prime.title': '位置情報をオンに',
+      'geo.prime.body': '旧地図散策は、地図上にあなたを表示し、通りかかった場所の絵葉書を集めるために位置情報を使います。位置はこの端末内にのみ保存され、アップロードされません。',
+      'geo.prime.action': '位置情報をオンにする',
+      'geo.denied.title': '位置情報がブロックされています',
+      'geo.denied.body': 'セキュリティ上、アプリが自動で再有効化できないため、2タップだけお願いします。完了したら「再試行」を押してください：',
+      'geo.denied.retry': '完了、再試行',
+      'geo.steps.android': 'アドレスバー左の <b>鍵 🔒</b>（または ⓘ）をタップ|「<b>権限</b>」→「位置情報」をオン|ここに戻って「再試行」をタップ',
+      'geo.steps.ios': 'アドレスバー左の <b>「ぁA」</b> をタップ|「<b>Webサイトの設定</b>」→「位置情報」→「許可」|ここに戻って「再試行」をタップ',
+      'geo.steps.desktop': 'アドレスバー左の <b>鍵 🔒</b> をクリック|「<b>位置情報</b>」を「許可」に|ページを再読み込みして位置情報をタップ',
       'alert.compare.no_layer': '比較スライダーを使用する前に歴史レイヤーを有効化してください',
       'alert.photo.no_record': '写真撮影には散策の記録を開始してください',
       'alert.photo.no_gps': 'GPS 信号を待機中です',
@@ -4368,6 +4426,72 @@
     return Cap.Plugins?.BackgroundGeolocation || null;
   }
 
+  // 偵測平台，給「已拒絕」狀態最精準的恢復指引
+  function detectPlatform() {
+    const ua = navigator.userAgent || '';
+    const isiOS = /iPhone|iPad|iPod/.test(ua) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (isiOS) return 'ios';
+    if (/Android/.test(ua)) return 'android';
+    return 'desktop';
+  }
+
+  // 定位入口：先探查權限狀態，讓三種情況各走最順的路，避免使用者亂找設定。
+  //  · granted → 直接定位
+  //  · prompt / 未知 → 友善說明卡，一鍵觸發系統權限窗（源頭預防誤拒）
+  //  · denied → 平台客製的恢復指引（網頁無法自動開設定，只能給最短路徑）
+  async function requestLocate() {
+    if (isLocating) { stopLocate(); return; }
+    let state = 'prompt';
+    try {
+      if (navigator.permissions?.query) {
+        const s = await navigator.permissions.query({ name: 'geolocation' });
+        state = s.state; // 'granted' | 'prompt' | 'denied'
+      }
+    } catch { /* Safari 舊版不支援 → 當作 prompt */ }
+
+    if (state === 'granted') { startLocate(); return; }
+    if (state === 'denied') { showGeoHelper('denied'); return; }
+    showGeoHelper('prompt');
+  }
+
+  function showGeoHelper(mode) {
+    const overlay = document.getElementById('geo-overlay');
+    if (!overlay) { startLocate(); return; } // 保險：找不到 modal 就直接走原流程
+    const body = document.getElementById('geo-body');
+    const steps = document.getElementById('geo-steps');
+    const action = document.getElementById('geo-action');
+    const title = document.getElementById('geo-title');
+
+    if (mode === 'prompt') {
+      title.textContent = t('geo.prime.title');
+      body.textContent = t('geo.prime.body');
+      body.hidden = false;
+      steps.hidden = true;
+      action.textContent = t('geo.prime.action');
+      action.onclick = () => { closeGeoHelper(); startLocate(); };
+    } else {
+      // denied：依平台組裝最短恢復步驟
+      const plat = detectPlatform();
+      title.textContent = t('geo.denied.title');
+      body.textContent = t('geo.denied.body');
+      body.hidden = false;
+      steps.innerHTML = t('geo.steps.' + plat)
+        .split('|').map(s => `<li>${s}</li>`).join('');
+      steps.hidden = false;
+      action.textContent = t('geo.denied.retry');
+      action.onclick = () => { closeGeoHelper(); startLocate(); };
+    }
+    overlay.classList.add('show');
+    overlay.setAttribute('aria-hidden', 'false');
+  }
+  function closeGeoHelper() {
+    const overlay = document.getElementById('geo-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('show');
+    overlay.setAttribute('aria-hidden', 'true');
+  }
+
   async function startLocate() {
     const BG = getBgGeoPlugin();
     if (!BG && !('geolocation' in navigator)) {
@@ -4516,8 +4640,8 @@
     // 只有「權限被拒」是真正的終止錯誤（web code 1 / 原生外掛 'NOT_AUTHORIZED'）：
     // 引導使用者去設定開啟，並停止監聽。
     if (err && (err.code === 1 || err.code === 'NOT_AUTHORIZED' || err.code === 'NOT_PERMITTED')) {
-      alert(t('alert.geo.denied'));
       stopLocate();
+      showGeoHelper('denied'); // 平台客製的恢復指引，取代生硬的 alert
       return;
     }
     // POSITION_UNAVAILABLE / TIMEOUT 是暫時性的——watchPosition 會自己繼續
@@ -6214,9 +6338,20 @@
     renderCalendar();
   }
 
-  if (locBtn) locBtn.addEventListener('click', () => isLocating ? stopLocate() : startLocate());
+  if (locBtn) locBtn.addEventListener('click', () => requestLocate());
   if (recBtn) recBtn.addEventListener('click', () => isRecording ? stopRecording() : startRecording());
-  if (searchPinBtn) searchPinBtn.addEventListener('click', () => isLocating ? stopLocate() : startLocate());
+  if (searchPinBtn) searchPinBtn.addEventListener('click', () => requestLocate());
+  // 定位指引 modal 的關閉（稍後 / 點背景 / Esc）
+  (function bindGeoHelperClose() {
+    const overlay = document.getElementById('geo-overlay');
+    const closeBtn = document.getElementById('geo-close');
+    if (!overlay) return;
+    if (closeBtn) closeBtn.addEventListener('click', closeGeoHelper);
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeGeoHelper(); });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && overlay.classList.contains('show')) closeGeoHelper();
+    });
+  })();
   if (searchRecBtn) searchRecBtn.addEventListener('click', () => isRecording ? stopRecording() : startRecording());
 
   document.getElementById('trace-list').addEventListener('click', e => {
