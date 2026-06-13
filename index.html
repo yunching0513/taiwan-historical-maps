@@ -1423,9 +1423,15 @@
   }
   /* Collected — quiet, sealed */
   .pc-marker.collected {
-    background: var(--graphite);
+    background: var(--vermilion);
     border: 2px solid var(--paper);
-    color: var(--paper-2);
+    color: #fff;
+  }
+  /* Drawn — 每日抽到、尚未走到現場：朱紅外框（與實心收藏區隔，但同為朱色） */
+  .pc-marker.drawn {
+    background: var(--paper);
+    border: 2px solid var(--vermilion);
+    color: var(--vermilion);
   }
 
   /* Collection / detail modal */
@@ -4301,6 +4307,7 @@
   let isLocating = false;
   let hasFirstFix = false;
   let geoHintShown = false;
+  let lastUserLatLng = null; // 最後已知位置，供標記刷新時保留 near 脈動狀態
 
   let isRecording = false;
   let currentTrace = null;
@@ -4589,6 +4596,7 @@
   function onPosition(pos) {
     const { latitude, longitude, accuracy } = pos.coords;
     const ll = [latitude, longitude];
+    lastUserLatLng = { lat: latitude, lng: longitude };
 
     if (!userMarker) {
       const icon = L.divIcon({
@@ -5814,14 +5822,16 @@
   function renderPostcardMarkers(userLatLng) {
     POSTCARDS.forEach(pc => {
       const collected = collectedPostcards.has(pc.id);
+      const drawn = !collected && drawnPostcards.has(pc.id);
       let state;
       if (collected) {
         state = 'collected';
       } else if (userLatLng) {
+        // near 仍優先（脈動提示就在附近），否則抽到的顯朱框、其餘灰點
         const d = haversine(userLatLng, { lat: pc.lat, lng: pc.lng });
-        state = d <= PROXIMITY_HINT_M ? 'near' : 'far';
+        state = d <= PROXIMITY_HINT_M ? 'near' : (drawn ? 'drawn' : 'far');
       } else {
-        state = 'far';
+        state = drawn ? 'drawn' : 'far';
       }
       const existing = postcardMarkers.get(pc.id);
       if (existing) {
@@ -5839,7 +5849,14 @@
           keyboard: false,
         });
         marker._pcState = state;
-        marker.on('click', () => openPostcardModal(pc, collectedPostcards.has(pc.id) ? 're-view' : 'preview'));
+        marker.on('click', () => {
+          if (!collectedPostcards.has(pc.id) && drawnPostcards.has(pc.id) &&
+              typeof openDrawnPostcard === 'function') {
+            openDrawnPostcard(pc); // 抽到的卡：開每日卡檢視器
+          } else {
+            openPostcardModal(pc, collectedPostcards.has(pc.id) ? 're-view' : 'preview');
+          }
+        });
         if (postcardsLayerOn) marker.addTo(map);
         postcardMarkers.set(pc.id, marker);
       }
@@ -7784,6 +7801,7 @@
         drawnPostcards.add(pc.id);
         persistDrawnPostcards();
         try { renderPostcardGrid(); } catch {}
+        try { renderPostcardMarkers(lastUserLatLng); } catch {} // 地圖標記轉朱框
       }
       const img = document.getElementById('wpc-img');
       // 顯影效果：等圖載入後才開始沖洗動畫
