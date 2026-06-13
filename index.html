@@ -7602,12 +7602,18 @@
   });
 
   // ── Service worker (PWA) ─────────────────────────
-  if ('serviceWorker' in navigator) {
+  // 僅在「真正的瀏覽器 / PWA」註冊。Capacitor 原生殼裡資產已是本地，
+  // SW 反而會造成載入→快取重繪的閃爍與版本卡頓，故跳過並清除既有註冊。
+  const isNativeShell = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
+  if ('serviceWorker' in navigator && !isNativeShell) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js').catch(err => {
         console.warn('Service worker registration failed:', err);
       });
     });
+  } else if (isNativeShell && 'serviceWorker' in navigator) {
+    // 原生殼：清掉先前可能註冊過的 SW，避免殘留快取造成閃爍
+    navigator.serviceWorker.getRegistrations?.().then(rs => rs.forEach(r => r.unregister())).catch(() => {});
   }
 
   // ── Deep-link query params ───────────────────────
