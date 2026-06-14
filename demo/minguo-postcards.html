@@ -1,0 +1,81 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>民國明信片 Demo · 懷舊青藍色系</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500&family=EB+Garamond:ital@0;1&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F2EFE6; --paper2:#E9E5D9; --ink:#1A2422; --graphite:#3C4D4A;
+    --ash:#7E8C89; --silver:#A7B0AD; --mist:#D3D8D2;
+    /* 民國組強調色：青藍（與日治朱色區隔） */
+    --teal:#2F6F6A; --teal-d:#1E4F4B; --teal-l:rgba(47,111,106,0.10);
+    --duo-dark:#13322F; --duo-light:#D8E4DF;
+    --zh-serif:'Noto Serif TC',serif; --zh-sans:'Noto Sans TC',sans-serif;
+    --en:'EB Garamond',Georgia,serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--zh-sans);font-weight:300;padding:40px 24px 64px;-webkit-font-smoothing:antialiased}
+  .head{max-width:1080px;margin:0 auto 8px}
+  .kicker{font-family:var(--en);font-style:italic;color:var(--teal);font-size:16px;letter-spacing:.04em}
+  .h1{font-family:var(--zh-serif);font-weight:600;font-size:26px;letter-spacing:.14em;color:var(--ink);margin:4px 0 6px}
+  .bar{width:48px;height:3px;background:var(--teal);margin:10px 0 4px}
+  .note{font-size:12.5px;color:var(--graphite);line-height:1.9;letter-spacing:.02em;max-width:760px}
+  .note b{color:var(--teal-d)}
+  .grid{max-width:1080px;margin:28px auto 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px}
+  .card{background:var(--paper2);border:1px solid var(--mist);box-shadow:0 1px 0 #fff,0 18px 40px -26px rgba(20,40,38,.5);padding:18px 18px 16px;position:relative}
+  .card::before{content:'';position:absolute;top:0;left:18px;width:42px;height:3px;background:var(--teal)}
+  .tag{font-family:var(--en);font-style:italic;color:var(--teal);font-size:12px;letter-spacing:.05em;margin-bottom:10px}
+  /* 範例佔位「照片」：青藍雙色調 + 網點 + 大字，明確標示為範例 */
+  .photo{position:relative;width:100%;aspect-ratio:4/3;border:1px solid var(--mist);overflow:hidden;
+    background:linear-gradient(150deg,var(--duo-dark) 0%,#2A5B56 45%,var(--duo-light) 120%)}
+  .photo .halftone{position:absolute;inset:0;opacity:.18;
+    background-image:radial-gradient(var(--duo-light) 1px,transparent 1.3px);background-size:6px 6px}
+  .photo .scene{position:absolute;inset:0;opacity:.5}
+  .photo .label{position:absolute;left:0;right:0;bottom:0;padding:10px 12px;background:linear-gradient(0deg,rgba(19,50,47,.85),transparent);
+    font-family:var(--zh-serif);font-weight:600;color:#EAF1ED;font-size:19px;letter-spacing:.1em}
+  .photo .sample{position:absolute;top:8px;right:8px;font-family:var(--mono);font-size:9px;letter-spacing:.12em;
+    background:rgba(19,50,47,.7);color:#CFe0db;padding:3px 7px;border-radius:2px}
+  .ttl{font-family:var(--zh-serif);font-weight:600;font-size:18px;letter-spacing:.08em;margin:12px 0 1px;color:var(--ink)}
+  .sub{font-size:12px;color:var(--graphite);letter-spacing:.03em}
+  .yr{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--silver);text-transform:uppercase;margin:6px 0 8px}
+  .desc{font-family:var(--zh-serif);font-size:12.5px;line-height:1.85;color:var(--graphite)}
+  .src{font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:var(--silver);margin-top:10px;padding-top:8px;border-top:1px dotted var(--silver)}
+  .cmp{max-width:1080px;margin:34px auto 0;display:flex;gap:10px;align-items:center;font-size:12px;color:var(--graphite)}
+  .sw{width:46px;height:22px;border-radius:3px;border:1px solid var(--mist)}
+</style></head><body>
+<div class="head">
+  <div class="kicker">Postcards · Republic Era 1950–1990</div>
+  <div class="h1">民國散策・明信片（Demo）</div>
+  <div class="bar"></div>
+  <p class="note">這是民國時代（1950–1990）明信片組的<b>設計示意</b>，採用與日治朱色組區隔的<b>懷舊青藍色系</b>。
+  下方影像皆為<b>範例佔位圖</b>，非真實照片——這個年代的照片<b>多數仍在著作權保護期內</b>，
+  正式上線前每張都需從合法來源（見底部）逐筆取得授權或確認為公領域／開放授權後才會換上。</p>
+</div>
+<div class="grid" id="grid"></div>
+<div class="cmp">
+  <span>色系對照：</span>
+  <span class="sw" style="background:#C15F3C"></span><span>日治・朱（vermilion）</span>
+  <span style="width:18px"></span>
+  <span class="sw" style="background:#2F6F6A"></span><span>民國・青藍（teal）</span>
+</div>
+<script>
+  const CARDS=[
+    {t:'中華商場',sub:'台北・中華路',y:'民國 50 年・1961',d:'西門町旁八座連棟商場，從電子零件到牛肉麵，是戰後台北最熱鬧的市井記憶，1992 年拆除。'},
+    {t:'西門町電影街',sub:'台北・武昌街',y:'民國 60 年代・1970s',d:'霓虹看板、手繪電影海報與人潮，是民國時期最摩登的娛樂中心。'},
+    {t:'中山高速公路',sub:'十大建設',y:'民國 67 年・1978',d:'全線通車，串起南北一日生活圈，象徵經濟起飛的年代。'},
+    {t:'高雄港',sub:'高雄・哈瑪星',y:'民國 60 年代・1970s',d:'貨櫃輪與起重機林立，加工出口區帶動的港都，是台灣外貿的門面。'},
+  ];
+  document.getElementById('grid').innerHTML=CARDS.map(c=>`
+    <div class="card">
+      <div class="tag">Unira · Postcard</div>
+      <div class="photo">
+        <div class="halftone"></div>
+        <div class="label">${c.t}</div>
+        <div class="sample">範例・待授權</div>
+      </div>
+      <div class="ttl">${c.t}</div>
+      <div class="sub">${c.sub}</div>
+      <div class="yr">${c.y}</div>
+      <div class="desc">${c.d}</div>
+      <div class="src">圖片來源 · 範例佔位圖（正式版將替換為授權影像）</div>
+    </div>`).join('');
+</script></body></html>

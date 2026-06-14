@@ -1610,6 +1610,7 @@
     margin-top: 14px;
     display: flex;
     justify-content: center;
+    gap: 10px;
   }
   .pc-card-share {
     appearance: none;
@@ -3412,6 +3413,19 @@
   </div>
 </div>
 
+<!-- 背景定位「醒目告知與同意」視窗（Google Play 政策要求，須先於系統權限） -->
+<div class="ob-overlay" id="bgloc-overlay" aria-hidden="true">
+  <div class="ob-card" role="dialog" aria-labelledby="bgloc-title">
+    <div class="ob-kicker">📍 Location</div>
+    <h2 class="ob-title" id="bgloc-title" data-i18n="bgloc.title">關於背景定位</h2>
+    <p class="ob-body" data-i18n="bgloc.body" style="min-height:0">散策會在你記錄路線時，於背景持續使用你的位置資訊來描繪行徑軌跡——即使你切換到其他 App 或關閉螢幕。記錄期間，通知列會持續顯示一則通知提醒你。這會增加耗電量。你的位置只儲存在這支手機，不會上傳。</p>
+    <div class="ob-foot">
+      <button type="button" class="ob-btn" id="bgloc-cancel" data-i18n="bgloc.cancel">取消</button>
+      <button type="button" class="ob-btn primary" id="bgloc-agree" data-i18n="bgloc.agree">我了解，開始</button>
+    </div>
+  </div>
+</div>
+
 <!-- Postcard collection / detail modal -->
 <div class="pc-overlay" id="pc-overlay" aria-hidden="true">
   <div class="pc-card" role="dialog" aria-labelledby="pc-modal-title">
@@ -3427,6 +3441,9 @@
       <div class="pc-card-actions" id="pc-card-actions" hidden>
         <button type="button" class="pc-card-share" id="pc-card-share">
           <span aria-hidden="true">↗</span> <span data-i18n="pc.share">分享</span>
+        </button>
+        <button type="button" class="pc-card-share" id="pc-card-download">
+          <span aria-hidden="true">↓</span> <span data-i18n="pc.download">下載</span>
         </button>
       </div>
     </div>
@@ -3518,6 +3535,7 @@
       'pc.tag.locked': 'Locked',
       'pc.source.pending': 'pending discovery',
       'pc.share': '分享',
+      'pc.download': '下載',
       'pc.toast.collected': '🎴 沖洗了一張明信片：',
       'pc.toast.share_hint': '長按圖片即可儲存或分享',
       'cal.weekday.sun': '日', 'cal.weekday.mon': '一', 'cal.weekday.tue': '二',
@@ -3558,6 +3576,10 @@
       'alert.geo.fail': '定位失敗',
       'geo.searching': '定位中…GPS 收訊需要一點時間，室內或高樓間會比較慢，請走到開闊處再試。',
       'geo.later': '稍後',
+      'bgloc.title': '關於背景定位',
+      'bgloc.body': '散策會在你記錄路線時，於背景持續使用你的位置資訊來描繪行徑軌跡——即使你切到其他 App 或關閉螢幕。記錄期間通知列會持續顯示一則通知。這會增加耗電量。你的位置只儲存在這支手機，不會上傳。',
+      'bgloc.cancel': '取消',
+      'bgloc.agree': '我了解，開始',
       'geo.prime.title': '開啟定位，看見腳下的歷史',
       'geo.prime.body': '散策想知道你的位置，才能在地圖上標出你、讓你沿路收集走過的明信片。你的位置只留在這支手機裡，不會上傳。',
       'geo.prime.action': '開啟定位',
@@ -3593,8 +3615,8 @@
       'pack.custom_range': '自訂範圍',
       'pack.basemap_only': '僅底圖',
       'pack.confirm_delete': '刪除「{city}」離線包（{tiles} 圖磚 · {bytes}）？',
-      'bg.title': '舊地圖散策',
-      'bg.message': '正在記錄你的散策路徑',
+      'bg.title': '台灣舊地圖散策',
+      'bg.message': '正在背景記錄您的散策路線',
       'lb.aria.close': '關閉',
       'ob.skip': '略過',
       'ob.next': '下一步',
@@ -3678,6 +3700,7 @@
       'pc.tag.locked': 'Locked',
       'pc.source.pending': 'pending discovery',
       'pc.share': 'Share',
+      'pc.download': 'Download',
       'pc.toast.collected': '🎴 New postcard developed: ',
       'pc.toast.share_hint': 'Long-press the image to save or share',
       'cal.weekday.sun': 'S', 'cal.weekday.mon': 'M', 'cal.weekday.tue': 'T',
@@ -3718,6 +3741,10 @@
       'alert.geo.fail': 'Location failed',
       'geo.searching': 'Locating… GPS needs a moment. It\'s slower indoors or among tall buildings — try an open area.',
       'geo.later': 'Later',
+      'bgloc.title': 'About background location',
+      'bgloc.body': 'While recording a route, Old-Map Stroll keeps using your location in the background to trace your path — even if you switch apps or turn off the screen. A persistent notification is shown the whole time. This increases battery use. Your location stays on this device and is never uploaded.',
+      'bgloc.cancel': 'Cancel',
+      'bgloc.agree': 'I understand, start',
       'geo.prime.title': 'Turn on location',
       'geo.prime.body': 'Old-Map Stroll uses your location to place you on the map and let you collect postcards as you walk past their sites. Your location stays on this device — never uploaded.',
       'geo.prime.action': 'Turn on location',
@@ -3753,8 +3780,8 @@
       'pack.custom_range': 'Custom area',
       'pack.basemap_only': 'Base map only',
       'pack.confirm_delete': 'Delete "{city}" offline pack ({tiles} tiles · {bytes})?',
-      'bg.title': 'Old-Map Stroll',
-      'bg.message': 'Recording your stroll route',
+      'bg.title': 'Taiwan Old-Map Stroll',
+      'bg.message': 'Recording your stroll route in the background',
       'lb.aria.close': 'Close',
       'ob.skip': 'Skip',
       'ob.next': 'Next',
@@ -3838,6 +3865,7 @@
       'pc.tag.locked': '未発見',
       'pc.source.pending': '未発見',
       'pc.share': '共有',
+      'pc.download': '保存',
       'pc.toast.collected': '🎴 新しい絵葉書が現像されました：',
       'pc.toast.share_hint': '画像を長押しで保存または共有',
       'cal.weekday.sun': '日', 'cal.weekday.mon': '月', 'cal.weekday.tue': '火',
@@ -3878,6 +3906,10 @@
       'alert.geo.fail': '位置情報の取得に失敗',
       'geo.searching': '位置を取得中…GPSの受信には少し時間がかかります。屋内や高層ビル街では遅くなるので、開けた場所でお試しください。',
       'geo.later': '後で',
+      'bgloc.title': 'バックグラウンド位置情報について',
+      'bgloc.body': 'ルート記録中、散策は他のアプリに切り替えても画面を消してもバックグラウンドで位置情報を使い続け、軌跡を描きます。記録中は通知バーに常時通知が表示されます。電池消費が増えます。位置情報はこの端末内にのみ保存され、アップロードされません。',
+      'bgloc.cancel': 'キャンセル',
+      'bgloc.agree': '理解しました、開始',
       'geo.prime.title': '位置情報をオンに',
       'geo.prime.body': '旧地図散策は、地図上にあなたを表示し、通りかかった場所の絵葉書を集めるために位置情報を使います。位置はこの端末内にのみ保存され、アップロードされません。',
       'geo.prime.action': '位置情報をオンにする',
@@ -3913,8 +3945,8 @@
       'pack.custom_range': 'カスタム範囲',
       'pack.basemap_only': 'ベースマップのみ',
       'pack.confirm_delete': '「{city}」のオフラインパックを削除（{tiles} タイル · {bytes}）？',
-      'bg.title': '旧地図散策',
-      'bg.message': '散策ルートを記録中',
+      'bg.title': '台灣旧地図散策',
+      'bg.message': 'バックグラウンドで散策ルートを記録中',
       'lb.aria.close': '閉じる',
       'ob.skip': 'スキップ',
       'ob.next': '次へ',
@@ -4521,9 +4553,50 @@
   //  · granted → 直接定位
   //  · prompt / 未知 → 友善說明卡，一鍵觸發系統權限窗（源頭預防誤拒）
   //  · denied → 平台客製的恢復指引（網頁無法自動開設定，只能給最短路徑）
+  // 背景定位「醒目告知與同意」視窗——Google Play 政策要求，須先於系統權限視窗。
+  // 已同意過則記住，不再打擾（首次安裝/審查員仍會看到）。
+  function askBgLocConsent() {
+    return new Promise(resolve => {
+      const ov = document.getElementById('bgloc-overlay');
+      if (!ov) { resolve(true); return; }
+      let consented = false;
+      try { consented = localStorage.getItem('taiwanOldMaps.bgLocationConsent') === '1'; } catch {}
+      if (consented) { resolve(true); return; }
+      const agree = document.getElementById('bgloc-agree');
+      const cancel = document.getElementById('bgloc-cancel');
+      function done(v) {
+        ov.classList.remove('show'); ov.setAttribute('aria-hidden', 'true');
+        agree.onclick = null; cancel.onclick = null;
+        resolve(v);
+      }
+      agree.onclick = () => { try { localStorage.setItem('taiwanOldMaps.bgLocationConsent', '1'); } catch {} done(true); };
+      cancel.onclick = () => done(false);
+      ov.classList.add('show'); ov.setAttribute('aria-hidden', 'false');
+    });
+  }
+
   let geoPermWatched = false;
   async function requestLocate() {
     if (isLocating) { stopLocate(); return; }
+
+    // 原生 App（Capacitor）：走系統單一權限流程，沒有瀏覽器那層。
+    const Cap = window.Capacitor;
+    if (Cap && typeof Cap.isNativePlatform === 'function' && Cap.isNativePlatform()) {
+      // Google 政策順序：先「醒目告知與同意」，再請求系統權限。
+      const consented = await askBgLocConsent();
+      if (!consented) return;
+      try {
+        const Geo = Cap.Plugins && Cap.Plugins.Geolocation;
+        if (Geo && Geo.requestPermissions) {
+          const r = await Geo.requestPermissions({ permissions: ['location'] });
+          const st = r && (r.location || r.coarseLocation);
+          if (st === 'denied') { showGeoHelper('denied'); return; }
+        }
+      } catch {}
+      startLocate();
+      return;
+    }
+
     let state = 'prompt';
     try {
       if (navigator.permissions?.query) {
@@ -6322,6 +6395,32 @@
     const pc = POSTCARDS.find(p => p.id === id);
     if (pc) sharePostcard(pc);
   });
+
+  // 下載整張明信片卡（老照片＋說明＋來源，與分享同一張合成圖）
+  async function downloadPostcardCard(pc) {
+    let blob = null;
+    try { blob = await generateShareCard(pc); }
+    catch (err) { console.warn('share-card gen failed, fallback to raw jpg', err); }
+    if (!blob) {
+      try {
+        const res = await fetch(`icons/postcards/${pc.id}.jpg`, { cache: 'force-cache' });
+        blob = await res.blob();
+      } catch (err) { alert(t('alert.image_fail')); return; }
+    }
+    const name = `散策明信片-${(currentLang === 'en' && pc.en) ? pc.en : pc.title}-${pc.year}.jpg`;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    // iOS Safari 對 blob 下載支援不一：若沒觸發下載，提示可長按儲存
+    showPostcardToast(t('pc.toast.share_hint'));
+  }
+  document.getElementById('pc-card-download').addEventListener('click', () => {
+    const id = document.getElementById('pc-overlay').dataset.pcId;
+    const pc = POSTCARDS.find(p => p.id === id);
+    if (pc) downloadPostcardCard(pc);
+  });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && document.getElementById('pc-overlay').classList.contains('show')) {
       closePostcardModal();
@@ -7536,12 +7635,18 @@
   });
 
   // ── Service worker (PWA) ─────────────────────────
-  if ('serviceWorker' in navigator) {
+  // 僅在「真正的瀏覽器 / PWA」註冊。Capacitor 原生殼裡資產已是本地，
+  // SW 反而會造成載入→快取重繪的閃爍與版本卡頓，故跳過並清除既有註冊。
+  const isNativeShell = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
+  if ('serviceWorker' in navigator && !isNativeShell) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js').catch(err => {
         console.warn('Service worker registration failed:', err);
       });
     });
+  } else if (isNativeShell && 'serviceWorker' in navigator) {
+    // 原生殼：清掉先前可能註冊過的 SW，避免殘留快取造成閃爍
+    navigator.serviceWorker.getRegistrations?.().then(rs => rs.forEach(r => r.unregister())).catch(() => {});
   }
 
   // ── Deep-link query params ───────────────────────
