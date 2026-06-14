@@ -3303,6 +3303,7 @@
     <a class="wpc-source" id="wpc-source" target="_blank" rel="noopener">—</a>
     <div class="wpc-hint" data-i18n="wpc.hint">走到現場 50 公尺內，就能把它收進你的圖鑑</div>
     <div class="wpc-actions">
+      <button type="button" class="ob-btn" id="wpc-download" data-i18n="pc.download">下載</button>
       <button type="button" class="ob-btn" id="wpc-dismiss" data-i18n="wpc.close">開始散策</button>
       <button type="button" class="ob-btn primary" id="wpc-go" data-i18n="wpc.go">帶我去這裡</button>
     </div>
@@ -8041,6 +8042,11 @@
       close();
       selectCity(currentPc.city, { instant: true });
       map.flyTo([currentPc.lat, currentPc.lng], 16, { duration: 1.4 });
+    });
+
+    const dlBtn = document.getElementById('wpc-download');
+    if (dlBtn) dlBtn.addEventListener('click', () => {
+      if (currentPc && typeof downloadPostcardCard === 'function') downloadPostcardCard(currentPc);
     });
 
     // 每日抽卡：一天一張（localStorage 記日期），培養每天打開的儀式感。
