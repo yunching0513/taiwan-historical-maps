@@ -6978,175 +6978,164 @@
   };
 
   // ── Share card generator ─────────────────────────
+  // 方形地圖渲染：以路線中心，補成正方形像素視窗，地圖滿版填入（路線置中、
+  // 四周保留周邊地圖脈絡），回傳投影函式供畫軌跡。
+  async function renderSquareMap(ctx, trace, dx, dy, size) {
+    const bounds = computeTraceBounds(trace, 0.35); // 多一點留白顯示周邊
+    let zoom = pickZoomForBounds(bounds, size, size);
+    zoom = Math.min(zoom, 18);
+    const center = map.project(bounds.getCenter(), zoom);
+    const originX = center.x - size / 2;
+    const originY = center.y - size / 2;
+    const tileMinX = Math.floor(originX / 256), tileMinY = Math.floor(originY / 256);
+    const tileMaxX = Math.floor((originX + size) / 256), tileMaxY = Math.floor((originY + size) / 256);
+    const cols = tileMaxX - tileMinX + 1, rows = tileMaxY - tileMinY + 1;
+    const work = document.createElement('canvas');
+    work.width = cols * 256; work.height = rows * 256;
+    const wctx = work.getContext('2d');
+
+    const stack = [];
+    const baseLayers = BASE_MAPS[currentBaseId] || BASE_MAPS.plain;
+    baseLayers.forEach(l => {
+      const o = l.opts || {};
+      stack.push({ url: l.url, subdomains: o.subdomains, maxNative: o.maxNativeZoom || 19, opacity: o.opacity != null ? o.opacity : 1 });
+    });
+    if (activeId) {
+      const layer = HISTORICAL_MAPS.find(m => m.id === activeId);
+      if (layer) stack.push({ url: layer.url, maxNative: layer.maxNativeZoom || 16, opacity: opacities[activeId] != null ? opacities[activeId] : 0.7 });
+    }
+    for (const def of stack) {
+      const zReq = Math.min(zoom, def.maxNative);
+      const factor = Math.pow(2, zoom - zReq);
+      wctx.globalAlpha = def.opacity;
+      const tasks = [];
+      for (let x = tileMinX; x <= tileMaxX; x++) {
+        for (let y = tileMinY; y <= tileMaxY; y++) {
+          const reqX = Math.floor(x / factor), reqY = Math.floor(y / factor);
+          const url = buildTileUrl(def.url, reqX, reqY, zReq, def.subdomains);
+          const tx = (x - tileMinX) * 256, ty = (y - tileMinY) * 256;
+          if (factor === 1) tasks.push(fetchAndDrawTile(url, wctx, tx, ty));
+          else tasks.push(fetchAndDrawScaledTile(url, wctx, tx, ty, x, y, factor));
+        }
+      }
+      await Promise.all(tasks);
+    }
+    wctx.globalAlpha = 1;
+    const srcX = originX - tileMinX * 256, srcY = originY - tileMinY * 256;
+    ctx.drawImage(work, srcX, srcY, size, size, dx, dy, size, size);
+    return function project(lat, lng) {
+      const p = map.project([lat, lng], zoom);
+      return { x: dx + (p.x - originX), y: dy + (p.y - originY) };
+    };
+  }
+
   async function shareTrace(id) {
     const trace = savedTraces.find(t => t.id === id);
     if (!trace) return;
     let photos = [];
     try { photos = await getPhotosByTrace(id); } catch {}
 
-    const W = 1080, H = 1920;
+    // 1:1 正方形版面，地圖為主體
+    const W = 1080, H = 1080;
     const canvas = document.createElement('canvas');
-    canvas.width = W;
-    canvas.height = H;
+    canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext('2d');
 
-    // Dark ground
+    // 深色底（地圖載入失敗時的底色）
     ctx.fillStyle = '#1A1A1A';
     ctx.fillRect(0, 0, W, H);
 
-    // Header
-    ctx.fillStyle = '#C15F3C';
-    ctx.font = 'italic 30px Georgia, "EB Garamond", serif';
-    ctx.fillText('Taiwan · Old-Map Stroll', 80, 130);
-
-    ctx.fillStyle = '#F1EFE9';
-    ctx.font = '600 92px "Yuanti TC", "Hiragino Maru Gothic ProN", "PingFang TC", sans-serif';
-    ctx.fillText('舊地圖散策', 80, 230);
-
-    ctx.font = '22px "JetBrains Mono", "Courier New", monospace';
-    ctx.fillStyle = '#A6A399';
-    const dateStr = new Date(trace.startTime).toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-    ctx.fillText(`${dateStr} · ${trace.city || ''}`, 80, 280);
-
-    ctx.fillStyle = '#C15F3C';
-    ctx.fillRect(80, 305, 64, 4);
-
-    // Stats (4 columns)
-    const stats = [
-      ['DIST',   fmtDist(trace.distance || 0)],
-      ['TIME',   fmtDur((trace.endTime || Date.now()) - trace.startTime)],
-      ['POINTS', String(trace.points.length)],
-      ['PHOTOS', String(photos.length)],
-    ];
-    const sY = 380;
-    const colW = (W - 160) / 4;
-    ctx.fillStyle = '#807C73';
-    ctx.font = '500 20px "JetBrains Mono", monospace';
-    stats.forEach((s, i) => ctx.fillText(s[0], 80 + i * colW, sY));
-    ctx.fillStyle = '#F1EFE9';
-    ctx.font = '600 50px "Yuanti TC", "Hiragino Maru Gothic ProN", "PingFang TC", sans-serif';
-    stats.forEach((s, i) => ctx.fillText(s[1], 80 + i * colW, sY + 60));
-
-    // Map area — fetch the actual base + active overlay tiles so the trace
-    // sits on the historical/satellite imagery the user was looking at.
-    const mapX = 80, mapY = 480, mapW = W - 160, mapH = 1000;
-    const bounds = computeTraceBounds(trace, 0.1);
+    // 地圖滿版（路線 + 周邊）
     let projectFn = null;
     try {
-      projectFn = await renderMapTilesIntoArea(ctx, bounds, mapX, mapY, mapW, mapH);
+      projectFn = await renderSquareMap(ctx, trace, 0, 0, W);
     } catch (err) {
-      console.warn('tile render failed, falling back to dark panel', err);
+      console.warn('square map render failed, fallback', err);
     }
-    // Polyline + markers — uses the same projection if tiles loaded, otherwise
-    // falls back to the dark procedural rendering.
     if (projectFn) {
-      drawTracePolyline(ctx, trace, photos, projectFn, mapX, mapY, mapW, mapH);
+      drawTracePolyline(ctx, trace, photos, projectFn, 0, 0, W, H);
     } else {
-      drawTraceOnCanvas(ctx, trace, photos, mapX, mapY, mapW, mapH);
+      drawTraceOnCanvas(ctx, trace, photos, 60, 60, W - 120, H - 120);
     }
 
-    // Photo strip (up to 5 thumbs) — natural aspect ratio, no cropping
-    if (photos.length) {
-      const showPhotos = photos.slice(0, 5);
-      const tY = 1530, tH = 220, gap = 14;
-      const maxW = W - 160; // usable width
+    // 上方漸層遮罩（標題可讀）
+    let g = ctx.createLinearGradient(0, 0, 0, 300);
+    g.addColorStop(0, 'rgba(20,20,20,0.82)');
+    g.addColorStop(1, 'rgba(20,20,20,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, 300);
 
-      // Load all images first to know their natural ratios
-      const imgs = await Promise.all(showPhotos.map(p =>
-        loadImageFromBlob(p.blob).catch(() => null)
-      ));
-      const valid = imgs.filter(Boolean);
-      if (valid.length) {
-        // Natural widths at tH height
-        const naturalWidths = valid.map(img => Math.round(tH * img.width / img.height));
-        const totalNatural = naturalWidths.reduce((a, b) => a + b, 0) + gap * (valid.length - 1);
-        // Scale down uniformly if too wide
-        const scale = totalNatural > maxW ? maxW / totalNatural : 1;
-        const scaledH = Math.round(tH * scale);
-        const scaledWidths = naturalWidths.map(w => Math.round(w * scale));
-        const totalScaled = scaledWidths.reduce((a, b) => a + b, 0) + gap * (valid.length - 1);
-        let x = 80 + Math.round((maxW - totalScaled) / 2); // centre the strip
-        for (let i = 0; i < valid.length; i++) {
-          const w = scaledWidths[i];
-          // Draw at natural ratio — no cropping
-          ctx.drawImage(valid[i], x, tY + Math.round((tH - scaledH) / 2), w, scaledH);
-          x += w + gap;
-        }
-      }
-    }
+    // 下方漸層遮罩（數據可讀）
+    g = ctx.createLinearGradient(0, H - 320, 0, H);
+    g.addColorStop(0, 'rgba(20,20,20,0)');
+    g.addColorStop(1, 'rgba(20,20,20,0.9)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, H - 320, W, 320);
 
-    // ── Bottom section: hashtags + QR code + attribution ──────────────────
-    const bottomY = photos.length ? 1765 : 1560; // push up when no photos
+    // ── 標題 ──
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#E8956B';
+    ctx.font = 'italic 28px Georgia, "EB Garamond", serif';
+    ctx.fillText('Taiwan · Old-Map Stroll', 60, 78);
+    ctx.fillStyle = '#F1EFE9';
+    ctx.font = '600 64px "Yuanti TC", "Hiragino Maru Gothic ProN", "PingFang TC", sans-serif';
+    ctx.fillText('舊地圖散策', 60, 150);
+    ctx.font = '22px "JetBrains Mono", "Courier New", monospace';
+    ctx.fillStyle = '#D6D3CB';
+    const dateStr = new Date(trace.startTime).toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    ctx.fillText(`${dateStr} · ${trace.city || ''}`, 60, 190);
 
-    // Thin divider
-    ctx.strokeStyle = '#2E2E2E';
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(80, bottomY); ctx.lineTo(W - 80, bottomY); ctx.stroke();
+    // ── 數據（底部三欄）──
+    const stats = [
+      ['DIST', fmtDist(trace.distance || 0)],
+      ['TIME', fmtDur((trace.endTime || Date.now()) - trace.startTime)],
+      ['POINTS', String(trace.points.length)],
+    ];
+    const sY = H - 180;
+    ctx.fillStyle = '#C9C4BA';
+    ctx.font = '500 20px "JetBrains Mono", monospace';
+    stats.forEach((s, i) => ctx.fillText(s[0], 60 + i * 230, sY));
+    ctx.fillStyle = '#F1EFE9';
+    ctx.font = '600 46px "Yuanti TC", "Hiragino Maru Gothic ProN", "PingFang TC", sans-serif';
+    stats.forEach((s, i) => ctx.fillText(s[1], 60 + i * 230, sY + 52));
 
-    // Hashtags (left side)
-    const cityForTag  = (trace.city || '').replace(/[市縣]$/, '');
-    const layerDef    = HISTORICAL_MAPS.find(m => m.id === activeId);
-    const yearTag     = (cityForTag && layerDef) ? `#${cityForTag}${layerDef.year}` : '';
-    ctx.fillStyle = '#C15F3C';
-    ctx.font = '500 28px "Noto Sans TC", "PingFang TC", sans-serif';
-    ctx.fillText(`#舊地圖散策  ${yearTag}`.trim(), 80, bottomY + 48);
-    ctx.fillStyle = '#565347';
-    ctx.font = '22px "JetBrains Mono", monospace';
-    ctx.fillText('#taiwan_old_map', 80, bottomY + 84);
+    // ── hashtags ──
+    const cityForTag = (trace.city || '').replace(/[市縣]$/, '');
+    const layerDef = HISTORICAL_MAPS.find(m => m.id === activeId);
+    const yearTag = (cityForTag && layerDef) ? `#${cityForTag}${layerDef.year}` : '';
+    ctx.fillStyle = '#E8956B';
+    ctx.font = '500 26px "Noto Sans TC", "PingFang TC", sans-serif';
+    ctx.fillText(`#舊地圖散策  ${yearTag}`.trim(), 60, H - 50);
 
-    // QR code (right side) — links to the app
-    const appUrl  = 'https://yunching0513.github.io/taiwan-historical-maps/';
-    const qrSize  = 120;
-    const qrX     = W - 80 - qrSize;
-    const qrY     = bottomY + 14;
+    // ── QR（右下）──
+    const appUrl = 'https://yunching0513.github.io/taiwan-historical-maps/';
+    const qrSize = 110;
+    const qrX = W - 60 - qrSize, qrY = H - 60 - qrSize;
     try {
       if (typeof QRCode !== 'undefined') {
-        const qrDataUrl = await QRCode.toDataURL(appUrl, {
-          width: qrSize * 2,   // 2× for retina
-          margin: 1,
-          color: { dark: '#F1EFE9', light: '#111111' },
-        });
-        const qrImg = await new Promise((res, rej) => {
-          const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = qrDataUrl;
-        });
-        // Subtle dark frame around QR
-        ctx.fillStyle = '#111111';
+        const qrDataUrl = await QRCode.toDataURL(appUrl, { width: qrSize * 2, margin: 1, color: { dark: '#F1EFE9', light: '#1A1A1A' } });
+        const qrImg = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = qrDataUrl; });
+        ctx.fillStyle = 'rgba(26,26,26,0.6)';
         ctx.fillRect(qrX - 6, qrY - 6, qrSize + 12, qrSize + 12);
         ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
       }
-    } catch (_) { /* QR generation failed silently */ }
+    } catch (_) {}
 
-    // Attribution
-    ctx.fillStyle = '#807C73';
-    ctx.font = '15px "JetBrains Mono", monospace';
-    ctx.fillText('TAIWAN · OLD-MAP STROLL · yunching0513.github.io/taiwan-historical-maps', 80, H - 52);
     ctx.textAlign = 'left';
-
     canvas.toBlob(async blob => {
       if (!blob) { alert(t('alert.image_fail')); return; }
       const filename = `stroll-${new Date(trace.startTime).toISOString().slice(0,10)}.png`;
       const file = new File([blob], filename, { type: 'image/png' });
-
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
-          await navigator.share({
-            files: [file],
-            title: '舊地圖散策',
-            text: `${trace.city || ''} · ${fmtDist(trace.distance || 0)} · ${photos.length} 張照片`,
-          });
+          await navigator.share({ files: [file], title: '舊地圖散策', text: `${trace.city || ''} · ${fmtDist(trace.distance || 0)} · ${photos.length} 張照片` });
           return;
-        } catch (err) {
-          if (err.name !== 'AbortError') console.warn('share failed', err);
-        }
+        } catch (err) { if (err.name !== 'AbortError') console.warn('share failed', err); else return; }
       }
-      // Fallback: download
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1500);
     }, 'image/png');
   }
