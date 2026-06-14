@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v30-2026-06-14'; // Square (1:1) trace share card with full surrounding map
+const CACHE_VERSION = 'v31-2026-06-14'; // Keep 9:16 layout, square map area (no thin strip)
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
