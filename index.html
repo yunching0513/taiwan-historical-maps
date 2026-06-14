@@ -7035,93 +7035,128 @@
     let photos = [];
     try { photos = await getPhotosByTrace(id); } catch {}
 
-    // 1:1 正方形版面，地圖為主體
-    const W = 1080, H = 1080;
+    const W = 1080, H = 1920;
     const canvas = document.createElement('canvas');
-    canvas.width = W; canvas.height = H;
+    canvas.width = W;
+    canvas.height = H;
     const ctx = canvas.getContext('2d');
 
-    // 深色底（地圖載入失敗時的底色）
+    // Dark ground
     ctx.fillStyle = '#1A1A1A';
     ctx.fillRect(0, 0, W, H);
 
-    // 地圖滿版（路線 + 周邊）
+    // Header
+    ctx.fillStyle = '#C15F3C';
+    ctx.font = 'italic 30px Georgia, "EB Garamond", serif';
+    ctx.fillText('Taiwan · Old-Map Stroll', 80, 130);
+
+    ctx.fillStyle = '#F1EFE9';
+    ctx.font = '600 92px "Yuanti TC", "Hiragino Maru Gothic ProN", "PingFang TC", sans-serif';
+    ctx.fillText('舊地圖散策', 80, 230);
+
+    ctx.font = '22px "JetBrains Mono", "Courier New", monospace';
+    ctx.fillStyle = '#A6A399';
+    const dateStr = new Date(trace.startTime).toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    ctx.fillText(`${dateStr} · ${trace.city || ''}`, 80, 280);
+
+    ctx.fillStyle = '#C15F3C';
+    ctx.fillRect(80, 305, 64, 4);
+
+    // Stats (4 columns)
+    const stats = [
+      ['DIST',   fmtDist(trace.distance || 0)],
+      ['TIME',   fmtDur((trace.endTime || Date.now()) - trace.startTime)],
+      ['POINTS', String(trace.points.length)],
+      ['PHOTOS', String(photos.length)],
+    ];
+    const sY = 380;
+    const colW = (W - 160) / 4;
+    ctx.fillStyle = '#807C73';
+    ctx.font = '500 20px "JetBrains Mono", monospace';
+    stats.forEach((s, i) => ctx.fillText(s[0], 80 + i * colW, sY));
+    ctx.fillStyle = '#F1EFE9';
+    ctx.font = '600 50px "Yuanti TC", "Hiragino Maru Gothic ProN", "PingFang TC", sans-serif';
+    stats.forEach((s, i) => ctx.fillText(s[1], 80 + i * colW, sY + 60));
+
+    // 地圖區 — 改為正方形（920×920），路線置中、四周顯示周邊地圖，
+    // 不再被裁成細長條。
+    const mapX = 80, mapY = 480, mapSize = W - 160;
     let projectFn = null;
     try {
-      projectFn = await renderSquareMap(ctx, trace, 0, 0, W);
+      projectFn = await renderSquareMap(ctx, trace, mapX, mapY, mapSize);
     } catch (err) {
-      console.warn('square map render failed, fallback', err);
+      console.warn('square map render failed, falling back to dark panel', err);
     }
+    // 地圖外框
+    ctx.strokeStyle = 'rgba(187, 184, 174, 0.25)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(mapX, mapY, mapSize, mapSize);
     if (projectFn) {
-      drawTracePolyline(ctx, trace, photos, projectFn, 0, 0, W, H);
+      drawTracePolyline(ctx, trace, photos, projectFn, mapX, mapY, mapSize, mapSize);
     } else {
-      drawTraceOnCanvas(ctx, trace, photos, 60, 60, W - 120, H - 120);
+      drawTraceOnCanvas(ctx, trace, photos, mapX, mapY, mapSize, mapSize);
     }
 
-    // 上方漸層遮罩（標題可讀）
-    let g = ctx.createLinearGradient(0, 0, 0, 300);
-    g.addColorStop(0, 'rgba(20,20,20,0.82)');
-    g.addColorStop(1, 'rgba(20,20,20,0)');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, W, 300);
+    // Photo strip (up to 5 thumbs) — natural aspect ratio, no cropping
+    const mapBottom = mapY + mapSize; // 1400
+    if (photos.length) {
+      const showPhotos = photos.slice(0, 5);
+      const tY = mapBottom + 40, tH = 200, gap = 14;
+      const maxW = W - 160;
+      const imgs = await Promise.all(showPhotos.map(p => loadImageFromBlob(p.blob).catch(() => null)));
+      const valid = imgs.filter(Boolean);
+      if (valid.length) {
+        const naturalWidths = valid.map(img => Math.round(tH * img.width / img.height));
+        const totalNatural = naturalWidths.reduce((a, b) => a + b, 0) + gap * (valid.length - 1);
+        const scale = totalNatural > maxW ? maxW / totalNatural : 1;
+        const scaledH = Math.round(tH * scale);
+        const scaledWidths = naturalWidths.map(w => Math.round(w * scale));
+        const totalScaled = scaledWidths.reduce((a, b) => a + b, 0) + gap * (valid.length - 1);
+        let x = 80 + Math.round((maxW - totalScaled) / 2);
+        for (let i = 0; i < valid.length; i++) {
+          const w = scaledWidths[i];
+          ctx.drawImage(valid[i], x, tY + Math.round((tH - scaledH) / 2), w, scaledH);
+          x += w + gap;
+        }
+      }
+    }
 
-    // 下方漸層遮罩（數據可讀）
-    g = ctx.createLinearGradient(0, H - 320, 0, H);
-    g.addColorStop(0, 'rgba(20,20,20,0)');
-    g.addColorStop(1, 'rgba(20,20,20,0.9)');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, H - 320, W, 320);
+    // ── Bottom section: hashtags + QR code + attribution ──
+    const bottomY = photos.length ? (mapBottom + 280) : (mapBottom + 60);
 
-    // ── 標題 ──
-    ctx.textAlign = 'left';
-    ctx.fillStyle = '#E8956B';
-    ctx.font = 'italic 28px Georgia, "EB Garamond", serif';
-    ctx.fillText('Taiwan · Old-Map Stroll', 60, 78);
-    ctx.fillStyle = '#F1EFE9';
-    ctx.font = '600 64px "Yuanti TC", "Hiragino Maru Gothic ProN", "PingFang TC", sans-serif';
-    ctx.fillText('舊地圖散策', 60, 150);
-    ctx.font = '22px "JetBrains Mono", "Courier New", monospace';
-    ctx.fillStyle = '#D6D3CB';
-    const dateStr = new Date(trace.startTime).toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-    ctx.fillText(`${dateStr} · ${trace.city || ''}`, 60, 190);
+    ctx.strokeStyle = '#2E2E2E';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(80, bottomY); ctx.lineTo(W - 80, bottomY); ctx.stroke();
 
-    // ── 數據（底部三欄）──
-    const stats = [
-      ['DIST', fmtDist(trace.distance || 0)],
-      ['TIME', fmtDur((trace.endTime || Date.now()) - trace.startTime)],
-      ['POINTS', String(trace.points.length)],
-    ];
-    const sY = H - 180;
-    ctx.fillStyle = '#C9C4BA';
-    ctx.font = '500 20px "JetBrains Mono", monospace';
-    stats.forEach((s, i) => ctx.fillText(s[0], 60 + i * 230, sY));
-    ctx.fillStyle = '#F1EFE9';
-    ctx.font = '600 46px "Yuanti TC", "Hiragino Maru Gothic ProN", "PingFang TC", sans-serif';
-    stats.forEach((s, i) => ctx.fillText(s[1], 60 + i * 230, sY + 52));
+    const cityForTag  = (trace.city || '').replace(/[市縣]$/, '');
+    const layerDef    = HISTORICAL_MAPS.find(m => m.id === activeId);
+    const yearTag     = (cityForTag && layerDef) ? `#${cityForTag}${layerDef.year}` : '';
+    ctx.fillStyle = '#C15F3C';
+    ctx.font = '500 28px "Noto Sans TC", "PingFang TC", sans-serif';
+    ctx.fillText(`#舊地圖散策  ${yearTag}`.trim(), 80, bottomY + 48);
+    ctx.fillStyle = '#565347';
+    ctx.font = '22px "JetBrains Mono", monospace';
+    ctx.fillText('#taiwan_old_map', 80, bottomY + 84);
 
-    // ── hashtags ──
-    const cityForTag = (trace.city || '').replace(/[市縣]$/, '');
-    const layerDef = HISTORICAL_MAPS.find(m => m.id === activeId);
-    const yearTag = (cityForTag && layerDef) ? `#${cityForTag}${layerDef.year}` : '';
-    ctx.fillStyle = '#E8956B';
-    ctx.font = '500 26px "Noto Sans TC", "PingFang TC", sans-serif';
-    ctx.fillText(`#舊地圖散策  ${yearTag}`.trim(), 60, H - 50);
-
-    // ── QR（右下）──
-    const appUrl = 'https://yunching0513.github.io/taiwan-historical-maps/';
-    const qrSize = 110;
-    const qrX = W - 60 - qrSize, qrY = H - 60 - qrSize;
+    const appUrl  = 'https://yunching0513.github.io/taiwan-historical-maps/';
+    const qrSize  = 120;
+    const qrX     = W - 80 - qrSize;
+    const qrY     = bottomY + 14;
     try {
       if (typeof QRCode !== 'undefined') {
-        const qrDataUrl = await QRCode.toDataURL(appUrl, { width: qrSize * 2, margin: 1, color: { dark: '#F1EFE9', light: '#1A1A1A' } });
+        const qrDataUrl = await QRCode.toDataURL(appUrl, { width: qrSize * 2, margin: 1, color: { dark: '#F1EFE9', light: '#111111' } });
         const qrImg = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = qrDataUrl; });
-        ctx.fillStyle = 'rgba(26,26,26,0.6)';
+        ctx.fillStyle = '#111111';
         ctx.fillRect(qrX - 6, qrY - 6, qrSize + 12, qrSize + 12);
         ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
       }
     } catch (_) {}
 
+    ctx.fillStyle = '#807C73';
+    ctx.font = '15px "JetBrains Mono", monospace';
+    ctx.fillText('TAIWAN · OLD-MAP STROLL · yunching0513.github.io/taiwan-historical-maps', 80, H - 52);
     ctx.textAlign = 'left';
+
     canvas.toBlob(async blob => {
       if (!blob) { alert(t('alert.image_fail')); return; }
       const filename = `stroll-${new Date(trace.startTime).toISOString().slice(0,10)}.png`;
