@@ -2082,6 +2082,13 @@
     border-color: var(--vermilion);
     color: var(--paper);
   }
+  .backup-hint {
+    margin-top: 6px;
+    font-size: 10px;
+    line-height: 1.6;
+    color: var(--ash);
+    letter-spacing: 0.02em;
+  }
 
   /* ── Donation modal (QR-based "buy me a coffee") ──
      Lightweight ATM transfer card — held in place until a proper
@@ -3278,6 +3285,15 @@
         <span class="mono" data-i18n="theme.label">配色</span>
         <button type="button" class="sfx-pill" id="theme-toggle">紙色</button>
       </div>
+
+      <!-- ── Backup / restore ─────────────────────────────────── -->
+      <div class="lang-row" role="group" aria-label="Backup">
+        <span class="mono" data-i18n="backup.label">資料備份</span>
+        <button type="button" class="sfx-pill" id="backup-export" data-i18n="backup.export">匯出</button>
+        <button type="button" class="sfx-pill" id="backup-import" data-i18n="backup.restore">還原</button>
+        <input type="file" id="backup-file" accept="application/json,.json" hidden />
+      </div>
+      <div class="backup-hint" id="backup-hint" data-i18n="backup.hint">收藏與路線只存在這支手機。換手機或重裝前，請先匯出備份。</div>
     </footer>
   </div>
 </aside>
@@ -3646,6 +3662,15 @@
       'theme.label': '配色',
       'theme.light': '紙色',
       'theme.dark': '墨黑',
+      'backup.label': '資料備份',
+      'backup.export': '匯出',
+      'backup.restore': '還原',
+      'backup.hint': '收藏與路線只存在這支手機。換手機或重新安裝前，請先「匯出」備份；之後用「還原」匯入即可救回。',
+      'backup.done_export': '✓ 已匯出備份檔，請妥善保存',
+      'backup.done_restore': '✓ 已還原備份',
+      'backup.fail': '匯出失敗，請再試一次',
+      'backup.bad_file': '檔案無法辨識，請選擇散策匯出的備份檔',
+      'backup.confirm_restore': '還原會以備份內容覆蓋目前的收藏與路線，確定繼續？',
     },
     en: {
       'app.tagline': 'Taiwan · Old-Map Stroll',
@@ -3811,6 +3836,15 @@
       'theme.label': 'Theme',
       'theme.light': 'Paper',
       'theme.dark': 'Ink black',
+      'backup.label': 'Backup',
+      'backup.export': 'Export',
+      'backup.restore': 'Restore',
+      'backup.hint': 'Your collection and routes live only on this device. Export a backup before switching phones or reinstalling; restore it to bring everything back.',
+      'backup.done_export': '✓ Backup file exported — keep it safe',
+      'backup.done_restore': '✓ Backup restored',
+      'backup.fail': 'Export failed, please try again',
+      'backup.bad_file': 'Unrecognized file — pick a backup exported from this app',
+      'backup.confirm_restore': 'Restoring will overwrite your current collection and routes with the backup. Continue?',
     },
     ja: {
       'app.tagline': '台灣 · 旧地図散策',
@@ -3976,6 +4010,15 @@
       'theme.label': '配色',
       'theme.light': '紙色',
       'theme.dark': '墨黒',
+      'backup.label': 'バックアップ',
+      'backup.export': '書き出し',
+      'backup.restore': '復元',
+      'backup.hint': 'コレクションとルートはこの端末内にのみ保存されます。機種変更や再インストール前に「書き出し」でバックアップを。「復元」で元に戻せます。',
+      'backup.done_export': '✓ バックアップを書き出しました。大切に保管してください',
+      'backup.done_restore': '✓ バックアップを復元しました',
+      'backup.fail': '書き出しに失敗しました。再試行してください',
+      'backup.bad_file': 'ファイルを認識できません。本アプリで書き出したバックアップを選んでください',
+      'backup.confirm_restore': '復元すると現在のコレクションとルートがバックアップで上書きされます。続行しますか？',
     },
   };
 
@@ -6863,6 +6906,97 @@
       req.onerror = () => reject(req.error);
     });
   }
+
+  async function getAllPhotos() {
+    const db = await openPhotoDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(PHOTO_STORE, 'readonly');
+      const req = tx.objectStore(PHOTO_STORE).getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  // ── 資料備份 / 還原（無後端，資料只在裝置上，故提供手動備份）──
+  (function setupBackup() {
+    const LS_KEYS = [
+      'taiwanOldMaps.postcards', 'taiwanOldMaps.drawnPostcards', 'taiwanOldMaps.traces',
+      'taiwanOldMaps.postcardOpenCities', 'taiwanOldMaps.showPostcardMarkers',
+      'taiwanOldMaps.theme', 'taiwanOldMaps.pcFont', 'taiwanOldMaps.sound',
+      'taiwanOldMaps.lang', 'taiwanOldMaps.lastCity', 'taiwanOldMaps.onboarded',
+      'taiwanOldMaps.wpcDate', 'taiwanOldMaps.bgLocationConsent',
+    ];
+    const expBtn = document.getElementById('backup-export');
+    const impBtn = document.getElementById('backup-import');
+    const fileEl = document.getElementById('backup-file');
+    if (!expBtn || !impBtn || !fileEl) return;
+
+    function blobToDataURL(blob) {
+      return new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob);
+      });
+    }
+    async function dataURLToBlob(d) { return (await fetch(d)).blob(); }
+
+    expBtn.addEventListener('click', async () => {
+      try {
+        const store = {};
+        LS_KEYS.forEach(k => { const v = localStorage.getItem(k); if (v != null) store[k] = v; });
+        let photos = [];
+        try {
+          const all = await getAllPhotos();
+          photos = await Promise.all(all.map(async p => {
+            const { blob, ...meta } = p;
+            return { ...meta, dataUrl: blob ? await blobToDataURL(blob) : null };
+          }));
+        } catch {}
+        const backup = { app: 'taiwan-old-map-stroll', version: 1, exportedAt: new Date().toISOString(), store, photos };
+        const json = JSON.stringify(backup);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `散策備份-${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+        showPostcardToast(t('backup.done_export'));
+      } catch (err) {
+        console.warn('backup export failed', err);
+        alert(t('backup.fail'));
+      }
+    });
+
+    impBtn.addEventListener('click', () => fileEl.click());
+    fileEl.addEventListener('change', async () => {
+      const file = fileEl.files && fileEl.files[0];
+      fileEl.value = '';
+      if (!file) return;
+      if (!confirm(t('backup.confirm_restore'))) return;
+      try {
+        const data = JSON.parse(await file.text());
+        if (!data || data.app !== 'taiwan-old-map-stroll' || !data.store) {
+          alert(t('backup.bad_file')); return;
+        }
+        // 還原 localStorage（合併：以備份為準覆蓋對應鍵）
+        Object.entries(data.store).forEach(([k, v]) => { try { localStorage.setItem(k, v); } catch {} });
+        // 還原照片
+        if (Array.isArray(data.photos) && data.photos.length) {
+          for (const p of data.photos) {
+            try {
+              const { dataUrl, ...meta } = p;
+              const blob = dataUrl ? await dataURLToBlob(dataUrl) : null;
+              await savePhoto({ ...meta, blob });
+            } catch {}
+          }
+        }
+        alert(t('backup.done_restore'));
+        location.reload();
+      } catch (err) {
+        console.warn('backup import failed', err);
+        alert(t('backup.bad_file'));
+      }
+    });
+  })();
 
   async function deletePhotosByTrace(traceId) {
     const db = await openPhotoDB();
