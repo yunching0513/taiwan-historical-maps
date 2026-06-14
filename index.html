@@ -1610,6 +1610,7 @@
     margin-top: 14px;
     display: flex;
     justify-content: center;
+    gap: 10px;
   }
   .pc-card-share {
     appearance: none;
@@ -3441,6 +3442,9 @@
         <button type="button" class="pc-card-share" id="pc-card-share">
           <span aria-hidden="true">↗</span> <span data-i18n="pc.share">分享</span>
         </button>
+        <button type="button" class="pc-card-share" id="pc-card-download">
+          <span aria-hidden="true">↓</span> <span data-i18n="pc.download">下載</span>
+        </button>
       </div>
     </div>
   </div>
@@ -3531,6 +3535,7 @@
       'pc.tag.locked': 'Locked',
       'pc.source.pending': 'pending discovery',
       'pc.share': '分享',
+      'pc.download': '下載',
       'pc.toast.collected': '🎴 沖洗了一張明信片：',
       'pc.toast.share_hint': '長按圖片即可儲存或分享',
       'cal.weekday.sun': '日', 'cal.weekday.mon': '一', 'cal.weekday.tue': '二',
@@ -3695,6 +3700,7 @@
       'pc.tag.locked': 'Locked',
       'pc.source.pending': 'pending discovery',
       'pc.share': 'Share',
+      'pc.download': 'Download',
       'pc.toast.collected': '🎴 New postcard developed: ',
       'pc.toast.share_hint': 'Long-press the image to save or share',
       'cal.weekday.sun': 'S', 'cal.weekday.mon': 'M', 'cal.weekday.tue': 'T',
@@ -3859,6 +3865,7 @@
       'pc.tag.locked': '未発見',
       'pc.source.pending': '未発見',
       'pc.share': '共有',
+      'pc.download': '保存',
       'pc.toast.collected': '🎴 新しい絵葉書が現像されました：',
       'pc.toast.share_hint': '画像を長押しで保存または共有',
       'cal.weekday.sun': '日', 'cal.weekday.mon': '月', 'cal.weekday.tue': '火',
@@ -6387,6 +6394,32 @@
     const id = document.getElementById('pc-overlay').dataset.pcId;
     const pc = POSTCARDS.find(p => p.id === id);
     if (pc) sharePostcard(pc);
+  });
+
+  // 下載整張明信片卡（老照片＋說明＋來源，與分享同一張合成圖）
+  async function downloadPostcardCard(pc) {
+    let blob = null;
+    try { blob = await generateShareCard(pc); }
+    catch (err) { console.warn('share-card gen failed, fallback to raw jpg', err); }
+    if (!blob) {
+      try {
+        const res = await fetch(`icons/postcards/${pc.id}.jpg`, { cache: 'force-cache' });
+        blob = await res.blob();
+      } catch (err) { alert(t('alert.image_fail')); return; }
+    }
+    const name = `散策明信片-${(currentLang === 'en' && pc.en) ? pc.en : pc.title}-${pc.year}.jpg`;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    // iOS Safari 對 blob 下載支援不一：若沒觸發下載，提示可長按儲存
+    showPostcardToast(t('pc.toast.share_hint'));
+  }
+  document.getElementById('pc-card-download').addEventListener('click', () => {
+    const id = document.getElementById('pc-overlay').dataset.pcId;
+    const pc = POSTCARDS.find(p => p.id === id);
+    if (pc) downloadPostcardCard(pc);
   });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && document.getElementById('pc-overlay').classList.contains('show')) {
