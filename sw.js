@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v32-2026-06-14'; // Backup / restore (export-import collection + photos)
+const CACHE_VERSION = 'v33-2026-06-14'; // tp-009 real photo (撫臺街洋樓, 高石京子提供)
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
