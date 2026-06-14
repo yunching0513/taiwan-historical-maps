@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v34-2026-06-14'; // +9 street-scene postcards (台中/南投/竹南/太平町/哈瑪星/嘉義/花蓮/基隆/媽宮)
+const CACHE_VERSION = 'v35-2026-06-14'; // Time-lapse playback (crossfade through eras)
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
