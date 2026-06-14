@@ -871,6 +871,36 @@
   }
   .tl-stop:hover { background: var(--indigo); border-color: var(--indigo); }
 
+  /* ── 時光快轉 年代勾選面板 ───────────────────────── */
+  .tl-chooser[hidden] { display: none; }
+  .tl-chooser {
+    position: fixed; inset: 0; z-index: 9400;
+    background: rgba(31,29,25,0.55);
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+  .tl-chooser-card {
+    background: var(--paper); border: 1px solid var(--stone);
+    width: 100%; max-width: 360px; max-height: calc(100vh - 48px);
+    overflow-y: auto; padding: 22px 22px 16px; position: relative;
+    box-shadow: 0 1px 0 var(--mist), 0 24px 60px -28px rgba(31,29,25,0.45);
+  }
+  .tl-chooser-card::before { content:''; position:absolute; top:0; left:22px; width:48px; height:3px; background:var(--vermilion); }
+  .tl-chooser-title { font-family: var(--zh-serif); font-weight:600; font-size:18px; letter-spacing:0.1em; color:var(--sumi); margin-bottom:6px; }
+  .tl-chooser-hint { font-size:11.5px; line-height:1.7; color:var(--ash); margin-bottom:12px; }
+  .tl-chooser-list { display:flex; flex-direction:column; gap:2px; }
+  .tl-chooser-row { display:flex; align-items:center; gap:10px; padding:7px 6px; border-bottom:1px dotted var(--mist); cursor:pointer; }
+  .tl-chooser-row:hover { background: var(--indigo-l); }
+  .tl-chooser-row input { width:16px; height:16px; accent-color: var(--vermilion); flex-shrink:0; }
+  .tl-chooser-row .yr { font-family: var(--mono); font-size:12px; color:var(--graphite); width:42px; flex-shrink:0; }
+  .tl-chooser-row .lb { font-family: var(--zh-sans); font-size:13px; color:var(--ink); flex:1; }
+  .tl-chooser-row .blur { font-size:10px; color:#fff; background:var(--silver); border-radius:3px; padding:1px 6px; letter-spacing:0.04em; }
+  .tl-chooser-foot { display:flex; align-items:center; gap:8px; margin-top:14px; padding-top:12px; border-top:1px solid var(--mist); }
+  .tl-chooser-btn { border:1px solid var(--stone); background:transparent; color:var(--graphite); font-family:var(--zh-sans); font-size:12px; letter-spacing:0.08em; padding:7px 14px; cursor:pointer; transition:all .15s; }
+  .tl-chooser-btn:hover { border-color:var(--graphite); color:var(--ink); }
+  .tl-chooser-btn.primary { background:var(--vermilion); border-color:var(--vermilion); color:#fff; }
+  .tl-chooser-btn.primary:hover { background:var(--indigo-d); border-color:var(--indigo-d); color:#fff; }
+
   /* ── Four-era collage modal (#7) ─────────────────── */
   .era-modal[hidden] { display: none; }
   .era-modal {
@@ -3354,6 +3384,21 @@
   <button type="button" class="tl-stop" id="tl-stop" data-i18n="tl.stop">■ 停止</button>
 </div>
 
+<!-- 時光快轉：年代勾選面板 -->
+<div class="tl-chooser" id="tl-chooser" hidden>
+  <div class="tl-chooser-card" role="dialog" aria-labelledby="tl-chooser-title">
+    <div class="tl-chooser-title" id="tl-chooser-title" data-i18n="tl.choose.title">時光快轉 · 選擇年代</div>
+    <div class="tl-chooser-hint" data-i18n="tl.choose.hint">勾選要播放的歷史圖。標「偏糊」者在目前縮放畫質較低，已預設不選。</div>
+    <div class="tl-chooser-list" id="tl-chooser-list"></div>
+    <div class="tl-chooser-foot">
+      <button type="button" class="tl-chooser-btn" id="tl-chooser-all" data-i18n="tl.choose.all">全選</button>
+      <span style="flex:1"></span>
+      <button type="button" class="tl-chooser-btn" id="tl-chooser-cancel" data-i18n="tl.choose.cancel">取消</button>
+      <button type="button" class="tl-chooser-btn primary" id="tl-chooser-play" data-i18n="tl.choose.play">▶ 開始</button>
+    </div>
+  </div>
+</div>
+
 <!-- Floating help button — reopen onboarding tour -->
 <button type="button" class="help-fab" id="btn-help" aria-label="操作說明" data-i18n="ob.help.aria" data-i18n-attr="aria-label">?</button>
 
@@ -3597,6 +3642,14 @@
       'strata.timelapse.sub': 'Time-lapse 1897 → today',
       'strata.timelapse.stop': '■ 停止快轉',
       'tl.stop': '■ 停止',
+      'tl.preparing': '準備中…',
+      'tl.blurry': '偏糊',
+      'tl.need_two': '請至少選擇兩個年代',
+      'tl.choose.title': '時光快轉 · 選擇年代',
+      'tl.choose.hint': '勾選要播放的歷史圖。標「偏糊」者在目前縮放畫質較低，已預設不選。',
+      'tl.choose.all': '全選',
+      'tl.choose.cancel': '取消',
+      'tl.choose.play': '▶ 開始',
       'pc.toggle': '地圖標記',
       'pc.count.suffix': '收進卡夾 · 開著 App 按定位、走近現場自動沖洗',
       'pc.locked.title': '未發掘',
@@ -3774,6 +3827,14 @@
       'strata.timelapse.sub': '1897 → today',
       'strata.timelapse.stop': '■ Stop',
       'tl.stop': '■ Stop',
+      'tl.preparing': 'Preparing…',
+      'tl.blurry': 'low-res',
+      'tl.need_two': 'Pick at least two eras',
+      'tl.choose.title': 'Time-lapse · choose eras',
+      'tl.choose.hint': 'Pick the maps to play. Those marked low-res look soft at this zoom and are unchecked by default.',
+      'tl.choose.all': 'All',
+      'tl.choose.cancel': 'Cancel',
+      'tl.choose.play': '▶ Start',
       'strata.four_era.sub': '',
       'pc.toggle': 'Pins',
       'pc.count.suffix': 'in binder · keep app open, tap Locate, walk near a site',
@@ -3952,6 +4013,14 @@
       'strata.timelapse.sub': '1897 → 現在',
       'strata.timelapse.stop': '■ 停止',
       'tl.stop': '■ 停止',
+      'tl.preparing': '準備中…',
+      'tl.blurry': '粗い',
+      'tl.need_two': '2つ以上の年代を選んでください',
+      'tl.choose.title': '早送り · 年代を選択',
+      'tl.choose.hint': '再生する歴史地図を選択。「粗い」は現在のズームで画質が低く、初期状態で未選択です。',
+      'tl.choose.all': '全選択',
+      'tl.choose.cancel': 'キャンセル',
+      'tl.choose.play': '▶ 開始',
       'strata.four_era.sub': 'Four Eras',
       'pc.toggle': '地図ピン',
       'pc.count.suffix': '収集済 · アプリを開き現在地をオン、近づくと現像',
@@ -5433,17 +5502,50 @@
       btn.classList.toggle('playing', on);
       btn.querySelector('[data-i18n]').textContent = on ? t('strata.timelapse.stop') : t('strata.timelapse');
       overlay.hidden = !on;
+      stopBtn.hidden = false;
+    }
+    function showStatus(big, small) {
+      yearEl.style.opacity = 1; labelEl.style.opacity = 1;
+      yearEl.textContent = big; labelEl.textContent = small;
     }
 
-    async function play() {
-      if (playing) { stopFlag = true; return; }
-      // 結束對照模式、清掉目前圖層，避免疊加
+    // 預載：把所選年代、目前畫面範圍的歷史圖磚抓進快取，回報進度。
+    // 底圖在播放時不變，毋需預載。
+    async function preload(defs, onProgress) {
+      const bounds = map.getBounds();
+      const z = Math.round(map.getZoom());
+      const urls = [];
+      for (const def of defs) {
+        const zr = Math.min(z, def.maxNativeZoom ?? 16);
+        const nw = map.project(bounds.getNorthWest(), zr);
+        const se = map.project(bounds.getSouthEast(), zr);
+        const x0 = Math.floor(Math.min(nw.x, se.x) / 256), x1 = Math.floor(Math.max(nw.x, se.x) / 256);
+        const y0 = Math.floor(Math.min(nw.y, se.y) / 256), y1 = Math.floor(Math.max(nw.y, se.y) / 256);
+        for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) urls.push(buildTileUrl(def.url, x, y, zr));
+      }
+      let done = 0; const total = urls.length || 1; onProgress(0, total);
+      const pool = 6; let i = 0;
+      async function worker() {
+        while (i < urls.length && !stopFlag) {
+          const u = urls[i++];
+          try { await fetch(u, { mode: 'cors', credentials: 'omit', cache: 'force-cache' }); } catch {}
+          done++; onProgress(done, total);
+        }
+      }
+      await Promise.all(Array.from({ length: pool }, worker));
+    }
+
+    async function runPlay(defs) {
       try { if (typeof compareMode !== 'undefined' && compareMode) setCompareMode(false); } catch {}
       if (activeId && layerCache[activeId]) { map.removeLayer(layerCache[activeId]); }
-      const order = [...HISTORICAL_MAPS].sort((a, b) => parseInt(a.year) - parseInt(b.year));
       stopFlag = false; setUI(true);
+      // 1) 預載（時光膠囊）
+      showStatus(t('tl.preparing'), '0 / ' + 0);
+      await preload(defs, (d, total) => showStatus(t('tl.preparing'), d + ' / ' + total));
+      if (stopFlag) { setUI(false); return; }
+      // 2) crossfade 播放
       let prev = null, prevTarget = 0;
-      for (const def of order) {
+      for (const def of defs) {
         if (stopFlag) break;
         const layer = ensure(def); layer.setOpacity(0); layer.addTo(map);
         const target = opacities[def.id] ?? 0.85;
@@ -5454,24 +5556,54 @@
         ]);
         if (prev) map.removeLayer(prev);
         prev = layer; prevTarget = target;
-        // 停留欣賞（可被停止打斷）
-        for (let i = 0; i < 12 && !stopFlag; i++) await sleep(100);
+        for (let k = 0; k < 12 && !stopFlag; k++) await sleep(100);
       }
       const ended = !stopFlag;
       setUI(false);
       if (prev && ended) {
-        // 自然播完：保留最新一層為作用中圖層
-        const last = order[order.length - 1];
+        const last = defs[defs.length - 1];
         activeId = last.id; layerCache[last.id] = prev; opacities[last.id] = prevTarget;
         document.querySelectorAll('.layer-row').forEach(r => r.classList.toggle('active', r.dataset.id === activeId));
       } else if (prev) {
-        map.removeLayer(prev); // 中途停止：清掉
-        activeId = null;
+        map.removeLayer(prev); activeId = null;
         document.querySelectorAll('.layer-row').forEach(r => r.classList.remove('active'));
       }
     }
-    btn.addEventListener('click', play);
-    stopBtn.addEventListener('click', () => { stopFlag = true; });
+
+    // ── 年代勾選面板 ──
+    const chooser = document.getElementById('tl-chooser');
+    const listEl = document.getElementById('tl-chooser-list');
+    function openChooser() {
+      const z = Math.round(map.getZoom());
+      const order = [...HISTORICAL_MAPS].sort((a, b) => parseInt(a.year) - parseInt(b.year));
+      listEl.innerHTML = order.map(def => {
+        const blurry = (def.maxNativeZoom ?? 16) <= z - 2; // 放大逾 4 倍視為偏糊
+        const lb = currentLang === 'en' && def.en ? def.en : def.label;
+        return `<label class="tl-chooser-row">
+          <input type="checkbox" value="${def.id}" ${blurry ? '' : 'checked'}>
+          <span class="yr">${def.year}</span><span class="lb">${lb}</span>
+          ${blurry ? `<span class="blur">${t('tl.blurry')}</span>` : ''}
+        </label>`;
+      }).join('');
+      chooser.hidden = false;
+    }
+    function closeChooser() { chooser.hidden = true; }
+
+    function haltUI() { stopFlag = true; playing = false; overlay.hidden = true; btn.classList.remove('playing'); btn.querySelector('[data-i18n]').textContent = t('strata.timelapse'); }
+    btn.addEventListener('click', () => { if (playing) { haltUI(); } else openChooser(); });
+    stopBtn.addEventListener('click', haltUI);
+    document.getElementById('tl-chooser-cancel').addEventListener('click', closeChooser);
+    chooser.addEventListener('click', e => { if (e.target === chooser) closeChooser(); });
+    document.getElementById('tl-chooser-all').addEventListener('click', () => {
+      listEl.querySelectorAll('input').forEach(c => c.checked = true);
+    });
+    document.getElementById('tl-chooser-play').addEventListener('click', () => {
+      const ids = [...listEl.querySelectorAll('input:checked')].map(c => c.value);
+      if (ids.length < 2) { alert(t('tl.need_two')); return; }
+      const defs = ids.map(id => HISTORICAL_MAPS.find(m => m.id === id))
+        .sort((a, b) => parseInt(a.year) - parseInt(b.year));
+      closeChooser(); runPlay(defs);
+    });
   })();
   document.getElementById('era-close').addEventListener('click', () => {
     eraMaps.forEach(m => m.remove());
