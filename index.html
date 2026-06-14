@@ -829,6 +829,47 @@
     margin-top: 1px;
     opacity: 0.7;
   }
+  .strata-act--full { width: 100%; margin-bottom: 10px; }
+  .strata-act--full.playing {
+    border-color: var(--indigo); background: var(--indigo); color: var(--paper);
+  }
+
+  /* ── 時光快轉 年代浮層 ───────────────────────────── */
+  .tl-overlay[hidden] { display: none; }
+  .tl-overlay {
+    position: fixed;
+    left: 50%; bottom: 48px;
+    transform: translateX(-50%);
+    z-index: 1200;
+    display: flex; flex-direction: column; align-items: center;
+    background: rgba(26, 24, 21, 0.82);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    padding: 14px 30px 16px;
+    border-radius: 14px;
+    box-shadow: 0 16px 48px -16px rgba(0,0,0,0.6);
+    pointer-events: auto;
+  }
+  .tl-year {
+    font-family: var(--mono);
+    font-size: 46px; font-weight: 500;
+    color: #F1EFE9; letter-spacing: 0.04em; line-height: 1;
+    transition: opacity 0.4s ease;
+  }
+  .tl-label {
+    font-family: var(--zh-serif);
+    font-size: 15px; color: var(--indigo); margin-top: 6px;
+    letter-spacing: 0.1em;
+    transition: opacity 0.4s ease;
+  }
+  .tl-stop {
+    margin-top: 12px;
+    border: 1px solid rgba(241,239,233,0.4);
+    background: transparent; color: #F1EFE9;
+    font-family: var(--zh-sans); font-size: 12px;
+    letter-spacing: 0.1em; padding: 5px 16px; border-radius: 16px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .tl-stop:hover { background: var(--indigo); border-color: var(--indigo); }
 
   /* ── Four-era collage modal (#7) ─────────────────── */
   .era-modal[hidden] { display: none; }
@@ -3186,6 +3227,9 @@
         <span data-i18n="strata.four_era">四代對照</span><span class="en" data-i18n="strata.four_era.sub" data-i18n-hide-empty="1">Four Eras</span>
       </button>
     </div>
+    <button type="button" class="strata-act strata-act--full" id="btn-timelapse">
+      <span data-i18n="strata.timelapse">▶ 時光快轉</span><span class="en" data-i18n="strata.timelapse.sub" data-i18n-hide-empty="1">Time-lapse 1897 → today</span>
+    </button>
 
     <div id="historical-layers"></div>
 
@@ -3302,6 +3346,13 @@
 <div class="compare-side-label left" id="compare-label-left" data-i18n="compare.now">NOW</div>
 <div class="compare-side-label right" id="compare-label-right" data-i18n="compare.then">THEN</div>
 <div class="compare-divider" id="compare-divider" hidden></div>
+
+<!-- 時光快轉：年代大字浮層 -->
+<div class="tl-overlay" id="tl-overlay" hidden>
+  <div class="tl-year" id="tl-year">1904</div>
+  <div class="tl-label" id="tl-label">臺灣堡圖</div>
+  <button type="button" class="tl-stop" id="tl-stop" data-i18n="tl.stop">■ 停止</button>
+</div>
 
 <!-- Floating help button — reopen onboarding tour -->
 <button type="button" class="help-fab" id="btn-help" aria-label="操作說明" data-i18n="ob.help.aria" data-i18n-attr="aria-label">?</button>
@@ -3542,6 +3593,10 @@
       'strata.compare.sub': 'Swipe Compare',
       'strata.four_era': '四代對照',
       'strata.four_era.sub': 'Four Eras',
+      'strata.timelapse': '▶ 時光快轉',
+      'strata.timelapse.sub': 'Time-lapse 1897 → today',
+      'strata.timelapse.stop': '■ 停止快轉',
+      'tl.stop': '■ 停止',
       'pc.toggle': '地圖標記',
       'pc.count.suffix': '收進卡夾 · 開著 App 按定位、走近現場自動沖洗',
       'pc.locked.title': '未發掘',
@@ -3715,6 +3770,10 @@
       'strata.compare': 'Swipe Compare',
       'strata.compare.sub': '',
       'strata.four_era': 'Four Eras',
+      'strata.timelapse': '▶ Time-lapse',
+      'strata.timelapse.sub': '1897 → today',
+      'strata.timelapse.stop': '■ Stop',
+      'tl.stop': '■ Stop',
       'strata.four_era.sub': '',
       'pc.toggle': 'Pins',
       'pc.count.suffix': 'in binder · keep app open, tap Locate, walk near a site',
@@ -3889,6 +3948,10 @@
       'strata.compare': '比較スライダー',
       'strata.compare.sub': 'Swipe Compare',
       'strata.four_era': '四世代比較',
+      'strata.timelapse': '▶ 早送り',
+      'strata.timelapse.sub': '1897 → 現在',
+      'strata.timelapse.stop': '■ 停止',
+      'tl.stop': '■ 停止',
       'strata.four_era.sub': 'Four Eras',
       'pc.toggle': '地図ピン',
       'pc.count.suffix': '収集済 · アプリを開き現在地をオン、近づくと現像',
@@ -5325,6 +5388,91 @@
   }
 
   document.getElementById('btn-four-era').addEventListener('click', openFourEraCollage);
+
+  // ── 時光快轉 Time-lapse：依年代自動 crossfade 播放歷史圖層 ──
+  (function setupTimelapse() {
+    const btn = document.getElementById('btn-timelapse');
+    const overlay = document.getElementById('tl-overlay');
+    const yearEl = document.getElementById('tl-year');
+    const labelEl = document.getElementById('tl-label');
+    const stopBtn = document.getElementById('tl-stop');
+    if (!btn || !overlay) return;
+    let playing = false, stopFlag = false;
+
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    function fade(layer, from, to, ms) {
+      return new Promise(res => {
+        const t0 = performance.now();
+        (function step(now) {
+          const k = Math.min(1, (now - t0) / ms);
+          try { layer.setOpacity(from + (to - from) * k); } catch {}
+          if (k < 1) requestAnimationFrame(step); else res();
+        })(t0);
+      });
+    }
+    function ensure(def) {
+      if (!layerCache[def.id]) {
+        layerCache[def.id] = L.tileLayer(def.url, {
+          attribution: '歷史圖資 © 中央研究院', tileSize: 256, opacity: 0,
+          maxZoom: MAP_MAX_ZOOM, maxNativeZoom: def.maxNativeZoom ?? 16,
+        });
+        trackTileLayer(layerCache[def.id]);
+      }
+      return layerCache[def.id];
+    }
+    function showYear(def) {
+      yearEl.style.opacity = 0; labelEl.style.opacity = 0;
+      setTimeout(() => {
+        yearEl.textContent = def.year;
+        labelEl.textContent = currentLang === 'en' && def.en ? def.en : def.label;
+        yearEl.style.opacity = 1; labelEl.style.opacity = 1;
+      }, 180);
+    }
+    function setUI(on) {
+      playing = on;
+      btn.classList.toggle('playing', on);
+      btn.querySelector('[data-i18n]').textContent = on ? t('strata.timelapse.stop') : t('strata.timelapse');
+      overlay.hidden = !on;
+    }
+
+    async function play() {
+      if (playing) { stopFlag = true; return; }
+      // 結束對照模式、清掉目前圖層，避免疊加
+      try { if (typeof compareMode !== 'undefined' && compareMode) setCompareMode(false); } catch {}
+      if (activeId && layerCache[activeId]) { map.removeLayer(layerCache[activeId]); }
+      const order = [...HISTORICAL_MAPS].sort((a, b) => parseInt(a.year) - parseInt(b.year));
+      stopFlag = false; setUI(true);
+      let prev = null, prevTarget = 0;
+      for (const def of order) {
+        if (stopFlag) break;
+        const layer = ensure(def); layer.setOpacity(0); layer.addTo(map);
+        const target = opacities[def.id] ?? 0.85;
+        showYear(def);
+        await Promise.all([
+          fade(layer, 0, target, 650),
+          prev ? fade(prev, prevTarget, 0, 650) : Promise.resolve(),
+        ]);
+        if (prev) map.removeLayer(prev);
+        prev = layer; prevTarget = target;
+        // 停留欣賞（可被停止打斷）
+        for (let i = 0; i < 12 && !stopFlag; i++) await sleep(100);
+      }
+      const ended = !stopFlag;
+      setUI(false);
+      if (prev && ended) {
+        // 自然播完：保留最新一層為作用中圖層
+        const last = order[order.length - 1];
+        activeId = last.id; layerCache[last.id] = prev; opacities[last.id] = prevTarget;
+        document.querySelectorAll('.layer-row').forEach(r => r.classList.toggle('active', r.dataset.id === activeId));
+      } else if (prev) {
+        map.removeLayer(prev); // 中途停止：清掉
+        activeId = null;
+        document.querySelectorAll('.layer-row').forEach(r => r.classList.remove('active'));
+      }
+    }
+    btn.addEventListener('click', play);
+    stopBtn.addEventListener('click', () => { stopFlag = true; });
+  })();
   document.getElementById('era-close').addEventListener('click', () => {
     eraMaps.forEach(m => m.remove());
     eraMaps = []; eraHistLayers = []; eraActiveDefs = [];
