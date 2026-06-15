@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>日本歷史地圖示範 · 東京（政府公開授權）</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  html, body { margin: 0; height: 100%; font-family: "Noto Sans TC", system-ui, sans-serif; }
+  #map { position: absolute; inset: 0; }
+  .panel {
+    position: absolute; top: 12px; left: 12px; z-index: 1000;
+    background: rgba(26,24,21,0.86); color: #F1EFE9;
+    padding: 14px 16px; border-radius: 12px; width: 268px;
+    box-shadow: 0 12px 40px -12px rgba(0,0,0,0.6); backdrop-filter: blur(6px);
+  }
+  .panel h1 { font-size: 15px; margin: 0 0 2px; letter-spacing: .04em; }
+  .panel .sub { font-size: 11px; color: #b9b3a6; margin: 0 0 12px; }
+  .layer { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,.12); }
+  .layer:last-of-type { border-bottom: none; }
+  .layer label { display: flex; align-items: center; gap: 7px; font-size: 13px; cursor: pointer; }
+  .layer .yr { margin-left: auto; font-family: monospace; font-size: 10px; color: #C15F3C; }
+  .layer .lic { font-size: 10px; color: #8f897d; margin: 3px 0 0 22px; }
+  .layer input[type=range] { width: 100%; margin: 8px 0 0; accent-color: #C15F3C; }
+  .hint { font-size: 10.5px; color: #b9b3a6; line-height: 1.5; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="panel">
+  <h1>日本歷史地圖示範 · 東京</h1>
+  <p class="sub">全部為日本政府／公立機構公開授權圖資（無 NC 限制）</p>
+
+  <div class="layer">
+    <label><input type="radio" name="hist" value="rapid" checked /> 迅速測図（實測地圖）<span class="yr">1880s</span></label>
+    <div class="lic">農研機構 歷史的農業環境閲覧システム · CC BY 2.1 JP</div>
+    <input type="range" min="0" max="1" step="0.01" value="0.75" data-for="rapid" />
+  </div>
+  <div class="layer">
+    <label><input type="radio" name="hist" value="riku" /> 舊軍空中写真<span class="yr">1936–42</span></label>
+    <div class="lic">国土地理院 地理院タイル · 出典明示で商用可</div>
+    <input type="range" min="0" max="1" step="0.01" value="0.85" data-for="riku" />
+  </div>
+  <div class="layer">
+    <label><input type="radio" name="hist" value="usa" /> 米軍空中写真<span class="yr">1945–50</span></label>
+    <div class="lic">国土地理院 地理院タイル · 出典明示で商用可</div>
+    <input type="range" min="0" max="1" step="0.01" value="0.85" data-for="usa" />
+  </div>
+  <p class="hint">底圖：CARTO / OpenStreetMap。拉透明度即可今昔對照。</p>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map', { zoomControl: true }).setView([35.6812, 139.7671], 15); // 東京駅
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    subdomains: 'abcd', maxZoom: 20, attribution: '&copy; OpenStreetMap &copy; CARTO'
+  }).addTo(map);
+
+  // 迅速測図（NARO）は TMS スキーム（y 反転）。GSI 空中写真は XYZ。
+  const defs = {
+    rapid: L.tileLayer('https://habs.rad.naro.go.jp/rapid16/{z}/{x}/{y}.png', {
+      tms: true, maxNativeZoom: 16, maxZoom: 20, opacity: 0.75,
+      attribution: '迅速測図 &copy; 農研機構農業環境研究部門 (CC BY 2.1 JP)'
+    }),
+    riku: L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/ort_riku10/{z}/{x}/{y}.png', {
+      maxNativeZoom: 17, maxZoom: 20, opacity: 0.85,
+      attribution: '空中写真1936-42 &copy; 国土地理院'
+    }),
+    usa: L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/ort_USA10/{z}/{x}/{y}.png', {
+      maxNativeZoom: 17, maxZoom: 20, opacity: 0.85,
+      attribution: '空中写真1945-50 &copy; 国土地理院'
+    }),
+  };
+
+  let current = 'rapid';
+  defs[current].addTo(map);
+
+  document.querySelectorAll('input[name=hist]').forEach(r => {
+    r.addEventListener('change', e => {
+      if (defs[current]) map.removeLayer(defs[current]);
+      current = e.target.value;
+      defs[current].addTo(map);
+    });
+  });
+  document.querySelectorAll('input[type=range]').forEach(s => {
+    s.addEventListener('input', e => {
+      const id = e.target.dataset.for;
+      defs[id].setOpacity(parseFloat(e.target.value));
+    });
+  });
+</script>
+</body>
+</html>
