@@ -4088,11 +4088,13 @@
       'geo.prime.action': '開啟定位',
       'geo.denied.title': '定位權限被關閉了',
       'geo.denied.body': '只要兩下就好，而且改好後會「自動」開始定位，不用再回來按任何按鈕：',
+      'geo.denied.stuck': '已經改了系統權限還是抓不到？這是 Android 安裝版常見的「權限卡死」——位置權限其實由瀏覽器另外記著，系統設定改了也清不掉。最可靠的解法是重置它：',
       'geo.denied.retry': '我開好了，再試一次',
       'geo.steps.android': '點網址列左邊的 <b>鎖頭 🔒</b>（或 ⓘ）|選「<b>權限</b>」→ 把「位置」打開|回到這裡，按下方「再試一次」',
       'geo.steps.ios': '點網址列左邊的 <b>ㄅㄚ字 「ぁA」</b>|選「<b>網站設定</b>」→「位置」→「允許」|回到這裡，按下方「再試一次」',
       'geo.steps.desktop': '點網址列左邊的 <b>鎖頭 🔒</b>|把「<b>位置</b>」改成「允許」|重新整理頁面後再按定位',
       'geo.steps.androidapp': '開啟手機「<b>設定 → 應用程式 → 台灣舊地圖散策 → 權限 → 位置</b>」並允許|回到 App 即會自動定位｜若仍抓不到，請<b>移除 App 重新安裝</b>一次（會重置卡住的權限）',
+      'geo.steps.androidstuck': '長按桌面上的「<b>台灣舊地圖散策</b>」圖示 → <b>App 資訊</b> → <b>清除資料／儲存空間</b>（位置權限會一併重置）|或直接 <b>移除 App，再用 Chrome 重新安裝</b> 一次——這是最快的解法|裝回後第一次按「定位」，看到系統權限詢問時請選「<b>允許</b>」',
       'geo.steps.iosapp': '開啟手機「<b>設定 → 隱私權與安全性 → 定位服務</b>」確認已開|往下找「<b>台灣舊地圖散策</b>」→ 設為「使用 App 期間」|回到 App 即會自動定位',
       'alert.compare.no_layer': '先啟用一個歷史圖層再開對照拉條',
       'alert.photo.no_record': '需要先開始記錄路線才能拍照',
@@ -4301,11 +4303,13 @@
       'geo.prime.action': 'Turn on location',
       'geo.denied.title': 'Location is currently blocked',
       'geo.denied.body': 'Just two quick taps — and once you allow it, locating starts automatically. You don\'t even need to come back:',
+      'geo.denied.stuck': 'Changed the system permission but still nothing? This is the common Android "stuck permission" — the browser keeps its own location setting that the system settings can\'t clear. The reliable fix is to reset it:',
       'geo.denied.retry': 'Done — try again',
       'geo.steps.android': 'Tap the <b>lock 🔒</b> (or ⓘ) at the left of the address bar|Choose <b>Permissions</b> → turn Location on|Come back here and tap Try again',
       'geo.steps.ios': 'Tap <b>「ぁA」</b> at the left of the address bar|Choose <b>Website Settings</b> → Location → Allow|Come back here and tap Try again',
       'geo.steps.desktop': 'Click the <b>lock 🔒</b> at the left of the address bar|Set <b>Location</b> to Allow|Reload the page, then tap Locate',
       'geo.steps.androidapp': 'Open phone <b>Settings → Apps → Taiwan Old-Map Stroll → Permissions → Location</b> and allow|Return to the app — locating starts automatically｜If it still fails, <b>uninstall &amp; reinstall</b> the app once (resets a stuck permission)',
+      'geo.steps.androidstuck': 'Long-press the <b>Taiwan Old-Map Stroll</b> icon → <b>App info</b> → <b>Clear data / storage</b> (this also resets the location permission)|Or simply <b>uninstall and reinstall from Chrome</b> — the fastest fix|After reinstalling, tap Locate and choose <b>Allow</b> when the system asks',
       'geo.steps.iosapp': 'Open <b>Settings → Privacy &amp; Security → Location Services</b> (make sure it\'s on)|Find <b>Taiwan Old-Map Stroll</b> → set to "While Using"|Return to the app — locating starts automatically',
       'alert.compare.no_layer': 'Enable a historical layer first to use Swipe Compare',
       'alert.photo.no_record': 'Start recording a route before taking a photo',
@@ -4514,11 +4518,13 @@
       'geo.prime.action': '位置情報をオンにする',
       'geo.denied.title': '位置情報がブロックされています',
       'geo.denied.body': '2タップだけ。許可すれば自動で位置取得が始まるので、戻ってボタンを押す必要もありません：',
+      'geo.denied.stuck': 'システムの権限を変えても取得できない？ これは Android でよくある「権限の固着」です。位置情報の許可はブラウザが別に記憶していて、システム設定からは消せません。確実な解決はリセットです：',
       'geo.denied.retry': '完了、再試行',
       'geo.steps.android': 'アドレスバー左の <b>鍵 🔒</b>（または ⓘ）をタップ|「<b>権限</b>」→「位置情報」をオン|ここに戻って「再試行」をタップ',
       'geo.steps.ios': 'アドレスバー左の <b>「ぁA」</b> をタップ|「<b>Webサイトの設定</b>」→「位置情報」→「許可」|ここに戻って「再試行」をタップ',
       'geo.steps.desktop': 'アドレスバー左の <b>鍵 🔒</b> をクリック|「<b>位置情報</b>」を「許可」に|ページを再読み込みして位置情報をタップ',
       'geo.steps.androidapp': '「<b>設定 → アプリ → 台灣舊地圖散策 → 権限 → 位置情報</b>」で許可|アプリに戻ると自動で位置取得が始まります｜それでも取得できない場合は<b>アプリを一度削除して再インストール</b>（固まった権限をリセット）',
+      'geo.steps.androidstuck': 'ホーム画面の「<b>台灣舊地圖散策</b>」アイコンを長押し → <b>アプリ情報</b> → <b>データ／ストレージを消去</b>（位置情報の権限もリセットされます）|または <b>アプリを削除して Chrome から再インストール</b>——これが一番早い解決です|再インストール後、初回の「位置情報」で権限確認が出たら「<b>許可</b>」を選択',
       'geo.steps.iosapp': '「<b>設定 → プライバシーとセキュリティ → 位置情報サービス</b>」がオンか確認|「<b>台灣舊地圖散策</b>」→「使用中のみ」に設定|アプリに戻ると自動で位置取得が始まります',
       'alert.compare.no_layer': '比較スライダーを使用する前に歴史レイヤーを有効化してください',
       'alert.photo.no_record': '写真撮影には散策の記録を開始してください',
@@ -5207,6 +5213,10 @@
   }
 
   let geoPermWatched = false;
+  // 安裝版 PWA 在 Android 上有「系統 App 權限」與「Chrome 站台權限」兩層；
+  // 使用者照指引改了系統權限後，站台權限常仍卡在 denied，導致重試一直失敗。
+  // 累計被拒次數，第二次起改顯示「真正能解」的升級指引（重裝 / 重置站台權限）。
+  let geoDeniedRetries = 0;
   async function requestLocate() {
     if (isLocating) { stopLocate(); return; }
 
@@ -5238,7 +5248,11 @@
         if (!geoPermWatched) {
           geoPermWatched = true;
           s.onchange = () => {
-            if (s.state === 'granted' && !isLocating) {
+            // 使用者在設定裡改好權限後自動接手：granted 直接定位；
+            // 從 denied 解除常先回到 prompt，這時也關掉指引並嘗試定位，
+            // 觸發系統權限窗（安裝版 standalone 允許），不用使用者再回來按。
+            if ((s.state === 'granted' || s.state === 'prompt') && !isLocating) {
+              geoDeniedRetries = 0;
               closeGeoHelper();
               startLocate();
             }
@@ -5261,6 +5275,7 @@
     const title = document.getElementById('geo-title');
 
     if (mode === 'prompt') {
+      geoDeniedRetries = 0;
       title.textContent = t('geo.prime.title');
       body.textContent = t('geo.prime.body');
       body.hidden = false;
@@ -5274,17 +5289,26 @@
       const standalone = !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
         || document.referrer.startsWith('android-app://')
         || navigator.standalone === true;
+      // 第二次起（使用者已按過「再試一次」仍失敗）：站台權限多半卡死，
+      // 改走「真正能解」的升級指引——重置站台權限 / 移除重裝。
+      const escalated = geoDeniedRetries >= 1;
       let key = 'geo.steps.' + plat;
-      if (standalone && plat === 'android') key = 'geo.steps.androidapp';
+      if (standalone && plat === 'android') key = escalated ? 'geo.steps.androidstuck' : 'geo.steps.androidapp';
       else if (standalone && plat === 'ios') key = 'geo.steps.iosapp';
       title.textContent = t('geo.denied.title');
-      body.textContent = t('geo.denied.body');
+      body.textContent = escalated ? t('geo.denied.stuck') : t('geo.denied.body');
       body.hidden = false;
       steps.innerHTML = t(key)
         .split('|').map(s => `<li>${s}</li>`).join('');
       steps.hidden = false;
       action.textContent = t('geo.denied.retry');
-      action.onclick = () => { closeGeoHelper(); startLocate(); };
+      // 重試走完整的權限重查（requestLocate），而非盲目 startLocate：
+      // 權限若已恢復就定位，仍被拒則把計數加一、下次顯示升級指引。
+      action.onclick = () => {
+        geoDeniedRetries++;
+        closeGeoHelper();
+        requestLocate();
+      };
     }
     overlay.classList.add('show');
     overlay.setAttribute('aria-hidden', 'false');
@@ -5394,6 +5418,7 @@
     const { latitude, longitude, accuracy } = pos.coords;
     const ll = [latitude, longitude];
     lastUserLatLng = { lat: latitude, lng: longitude };
+    geoDeniedRetries = 0; // 成功定位 → 清空被拒計數，下次重新從基本指引開始
 
     if (!userMarker) {
       const icon = L.divIcon({
