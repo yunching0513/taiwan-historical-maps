@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v36-2026-06-14'; // Time-lapse: era chooser + preload (smooth, pick layers)
+const CACHE_VERSION = 'v37-2026-06-15'; // 公民科學回報 citizen-science report (position fix + photo contribution)
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;

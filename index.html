@@ -1701,6 +1701,197 @@
   .pc-card-share:active { transform: scale(0.96); }
   .pc-card-share span { margin-right: 6px; font-size: 14px; }
 
+  /* ── 公民科學回報 Report modal ─────────────────────── */
+  .report-overlay {
+    position: fixed; inset: 0;
+    background: rgba(31, 29, 25, 0.78);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 9600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .report-overlay.show { opacity: 1; pointer-events: auto; }
+  .report-card {
+    position: relative;
+    max-width: 400px;
+    width: 100%;
+    max-height: 92vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    background: var(--paper);
+    border-radius: 8px;
+    box-shadow: 0 28px 80px rgba(0,0,0,0.55);
+    padding: 22px 20px 18px;
+    transform: scale(0.94) translateY(20px);
+    transition: transform 0.36s cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+  .report-overlay.show .report-card { transform: none; }
+  .report-close {
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--ash);
+    font-size: 18px;
+    cursor: pointer;
+  }
+  .report-close:hover { background: var(--mist); color: var(--ink); }
+  .report-eyebrow {
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 12px;
+    color: var(--vermilion);
+    letter-spacing: 0.04em;
+  }
+  .report-title {
+    font-family: var(--zh-serif);
+    font-weight: 600;
+    font-size: 19px;
+    color: var(--ink);
+    margin: 2px 0 0;
+  }
+  .report-for {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ash);
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+  .report-tabs {
+    display: flex;
+    gap: 8px;
+    margin: 16px 0 14px;
+  }
+  .report-tab {
+    flex: 1;
+    appearance: none; -webkit-appearance: none;
+    border: 1px solid var(--mist);
+    background: var(--paper-2);
+    color: var(--graphite);
+    padding: 9px 6px;
+    border-radius: 8px;
+    font-family: var(--zh-serif);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.16s, color 0.16s, border-color 0.16s;
+  }
+  .report-tab.active {
+    background: var(--vermilion);
+    color: var(--paper);
+    border-color: var(--vermilion);
+  }
+  .report-help {
+    font-family: var(--zh-sans);
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--graphite);
+    margin: 0 0 12px;
+  }
+  .report-coord-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-family: var(--zh-sans);
+    font-size: 13px;
+    color: var(--ink);
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+  .report-coord-row input { margin-top: 2px; }
+  .report-coord-readout {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--vermilion);
+    letter-spacing: 0.06em;
+    margin: -2px 0 10px 24px;
+  }
+  .report-input,
+  .report-textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--mist);
+    border-radius: 6px;
+    background: var(--paper-2);
+    color: var(--ink);
+    font-family: var(--zh-sans);
+    font-size: 13px;
+    padding: 9px 10px;
+    margin-bottom: 10px;
+    resize: vertical;
+  }
+  .report-input:focus,
+  .report-textarea:focus {
+    outline: none;
+    border-color: var(--vermilion);
+  }
+  .report-file-btn {
+    appearance: none; -webkit-appearance: none;
+    border: 1px dashed var(--vermilion);
+    background: var(--paper);
+    color: var(--vermilion);
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    font-family: var(--zh-serif);
+    font-size: 13px;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  .report-file-btn:hover { background: var(--mist); }
+  .report-photo-preview {
+    display: block;
+    width: 100%;
+    max-height: 220px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: var(--paper-2);
+    margin-bottom: 10px;
+  }
+  .report-submit {
+    appearance: none; -webkit-appearance: none;
+    border: none;
+    background: var(--vermilion);
+    color: var(--paper);
+    width: 100%;
+    padding: 12px;
+    border-radius: 24px;
+    font-family: var(--zh-serif);
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: opacity 0.16s, transform 0.12s;
+  }
+  .report-submit:hover { opacity: 0.92; }
+  .report-submit:active { transform: scale(0.98); }
+  .report-submit:disabled { opacity: 0.5; cursor: default; }
+  .report-status {
+    font-family: var(--zh-sans);
+    font-size: 12px;
+    text-align: center;
+    color: var(--graphite);
+    min-height: 16px;
+    margin-top: 8px;
+  }
+  .report-status.error { color: var(--vermilion); }
+  .report-privacy {
+    font-family: var(--zh-sans);
+    font-size: 10.5px;
+    line-height: 1.5;
+    color: var(--silver);
+    text-align: center;
+    margin-top: 10px;
+  }
+
   /* ── Credits / attribution modal ─────────────────── */
   .credits-overlay {
     position: fixed; inset: 0;
@@ -3558,11 +3749,60 @@
         <button type="button" class="pc-card-share" id="pc-card-download">
           <span aria-hidden="true">↓</span> <span data-i18n="pc.download">下載</span>
         </button>
+        <button type="button" class="pc-card-share pc-card-report" id="pc-card-report">
+          <span aria-hidden="true">✎</span> <span data-i18n="report.btn">回報</span>
+        </button>
       </div>
     </div>
   </div>
 </div>
 <div class="pc-toast" id="pc-toast"></div>
+
+<!-- ── 公民科學回報 Citizen-science report modal ────────────────
+     Two report types: correct a postcard's pin position, or contribute
+     an old photo (optionally credited to the contributor). Submissions
+     POST to a Google Apps Script Web App (REPORT_ENDPOINT) which writes
+     a row to a Sheet and saves photos to a Drive folder. -->
+<div class="report-overlay" id="report-overlay" aria-hidden="true">
+  <div class="report-card" role="dialog" aria-labelledby="report-title">
+    <button type="button" class="report-close" id="report-close" aria-label="關閉">✕</button>
+    <div class="report-eyebrow" data-i18n="report.eyebrow">Citizen Science</div>
+    <h3 class="report-title" id="report-title" data-i18n="report.title">幫忙補正這張明信片</h3>
+    <div class="report-for" id="report-for">—</div>
+
+    <!-- type tabs -->
+    <div class="report-tabs" role="group">
+      <button type="button" class="report-tab active" id="report-tab-pos" data-mode="position" data-i18n="report.tab.pos">位置更正</button>
+      <button type="button" class="report-tab" id="report-tab-photo" data-mode="photo" data-i18n="report.tab.photo">貢獻老照片</button>
+    </div>
+
+    <!-- position-correction pane -->
+    <div class="report-pane" id="report-pane-pos">
+      <p class="report-help" data-i18n="report.pos.help">這張明信片的釘選位置不準嗎？告訴我們正確的地點，或直接擷取目前地圖中心的座標。</p>
+      <label class="report-coord-row">
+        <input type="checkbox" id="report-use-center" />
+        <span data-i18n="report.pos.usecenter">使用目前地圖中心作為建議座標</span>
+      </label>
+      <div class="report-coord-readout" id="report-coord-readout" hidden></div>
+      <textarea id="report-pos-note" class="report-textarea" rows="3" data-i18n="report.pos.placeholder" data-i18n-attr="placeholder" placeholder="例如：實際位置在對街轉角的老郵局，約再往北 50 公尺。"></textarea>
+    </div>
+
+    <!-- photo-contribution pane -->
+    <div class="report-pane" id="report-pane-photo" hidden>
+      <p class="report-help" data-i18n="report.photo.help">有相關的老照片嗎？感謝您願意分享。請確認您擁有分享權利或屬公眾領域；採用時我們會在來源欄位向您致謝。</p>
+      <button type="button" class="report-file-btn" id="report-photo-pick" data-i18n="report.photo.pick">選擇照片</button>
+      <input type="file" id="report-photo-file" accept="image/*" hidden />
+      <img class="report-photo-preview" id="report-photo-preview" alt="" hidden />
+      <input type="text" id="report-photo-contributor" class="report-input" data-i18n="report.photo.name" data-i18n-attr="placeholder" placeholder="致謝署名（選填，例如：高石京子 提供）" />
+      <input type="text" id="report-photo-contact" class="report-input" data-i18n="report.photo.contact" data-i18n-attr="placeholder" placeholder="聯絡方式（選填，僅供採用時與您確認）" />
+      <textarea id="report-photo-note" class="report-textarea" rows="2" data-i18n="report.photo.note" data-i18n-attr="placeholder" placeholder="照片說明（選填）：拍攝年代、地點、由來、授權狀態…"></textarea>
+    </div>
+
+    <button type="button" class="report-submit" id="report-submit" data-i18n="report.submit">送出回報</button>
+    <div class="report-status" id="report-status"></div>
+    <div class="report-privacy" data-i18n="report.privacy">送出即表示同意將上述內容傳給作者作為改進依據。請勿填寫他人隱私資訊。</div>
+  </div>
+</div>
 
 <!-- Credits / attribution modal — lists every postcard with its Commons URL -->
 <div class="credits-overlay" id="credits-overlay" aria-hidden="true">
@@ -3779,6 +4019,29 @@
       'backup.fail': '匯出失敗，請再試一次',
       'backup.bad_file': '檔案無法辨識，請選擇散策匯出的備份檔',
       'backup.confirm_restore': '還原會以備份內容覆蓋目前的收藏與路線，確定繼續？',
+      'report.btn': '回報',
+      'report.eyebrow': '公民科學',
+      'report.title': '幫忙補正這張明信片',
+      'report.tab.pos': '位置更正',
+      'report.tab.photo': '貢獻老照片',
+      'report.pos.help': '這張明信片的釘選位置不準嗎？告訴我們正確的地點，或直接擷取目前地圖中心的座標。',
+      'report.pos.usecenter': '使用目前地圖中心作為建議座標',
+      'report.pos.placeholder': '例如：實際位置在對街轉角的老郵局，約再往北 50 公尺。',
+      'report.photo.help': '有相關的老照片嗎？感謝您願意分享。請確認您擁有分享權利或屬公眾領域；採用時我們會在來源欄位向您致謝。',
+      'report.photo.pick': '選擇照片',
+      'report.photo.name': '致謝署名（選填，例如：高石京子 提供）',
+      'report.photo.contact': '聯絡方式（選填，僅供採用時與您確認）',
+      'report.photo.note': '照片說明（選填）：拍攝年代、地點、由來、授權狀態…',
+      'report.submit': '送出回報',
+      'report.privacy': '送出即表示同意將上述內容傳給作者作為改進依據。請勿填寫他人隱私資訊。',
+      'report.sending': '傳送中…',
+      'report.ok': '✓ 感謝您的回報！',
+      'report.queued': '✓ 已先存在本機，連上網路後會自動補送。',
+      'report.fail': '送出失敗，請稍後再試。',
+      'report.need_input': '請至少填寫說明或附上照片。',
+      'report.need_photo': '請先選擇一張照片。',
+      'report.disabled': '回報功能尚未啟用。',
+      'report.center_captured': '已擷取座標：',
     },
     en: {
       'app.tagline': 'Taiwan · Old-Map Stroll',
@@ -3965,6 +4228,29 @@
       'backup.fail': 'Export failed, please try again',
       'backup.bad_file': 'Unrecognized file — pick a backup exported from this app',
       'backup.confirm_restore': 'Restoring will overwrite your current collection and routes with the backup. Continue?',
+      'report.btn': 'Report',
+      'report.eyebrow': 'Citizen Science',
+      'report.title': 'Help improve this postcard',
+      'report.tab.pos': 'Fix position',
+      'report.tab.photo': 'Contribute a photo',
+      'report.pos.help': 'Is this postcard pinned in the wrong spot? Tell us the correct place, or grab the current map-center coordinates.',
+      'report.pos.usecenter': 'Use current map center as suggested coordinates',
+      'report.pos.placeholder': 'e.g. The real site is the old post office on the opposite corner, ~50 m further north.',
+      'report.photo.help': 'Have a relevant old photo? Thank you for sharing. Please make sure you have the right to share it or that it is public domain — if used, we will credit you in the source line.',
+      'report.photo.pick': 'Choose a photo',
+      'report.photo.name': 'Credit name (optional, e.g. “Courtesy of …”)',
+      'report.photo.contact': 'Contact (optional, only to confirm if used)',
+      'report.photo.note': 'Photo notes (optional): date, place, provenance, license…',
+      'report.submit': 'Send report',
+      'report.privacy': 'Submitting shares the above with the author to improve the app. Please do not include other people’s private information.',
+      'report.sending': 'Sending…',
+      'report.ok': '✓ Thank you for your report!',
+      'report.queued': '✓ Saved on this device; it will be sent automatically once online.',
+      'report.fail': 'Submission failed, please try again later.',
+      'report.need_input': 'Please add a note or attach a photo.',
+      'report.need_photo': 'Please choose a photo first.',
+      'report.disabled': 'Reporting is not enabled yet.',
+      'report.center_captured': 'Coordinates captured: ',
     },
     ja: {
       'app.tagline': '台灣 · 旧地図散策',
@@ -4151,6 +4437,29 @@
       'backup.fail': '書き出しに失敗しました。再試行してください',
       'backup.bad_file': 'ファイルを認識できません。本アプリで書き出したバックアップを選んでください',
       'backup.confirm_restore': '復元すると現在のコレクションとルートがバックアップで上書きされます。続行しますか？',
+      'report.btn': '報告',
+      'report.eyebrow': 'シチズンサイエンス',
+      'report.title': 'この絵はがきの改善にご協力ください',
+      'report.tab.pos': '位置の修正',
+      'report.tab.photo': '古写真の提供',
+      'report.pos.help': 'この絵はがきのピン位置が正しくないですか？正しい場所を教えていただくか、現在の地図中心の座標を取得できます。',
+      'report.pos.usecenter': '現在の地図中心を提案座標として使用',
+      'report.pos.placeholder': '例：実際の場所は向かいの角の旧郵便局で、北へ約50m。',
+      'report.photo.help': '関連する古写真をお持ちですか？ご提供ありがとうございます。共有する権利をお持ちか、パブリックドメインであることをご確認ください。採用時には出典欄で謝意を表します。',
+      'report.photo.pick': '写真を選択',
+      'report.photo.name': '謝辞のお名前（任意、例：〇〇氏 提供）',
+      'report.photo.contact': '連絡先（任意・採用時の確認用のみ）',
+      'report.photo.note': '写真の説明（任意）：撮影年代・場所・由来・ライセンスなど',
+      'report.submit': '報告を送信',
+      'report.privacy': '送信すると上記内容が改善のため作者に共有されます。他人の個人情報は記入しないでください。',
+      'report.sending': '送信中…',
+      'report.ok': '✓ ご報告ありがとうございます！',
+      'report.queued': '✓ 端末に保存しました。オンライン時に自動送信されます。',
+      'report.fail': '送信に失敗しました。後でもう一度お試しください。',
+      'report.need_input': '説明を入力するか写真を添付してください。',
+      'report.need_photo': 'まず写真を選択してください。',
+      'report.disabled': '報告機能はまだ有効になっていません。',
+      'report.center_captured': '座標を取得：',
     },
   };
 
@@ -6255,6 +6564,12 @@
   const DISCOVERY_RADIUS_M = 50;
   const PROXIMITY_HINT_M   = 200; // within this range the pin is "near" (pulsing) on the map
 
+  // 公民科學回報：使用者把位置更正 / 老照片貢獻 POST 到你自己部署的
+  // Google Apps Script 網頁應用程式（doPost 寫入 Google Sheet，照片存到
+  // Drive 資料夾）。部署後把網址貼到這裡即可啟用；留空時「回報」按鈕隱藏。
+  // 部署步驟見 repo 內 apps-script/README.md。
+  const REPORT_ENDPOINT = ''; // e.g. 'https://script.google.com/macros/s/XXXX/exec'
+
   let collectedPostcards = loadCollectedPostcards();
 
   // 每日抽卡抽到的卡（已顯影、但還沒走到現場收藏）——留在卡夾裡可回味。
@@ -6766,6 +7081,11 @@
     const pc = POSTCARDS.find(p => p.id === id);
     if (pc) downloadPostcardCard(pc);
   });
+  document.getElementById('pc-card-report').addEventListener('click', () => {
+    const id = document.getElementById('pc-overlay').dataset.pcId;
+    const pc = POSTCARDS.find(p => p.id === id);
+    if (pc && typeof openReportModal === 'function') openReportModal(pc);
+  });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && document.getElementById('pc-overlay').classList.contains('show')) {
       closePostcardModal();
@@ -7226,6 +7546,7 @@
       'taiwanOldMaps.theme', 'taiwanOldMaps.pcFont', 'taiwanOldMaps.sound',
       'taiwanOldMaps.lang', 'taiwanOldMaps.lastCity', 'taiwanOldMaps.onboarded',
       'taiwanOldMaps.wpcDate', 'taiwanOldMaps.bgLocationConsent',
+      'taiwanOldMaps.reportQueue',
     ];
     const expBtn = document.getElementById('backup-export');
     const impBtn = document.getElementById('backup-import');
@@ -7297,6 +7618,235 @@
         alert(t('backup.bad_file'));
       }
     });
+  })();
+
+  // ── 公民科學回報 Citizen-science reporting ───────────────────
+  // Lets users (a) flag a postcard's pin as mislocated and suggest the
+  // correct spot, or (b) contribute an old photo with an optional credit
+  // line. Submissions POST as a CORS-simple text/plain JSON body to the
+  // user's own Google Apps Script Web App (REPORT_ENDPOINT). Photos are
+  // downscaled client-side before upload. Failed sends are queued in
+  // localStorage and retried on the next app open, so nothing is lost
+  // offline. When REPORT_ENDPOINT is empty the whole feature stays dark.
+  let openReportModal = null;
+  (function setupReport() {
+    const overlay = document.getElementById('report-overlay');
+    const reportBtn = document.getElementById('pc-card-report');
+    if (!overlay) return;
+
+    const QUEUE_KEY = 'taiwanOldMaps.reportQueue';
+    const enabled = !!REPORT_ENDPOINT;
+
+    // No endpoint configured yet → hide the entry point entirely.
+    if (!enabled && reportBtn) reportBtn.hidden = true;
+
+    let currentPc = null;
+    let currentMode = 'position';
+    let photoDataUrl = null;
+
+    const forEl       = document.getElementById('report-for');
+    const tabPos      = document.getElementById('report-tab-pos');
+    const tabPhoto    = document.getElementById('report-tab-photo');
+    const panePos     = document.getElementById('report-pane-pos');
+    const panePhoto   = document.getElementById('report-pane-photo');
+    const useCenter   = document.getElementById('report-use-center');
+    const coordOut    = document.getElementById('report-coord-readout');
+    const posNote     = document.getElementById('report-pos-note');
+    const photoPick   = document.getElementById('report-photo-pick');
+    const photoFile   = document.getElementById('report-photo-file');
+    const photoPrev   = document.getElementById('report-photo-preview');
+    const contributor = document.getElementById('report-photo-contributor');
+    const contact     = document.getElementById('report-photo-contact');
+    const photoNote   = document.getElementById('report-photo-note');
+    const submitBtn   = document.getElementById('report-submit');
+    const statusEl    = document.getElementById('report-status');
+
+    function setStatus(msg, isErr) {
+      statusEl.textContent = msg || '';
+      statusEl.classList.toggle('error', !!isErr);
+    }
+    function setMode(mode) {
+      currentMode = mode;
+      tabPos.classList.toggle('active', mode === 'position');
+      tabPhoto.classList.toggle('active', mode === 'photo');
+      panePos.hidden = mode !== 'position';
+      panePhoto.hidden = mode !== 'photo';
+      setStatus('');
+    }
+
+    openReportModal = function (pc) {
+      currentPc = pc;
+      photoDataUrl = null;
+      // Reset form
+      posNote.value = '';
+      contributor.value = '';
+      contact.value = '';
+      photoNote.value = '';
+      useCenter.checked = false;
+      coordOut.hidden = true; coordOut.textContent = '';
+      photoPrev.hidden = true; photoPrev.removeAttribute('src');
+      setMode('position');
+      setStatus('');
+      submitBtn.disabled = false;
+      forEl.textContent = `${pc.id} · ${pc.title}`;
+      overlay.classList.add('show');
+      overlay.setAttribute('aria-hidden', 'false');
+    };
+    function close() {
+      overlay.classList.remove('show');
+      overlay.setAttribute('aria-hidden', 'true');
+    }
+
+    document.getElementById('report-close').addEventListener('click', close);
+    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && overlay.classList.contains('show')) close();
+    });
+    tabPos.addEventListener('click', () => setMode('position'));
+    tabPhoto.addEventListener('click', () => setMode('photo'));
+
+    useCenter.addEventListener('change', () => {
+      if (useCenter.checked) {
+        const c = map.getCenter();
+        coordOut.textContent = `${t('report.center_captured')}${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}`;
+        coordOut.hidden = false;
+      } else {
+        coordOut.hidden = true; coordOut.textContent = '';
+      }
+    });
+
+    // ── Photo pick + downscale ──
+    photoPick.addEventListener('click', () => photoFile.click());
+    photoFile.addEventListener('change', async () => {
+      const file = photoFile.files && photoFile.files[0];
+      photoFile.value = '';
+      if (!file) return;
+      setStatus('');
+      try {
+        photoDataUrl = await downscaleImage(file, 1600, 0.82);
+        photoPrev.src = photoDataUrl;
+        photoPrev.hidden = false;
+      } catch (err) {
+        console.warn('photo read failed', err);
+        setStatus(t('report.fail'), true);
+      }
+    });
+
+    function downscaleImage(file, maxDim, quality) {
+      return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+          let { width: w, height: h } = img;
+          if (w > maxDim || h > maxDim) {
+            const s = Math.min(maxDim / w, maxDim / h);
+            w = Math.round(w * s); h = Math.round(h * s);
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('decode failed')); };
+        img.src = url;
+      });
+    }
+
+    // ── Submit ──
+    submitBtn.addEventListener('click', async () => {
+      if (!currentPc) return;
+      const payload = {
+        type: currentMode,
+        postcardId: currentPc.id,
+        postcardTitle: currentPc.title,
+        pinLat: currentPc.lat,
+        pinLng: currentPc.lng,
+        lang: currentLang,
+        ts: new Date().toISOString(),
+        ua: navigator.userAgent,
+      };
+
+      if (currentMode === 'position') {
+        const note = posNote.value.trim();
+        if (!note && !useCenter.checked) { setStatus(t('report.need_input'), true); return; }
+        payload.note = note;
+        if (useCenter.checked) {
+          const c = map.getCenter();
+          payload.suggestedLat = +c.lat.toFixed(6);
+          payload.suggestedLng = +c.lng.toFixed(6);
+        }
+      } else {
+        if (!photoDataUrl) { setStatus(t('report.need_photo'), true); return; }
+        payload.photoDataUrl = photoDataUrl;
+        payload.contributor = contributor.value.trim();
+        payload.contact = contact.value.trim();
+        payload.note = photoNote.value.trim();
+      }
+
+      submitBtn.disabled = true;
+      setStatus(t('report.sending'));
+      const sent = await sendReport(payload);
+      submitBtn.disabled = false;
+      if (sent) {
+        close();
+        showPostcardToast(t('report.ok'));
+      } else {
+        queueReport(payload);
+        close();
+        showPostcardToast(t('report.queued'));
+      }
+    });
+
+    // CORS-simple POST (text/plain avoids the preflight Apps Script can't
+    // answer). We can't read the opaque/cross-origin body, so success is
+    // "the network accepted it"; real failures (offline) reject and fall
+    // through to the local queue.
+    async function sendReport(payload) {
+      if (!REPORT_ENDPOINT) return false;
+      try {
+        await fetch(REPORT_ENDPOINT, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload),
+        });
+        return true;
+      } catch (err) {
+        console.warn('report send failed', err);
+        return false;
+      }
+    }
+
+    function loadQueue() {
+      try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch { return []; }
+    }
+    function saveQueue(q) {
+      try { localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); } catch {}
+    }
+    function queueReport(payload) {
+      const q = loadQueue();
+      q.push(payload);
+      // Cap the queue so a never-online device can't grow it unbounded.
+      while (q.length > 30) q.shift();
+      saveQueue(q);
+    }
+    async function flushQueue() {
+      if (!REPORT_ENDPOINT) return;
+      let q = loadQueue();
+      if (!q.length) return;
+      const remaining = [];
+      for (const item of q) {
+        const ok = await sendReport(item);
+        if (!ok) remaining.push(item);
+      }
+      saveQueue(remaining);
+    }
+    // Retry any backlog shortly after load (and whenever we regain network).
+    if (enabled) {
+      setTimeout(() => { flushQueue().catch(() => {}); }, 4000);
+      window.addEventListener('online', () => { flushQueue().catch(() => {}); });
+    }
   })();
 
   async function deletePhotosByTrace(traceId) {
