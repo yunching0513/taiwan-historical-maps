@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v44-2026-06-15'; // 對照拉條支援古地圖 vs 古地圖（上一年代）
+const CACHE_VERSION = 'v45-2026-06-15'; // 新增獨立日本模式（NARO 迅速測図 + GSI 空中写真）
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
@@ -42,6 +42,8 @@ const TILE_HOST_PATTERNS = [
   /^https:\/\/sinica-proxy\.jtl0513\.workers\.dev\//,  // Cloudflare proxy (備援)
   /^https:\/\/gis\.sinica\.edu\.tw\//,                 // 中研院直連 (fallback)
   /^https:\/\/wmts\.nlsc\.gov\.tw\//,
+  /^https:\/\/habs\.rad\.naro\.go\.jp\//,                // 日本：迅速測図 (農研機構)
+  /^https:\/\/cyberjapandata\.gsi\.go\.jp\//,            // 日本：地理院タイル (空中写真)
   /^https:\/\/[a-d]\.basemaps\.cartocdn\.com\//,
   /^https:\/\/[a-c]\.tile\.openstreetmap\.org\//,
   /^https:\/\/server\.arcgisonline\.com\//,

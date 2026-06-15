@@ -396,6 +396,35 @@
   }
   .base-pill.active .en { color: var(--indigo-d); }
 
+  /* ── Mode toggle (臺灣 / 日本) ────────────────────── */
+  .mode-pills {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin: 2px 0 6px;
+  }
+  .mode-pill {
+    padding: 9px 6px;
+    border: 1px solid var(--stone);
+    background: var(--paper);
+    cursor: pointer;
+    text-align: center;
+    font-family: var(--zh-serif);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--graphite);
+    border-radius: 8px;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mode-pill:hover { border-color: var(--vermilion); color: var(--vermilion); }
+  .mode-pill.active {
+    border-color: var(--vermilion);
+    background: var(--vermilion);
+    color: var(--paper);
+  }
+
   /* ── Layer era group header ─────────────────────── */
   .layer-group-label {
     display: flex;
@@ -3463,6 +3492,11 @@
       <div class="head-meta" id="head-meta">N — · E —</div>
     </header>
 
+    <div class="mode-pills" id="mode-pills">
+      <button type="button" class="mode-pill active" data-mode="tw">🇹🇼 <span data-i18n="mode.tw">臺灣</span></button>
+      <button type="button" class="mode-pill" data-mode="jp">🇯🇵 <span data-i18n="mode.jp">日本</span></button>
+    </div>
+
     <div class="section-label">
       <span class="num">00 — Region</span>
       <span class="en" data-i18n="sec.region.sub" data-i18n-hide-empty="1">city · county</span>
@@ -3950,6 +3984,7 @@
       <em data-i18n="credits.meta.historical">Historical maps</em> · <span data-i18n="credits.meta.historical.val">中央研究院人文社會科學研究中心 GIS 專題中心</span>
       <br><em data-i18n="credits.meta.basemaps">Base maps</em> · <span data-i18n="credits.meta.basemaps.val">CARTO · OpenStreetMap contributors</span>
       <br><em data-i18n="credits.meta.postcards">Postcards</em> · <span data-i18n="credits.meta.postcards.val">Wikimedia Commons · CC0 / PD-Japan / PD-Taiwan</span>
+      <br><em data-i18n="credits.meta.japan">Japan maps</em> · <span data-i18n="credits.meta.japan.val">農研機構農業環境研究部門 (迅速測図, CC BY 2.1 JP) · 国土地理院 (空中写真)</span>
     </div>
     <div class="credits-list" id="credits-list"></div>
   </div>
@@ -3978,6 +4013,7 @@
       'search.aria.locate': '定位',
       'search.aria.record': '記錄路線',
       'sheet.hint': 'Tap to open · 點此展開',
+      'mode.tw': '臺灣', 'mode.jp': '日本',
       'sec.region.sub': 'city · county',
       'sec.base.sub': 'base map · 底圖',
       'sec.traces.sub': 'saved walks',
@@ -4072,6 +4108,8 @@
       'credits.meta.historical.val': '中央研究院人文社會科學研究中心 GIS 專題中心',
       'credits.meta.basemaps.val': 'CARTO · OpenStreetMap contributors',
       'credits.meta.postcards.val': 'Wikimedia Commons · CC0 / PD-Japan / PD-Taiwan',
+      'credits.meta.japan': '日本地圖',
+      'credits.meta.japan.val': '農研機構農業環境研究部門（迅速測図, CC BY 2.1 JP）· 国土地理院（空中写真）',
       'alert.no_geo': '此瀏覽器不支援地理定位',
       'alert.geo.denied': '位置權限目前是拒絕狀態，需要手動開啟：\n\n📱 手機 App：設定 → 應用程式 → 散策 → 權限 → 位置 → 允許\n🌐 瀏覽器：點網址列的鎖頭圖示 → 權限 → 允許位置\n\n開啟後再按一次「定位」即可。',
       'alert.geo.unavail': '無法取得位置',
@@ -4193,6 +4231,7 @@
       'search.aria.locate': 'Locate me',
       'search.aria.record': 'Record route',
       'sheet.hint': 'Tap to open',
+      'mode.tw': 'Taiwan', 'mode.jp': 'Japan',
       'sec.region.sub': 'city · county',
       'sec.base.sub': 'base map',
       'sec.traces.sub': 'saved walks',
@@ -4287,6 +4326,8 @@
       'credits.meta.historical.val': 'Academia Sinica · Center for GIS, RCHSS',
       'credits.meta.basemaps.val': 'CARTO · OpenStreetMap contributors',
       'credits.meta.postcards.val': 'Wikimedia Commons · CC0 / PD-Japan / PD-Taiwan',
+      'credits.meta.japan': 'Japan maps',
+      'credits.meta.japan.val': 'NARO Inst. for Agro-Environmental Sciences (Rapid Survey, CC BY 2.1 JP) · GSI Japan (aerial)',
       'alert.no_geo': 'This browser does not support geolocation',
       'alert.geo.denied': 'Location permission is currently denied. To enable it:\n\n📱 App: Settings → Apps → 散策 → Permissions → Location → Allow\n🌐 Browser: tap the lock icon in the address bar → Permissions → allow Location\n\nThen tap "Locate" again.',
       'alert.geo.unavail': 'Location unavailable',
@@ -4408,6 +4449,7 @@
       'search.aria.locate': '現在地',
       'search.aria.record': '散策を記録',
       'sheet.hint': 'タップして展開',
+      'mode.tw': '台湾', 'mode.jp': '日本',
       'sec.region.sub': '都市・県',
       'sec.base.sub': 'ベースマップ',
       'sec.traces.sub': '散策軌跡',
@@ -4502,6 +4544,8 @@
       'credits.meta.historical.val': '中央研究院 人文社会科学研究センター GIS 専題センター',
       'credits.meta.basemaps.val': 'CARTO · OpenStreetMap contributors',
       'credits.meta.postcards.val': 'Wikimedia Commons · CC0 / PD-Japan / PD-Taiwan',
+      'credits.meta.japan': '日本地図',
+      'credits.meta.japan.val': '農研機構農業環境研究部門（迅速測図, CC BY 2.1 JP）· 国土地理院（空中写真）',
       'alert.no_geo': 'このブラウザは位置情報をサポートしていません',
       'alert.geo.denied': '位置情報の権限が拒否されています。有効にするには：\n\n📱 アプリ：設定 → アプリ → 散策 → 権限 → 位置情報 → 許可\n🌐 ブラウザ：アドレスバーの鍵アイコン → 権限 → 位置情報を許可\n\nその後もう一度「現在地」をタップしてください。',
       'alert.geo.unavail': '位置情報を取得できません',
@@ -4755,6 +4799,47 @@
     { id: 'corona_1969',  group: 'sat', year: '1969', label: 'CORONA 衛星影像',          en: 'CORONA Satellite',            url: 'https://sinica-proxy.jtl0513.workers.dev/tileserver/file-exists.php?img=Taiwan_Corona_1969-jpg-{z}-{x}-{y}', maxNativeZoom: 14 },
   ];
 
+  // ── 日本模式 ──────────────────────────────────────
+  // 獨立模式：切到日本時換成日本政府／公立機構的公開授權圖資（皆無 NC 限制，
+  // 標註出處即可、可商用）。涵蓋以關東（東京）為主。
+  //  · 迅速測図   農研機構 歷史的農業環境閲覧システム (rapid16, TMS) — CC BY 2.1 JP
+  //  · 空中写真   国土地理院 地理院タイル (ort_riku10 / ort_USA10, XYZ) — 出典明示で商用可
+  const JAPAN_LAYER_GROUPS = [
+    { id: 'jp-map', zh: '迅速測図',  en: 'Meiji Rapid Survey 1880s' },
+    { id: 'jp-air', zh: '空中写真',  en: 'Aerial Photos 1936–1950' },
+  ];
+  const JAPAN_MAPS = [
+    { id: 'naro_rapid', group: 'jp-map', year: '1880s', label: '迅速測図', en: 'Rapid Survey · Kanto', tms: true, maxNativeZoom: 16,
+      url: 'https://habs.rad.naro.go.jp/rapid16/{z}/{x}/{y}.png',
+      attribution: '迅速測図 &copy; 農研機構農業環境研究部門 (CC BY 2.1 JP)' },
+    { id: 'gsi_riku', group: 'jp-air', year: '1936', label: '舊軍空中写真', en: 'Imperial Army aerial', maxNativeZoom: 17,
+      url: 'https://cyberjapandata.gsi.go.jp/xyz/ort_riku10/{z}/{x}/{y}.png',
+      attribution: '空中写真 1936–42 &copy; 国土地理院' },
+    { id: 'gsi_usa', group: 'jp-air', year: '1945', label: '米軍空中写真', en: 'US Army aerial', maxNativeZoom: 17,
+      url: 'https://cyberjapandata.gsi.go.jp/xyz/ort_USA10/{z}/{x}/{y}.png',
+      attribution: '空中写真 1945–50 &copy; 国土地理院' },
+  ];
+  // 日本可跳轉地點（迅速測図涵蓋關東；GSI 舊軍空照涵蓋東京 23 區）。
+  const JAPAN_PLACES = [
+    { id: 'tokyo',    region: 'kanto', zh: '東京', en: 'Tokyo',    center: [35.6812, 139.7671], zoom: 15 },
+    { id: 'yokohama', region: 'kanto', zh: '橫濱', en: 'Yokohama', center: [35.4498, 139.6425], zoom: 14 },
+  ];
+  const JAPAN_REGIONS = [{ id: 'kanto', zh: '關東', en: 'Kanto' }];
+
+  // 模式狀態：'tw' | 'jp'，記在 localStorage。
+  const MODE_KEY = 'taiwanOldMaps.mode';
+  let currentMode = 'tw';
+  const LAST_JP_PLACE_KEY = 'taiwanOldMaps.lastJpPlace';
+  // 目前模式對應的圖層集 / 地點集 / 分區集。
+  function activeMaps()    { return currentMode === 'jp' ? JAPAN_MAPS : HISTORICAL_MAPS; }
+  // Look up a layer def across both modes (for name labels on saved photos
+  // etc., which may reference a layer from either set).
+  function mapById(id) { return HISTORICAL_MAPS.find(m => m.id === id) || JAPAN_MAPS.find(m => m.id === id) || null; }
+  function activeGroups()  { return currentMode === 'jp' ? JAPAN_LAYER_GROUPS : LAYER_GROUPS; }
+  function activePlaces()  { return currentMode === 'jp' ? JAPAN_PLACES : CITIES; }
+  function activeRegions() { return currentMode === 'jp' ? JAPAN_REGIONS : REGIONS; }
+
+
   // ── State & helpers ──────────────────────────────
   const DEFAULT_CITY = 'taipei';
   const params = new URLSearchParams(location.search);
@@ -4868,22 +4953,32 @@
   });
 
   // ── City selector UI ─────────────────────────────
+  // Rebuilt on mode switch so the picker lists the active region's places
+  // (Taiwan counties / Japan Kanto cities).
   const cityListInner = document.getElementById('city-list-inner');
-  REGIONS.forEach(region => {
-    const group = document.createElement('div');
-    group.className = 'region-group';
-    const cities = CITIES.filter(c => c.region === region.id);
-    group.innerHTML = `
-      <div class="region-label">
-        <span class="region-zh">${region.zh}</span>
-        <span class="region-en">${region.en}</span>
-      </div>
-      <div class="region-cities">
-        ${cities.map(c => `<span class="city-pill" data-id="${c.id}">${c.zh}</span>`).join('')}
-      </div>
-    `;
-    cityListInner.appendChild(group);
-  });
+  function buildCityList() {
+    cityListInner.innerHTML = '';
+    activeRegions().forEach(region => {
+      const group = document.createElement('div');
+      group.className = 'region-group';
+      const cities = activePlaces().filter(c => c.region === region.id);
+      if (!cities.length) return;
+      group.innerHTML = `
+        <div class="region-label">
+          <span class="region-zh">${region.zh}</span>
+          <span class="region-en">${region.en}</span>
+        </div>
+        <div class="region-cities">
+          ${cities.map(c => `<span class="city-pill" data-id="${c.id}">${c.zh}</span>`).join('')}
+        </div>
+      `;
+      cityListInner.appendChild(group);
+    });
+    cityListInner.querySelectorAll('.city-pill').forEach(pill => {
+      pill.addEventListener('click', () => selectCity(pill.dataset.id));
+    });
+  }
+  buildCityList();
 
   function updateCityUI() {
     document.getElementById('current-zh').textContent = currentCity.zh;
@@ -4898,30 +4993,94 @@
   }
 
   function selectCity(id, opts = {}) {
-    const city = CITIES.find(c => c.id === id);
+    const city = activePlaces().find(c => c.id === id);
     if (!city) return;
     currentCity = city;
-    try { localStorage.setItem(LAST_CITY_KEY, id); } catch {}
+    if (currentMode === 'jp') {
+      try { localStorage.setItem(LAST_JP_PLACE_KEY, id); } catch {}
+    } else {
+      try { localStorage.setItem(LAST_CITY_KEY, id); } catch {}
+      // Deep-link ?city= only applies to Taiwan mode.
+      const url = new URL(location.href);
+      url.searchParams.set('city', id);
+      history.replaceState(null, '', url);
+    }
     map.flyTo(city.center, city.zoom, { duration: opts.instant ? 0 : 0.9 });
     updateCityUI();
-    // Update URL without reload
-    const url = new URL(location.href);
-    url.searchParams.set('city', id);
-    history.replaceState(null, '', url);
     // Auto-close the list
     document.getElementById('city-current').classList.remove('open');
     document.getElementById('city-list').classList.remove('open');
   }
-
-  document.querySelectorAll('.city-pill').forEach(pill => {
-    pill.addEventListener('click', () => selectCity(pill.dataset.id));
-  });
 
   const cityCurrentEl = document.getElementById('city-current');
   cityCurrentEl.addEventListener('click', () => {
     const isOpen = cityCurrentEl.classList.toggle('open');
     document.getElementById('city-list').classList.toggle('open', isOpen);
     cityCurrentEl.setAttribute('aria-expanded', isOpen);
+  });
+
+  // ── Mode switch (臺灣 / 日本) ─────────────────────
+  // 獨立模式：切換歷史圖層集、地點清單，並把台灣專屬功能（四代對照、
+  // 時光快轉、NLSC 衛星、明信片）在日本模式下收起。
+  function setMode(mode, opts = {}) {
+    if (mode !== 'tw' && mode !== 'jp') return;
+    if (mode === currentMode && !opts.force) return;
+
+    if (typeof compareMode !== 'undefined' && compareMode) setCompareMode(false);
+    if (activeId && layerCache[activeId]) map.removeLayer(layerCache[activeId]);
+    activeId = null;
+    currentMode = mode;
+    try { localStorage.setItem(MODE_KEY, mode); } catch {}
+
+    document.querySelectorAll('.mode-pill').forEach(p =>
+      p.classList.toggle('active', p.dataset.mode === mode));
+    document.body.classList.toggle('mode-jp', mode === 'jp');
+
+    buildLayerPanel();
+    buildCityList();
+
+    // NLSC 衛星底圖僅台灣有 → 日本模式強制簡圖並隱藏衛星 pill。
+    const satPill = document.querySelector('.base-pill[data-id="satellite"]');
+    if (mode === 'jp') {
+      if (currentBaseId === 'satellite') setBaseMap('plain');
+      if (satPill) satPill.style.display = 'none';
+    } else if (satPill) {
+      satPill.style.display = '';
+    }
+
+    // 四代對照 / 時光快轉用的是台灣專屬的硬編圖層清單 → 日本模式收起。
+    const fourEraBtn = document.getElementById('btn-four-era');
+    const tlBtn = document.getElementById('btn-timelapse');
+    if (fourEraBtn) fourEraBtn.style.display = mode === 'jp' ? 'none' : '';
+    if (tlBtn) tlBtn.style.display = mode === 'jp' ? 'none' : '';
+
+    // 明信片是台灣專屬。
+    if (mode === 'jp') {
+      postcardMarkers.forEach(m => { if (map.hasLayer(m)) map.removeLayer(m); });
+      // 收起任何台灣明信片浮層（每日抽卡 / 卡片檢視）。
+      ['wpc-overlay', 'pc-overlay'].forEach(id => {
+        const ov = document.getElementById(id);
+        if (ov) { ov.classList.remove('show'); ov.setAttribute('aria-hidden', 'true'); }
+      });
+    } else {
+      try { renderPostcardMarkers(typeof lastUserLatLng !== 'undefined' ? lastUserLatLng : null); } catch {}
+    }
+    document.getElementById('notice').classList.remove('show');
+
+    // 跳到該模式的預設地點。
+    let placeId;
+    if (mode === 'jp') {
+      let stored = null; try { stored = localStorage.getItem(LAST_JP_PLACE_KEY); } catch {}
+      placeId = (stored && JAPAN_PLACES.find(p => p.id === stored)) ? stored : JAPAN_PLACES[0].id;
+    } else {
+      let stored = null; try { stored = localStorage.getItem(LAST_CITY_KEY); } catch {}
+      placeId = (stored && CITIES.find(c => c.id === stored)) ? stored : DEFAULT_CITY;
+    }
+    selectCity(placeId, opts);
+  }
+
+  document.querySelectorAll('.mode-pill').forEach(pill => {
+    pill.addEventListener('click', () => setMode(pill.dataset.mode));
   });
 
   // ── Layer toggling ───────────────────────────────
@@ -4933,13 +5092,14 @@
 
     if (activeId) {
       if (!layerCache[activeId]) {
-        const def = HISTORICAL_MAPS.find(m => m.id === activeId);
+        const def = activeMaps().find(m => m.id === activeId);
         layerCache[activeId] = L.tileLayer(def.url, {
-          attribution: '歷史圖資 © 中央研究院',
+          attribution: def.attribution || '歷史圖資 © 中央研究院',
           tileSize: 256,
           opacity: opacities[activeId] ?? 0.7,
           maxZoom: MAP_MAX_ZOOM,
           maxNativeZoom: def.maxNativeZoom ?? 16,
+          tms: !!def.tms,
         });
         trackTileLayer(layerCache[activeId]);
       }
@@ -4959,51 +5119,59 @@
   }
 
   const layersContainer = document.getElementById('historical-layers');
-  let layerIndex = 0;
-  LAYER_GROUPS.forEach(group => {
-    const groupMaps = HISTORICAL_MAPS.filter(m => m.group === group.id);
-    if (!groupMaps.length) return;
+  // Rebuilt on mode switch (Taiwan / Japan). Each call wipes the list and
+  // re-renders rows for the active map set.
+  function buildLayerPanel() {
+    layersContainer.innerHTML = '';
+    let layerIndex = 0;
+    activeGroups().forEach(group => {
+      const groupMaps = activeMaps().filter(m => m.group === group.id);
+      if (!groupMaps.length) return;
 
-    const header = document.createElement('div');
-    header.className = 'layer-group-label';
-    header.innerHTML = `
-      <span class="lg-zh">${group.zh}</span>
-      <span class="lg-en">${group.en}</span>
-    `;
-    layersContainer.appendChild(header);
-
-    groupMaps.forEach(hm => {
-      layerIndex += 1;
-      opacities[hm.id] = 0.7;
-      const row = document.createElement('div');
-      row.className = 'layer-row';
-      row.dataset.id = hm.id;
-      const partialHint = hm.partial ? '<span class="row-tag" title="僅部分地區有覆蓋">partial</span>' : '';
-      row.innerHTML = `
-        <div class="row-head">
-          <span class="row-n">${pad2(layerIndex)}</span>
-          <span class="row-zh">${hm.label}${partialHint}</span>
-          <span class="row-year">${hm.year}</span>
-        </div>
-        <div class="row-en">${hm.en}</div>
-        <div class="opacity-slot">
-          <div class="opacity-slot-inner">
-            <input type="range" class="opa" min="0" max="1" step="0.01" value="0.7" />
-            <span class="opa-val">70 %</span>
-          </div>
-        </div>
+      const header = document.createElement('div');
+      header.className = 'layer-group-label';
+      header.innerHTML = `
+        <span class="lg-zh">${group.zh}</span>
+        <span class="lg-en">${group.en}</span>
       `;
-      row.addEventListener('click', e => {
-        if (e.target.closest('.opacity-slot')) return;
-        setActive(hm.id);
+      layersContainer.appendChild(header);
+
+      groupMaps.forEach(hm => {
+        layerIndex += 1;
+        if (opacities[hm.id] == null) opacities[hm.id] = 0.7;
+        const op = opacities[hm.id];
+        const row = document.createElement('div');
+        row.className = 'layer-row';
+        row.dataset.id = hm.id;
+        if (hm.id === activeId) row.classList.add('active');
+        const partialHint = hm.partial ? '<span class="row-tag" title="僅部分地區有覆蓋">partial</span>' : '';
+        row.innerHTML = `
+          <div class="row-head">
+            <span class="row-n">${pad2(layerIndex)}</span>
+            <span class="row-zh">${hm.label}${partialHint}</span>
+            <span class="row-year">${hm.year}</span>
+          </div>
+          <div class="row-en">${hm.en}</div>
+          <div class="opacity-slot">
+            <div class="opacity-slot-inner">
+              <input type="range" class="opa" min="0" max="1" step="0.01" value="${op}" />
+              <span class="opa-val">${Math.round(op * 100)} %</span>
+            </div>
+          </div>
+        `;
+        row.addEventListener('click', e => {
+          if (e.target.closest('.opacity-slot')) return;
+          setActive(hm.id);
+        });
+        row.querySelector('input[type=range]').addEventListener('input', e => {
+          e.stopPropagation();
+          setOpacity(hm.id, parseFloat(e.target.value));
+        });
+        layersContainer.appendChild(row);
       });
-      row.querySelector('input[type=range]').addEventListener('input', e => {
-        e.stopPropagation();
-        setOpacity(hm.id, parseFloat(e.target.value));
-      });
-      layersContainer.appendChild(row);
     });
-  });
+  }
+  buildLayerPanel();
 
   // ── Mobile bottom-sheet toggle ──────────────────
   const panelEl = document.getElementById('panel');
@@ -5658,9 +5826,10 @@
   // 左半便露出這張更舊的圖，達成「古地圖 vs 古地圖」對拖。沒有更舊的（已是
   // 最舊一張）就維持原行為——左側顯示現代底圖、標示 NOW。
   function setupCompareLeftLayer() {
-    const idx = HISTORICAL_MAPS.findIndex(m => m.id === activeId);
-    const curDef = HISTORICAL_MAPS[idx];
-    const prevDef = idx > 0 ? HISTORICAL_MAPS[idx - 1] : null;
+    const maps = activeMaps();
+    const idx = maps.findIndex(m => m.id === activeId);
+    const curDef = maps[idx];
+    const prevDef = idx > 0 ? maps[idx - 1] : null;
     if (prevDef) {
       compareLeftId = prevDef.id;
       if (!layerCache[compareLeftId]) {
@@ -6891,6 +7060,7 @@
   }
 
   function renderPostcardMarkers(userLatLng) {
+    if (currentMode === 'jp') { postcardMarkers.forEach(m => { if (map.hasLayer(m)) map.removeLayer(m); }); return; }
     POSTCARDS.forEach(pc => {
       const collected = collectedPostcards.has(pc.id);
       const drawn = !collected && drawnPostcards.has(pc.id);
@@ -7355,6 +7525,7 @@
   // Proximity check — called from onPosition. Walks the postcard list,
   // collects any within DISCOVERY_RADIUS_M, and updates marker state.
   function checkPostcardProximity(lat, lng) {
+    if (currentMode === 'jp') return; // 日本模式無明信片
     const user = { lat, lng };
     let newlyCollected = null;
     for (const pc of POSTCARDS) {
@@ -7541,7 +7712,7 @@
       });
     });
     if (activeId) {
-      const lyr = HISTORICAL_MAPS.find(m => m.id === activeId);
+      const lyr = mapById(activeId);
       if (lyr) {
         layers.push({
           url: lyr.url,
@@ -8124,7 +8295,7 @@
 
   function lookupLayerLabel(layerId) {
     if (!layerId) return '';
-    const m = HISTORICAL_MAPS.find(x => x.id === layerId);
+    const m = mapById(layerId);
     return m ? `${m.year} · ${m.label}` : '';
   }
 
@@ -8232,7 +8403,7 @@
       stack.push({ url: l.url, subdomains: o.subdomains, maxNative: o.maxNativeZoom || 19, opacity: o.opacity != null ? o.opacity : 1 });
     });
     if (activeId) {
-      const layer = HISTORICAL_MAPS.find(m => m.id === activeId);
+      const layer = mapById(activeId);
       if (layer) stack.push({ url: layer.url, maxNative: layer.maxNativeZoom || 16, opacity: opacities[activeId] != null ? opacities[activeId] : 0.7 });
     }
     for (const def of stack) {
@@ -8360,7 +8531,7 @@
     ctx.beginPath(); ctx.moveTo(80, bottomY); ctx.lineTo(W - 80, bottomY); ctx.stroke();
 
     const cityForTag  = (trace.city || '').replace(/[市縣]$/, '');
-    const layerDef    = HISTORICAL_MAPS.find(m => m.id === activeId);
+    const layerDef    = mapById(activeId);
     const yearTag     = (cityForTag && layerDef) ? `#${cityForTag}${layerDef.year}` : '';
     ctx.fillStyle = '#C15F3C';
     ctx.font = '500 28px "Noto Sans TC", "PingFang TC", sans-serif';
@@ -8574,7 +8745,7 @@
       });
     });
     if (activeId) {
-      const layer = HISTORICAL_MAPS.find(m => m.id === activeId);
+      const layer = mapById(activeId);
       if (layer) {
         stack.push({
           url: layer.url,
@@ -9336,7 +9507,7 @@
     } catch {}
     if (onboarded && !scripted && lastDraw !== today) {
       try { localStorage.setItem('taiwanOldMaps.wpcDate', today); } catch {}
-      setTimeout(open, 1400);
+      setTimeout(() => { if (currentMode !== 'jp') open(); }, 1400); // 日本模式不抽台灣明信片
     }
   })();
 
@@ -9405,6 +9576,13 @@
 
   // ── Init ─────────────────────────────────────────
   updateCityUI();
+
+  // 還原上次的模式（臺灣／日本）。日本模式只在使用者主動切過後才會記住。
+  (function restoreMode() {
+    let saved = 'tw';
+    try { saved = localStorage.getItem(MODE_KEY) || 'tw'; } catch {}
+    if (saved === 'jp') setMode('jp', { instant: true, force: true });
+  })();
 </script>
 </body>
 </html>
