@@ -3755,7 +3755,7 @@
     <div class="ob-step" data-step="1">
       <div class="ob-kicker">02 / 04 · Then &amp; Now</div>
       <h2 class="ob-title" data-i18n="ob.s2.title">拉開今昔</h2>
-      <p class="ob-body" data-i18n="ob.s2.body">「對照拉條」讓你左右滑動比對 NOW 與 THEN；「四代對照」一次並排四個年代，看城市如何長成今天的樣子。</p>
+      <p class="ob-body" data-i18n="ob.s2.body">「對照拉條」讓你左右滑動比對：與現代街道對照，或和上一個年代的古地圖兩相比對；「四代對照」一次並排四個年代，看城市如何長成今天的樣子。</p>
     </div>
 
     <div class="ob-step" data-step="2">
@@ -4131,7 +4131,7 @@
       'ob.s1.title': '歡迎來到 舊地圖散策',
       'ob.s1.body': '把 1904 年以來的 19 張臺灣歷史地圖，疊在今日的街道上。你腳下的馬路，百年前可能是水圳、糖鐵，或一座消失的聚落。',
       'ob.s2.title': '拉開今昔',
-      'ob.s2.body': '「對照拉條」讓你左右滑動比對 NOW 與 THEN；「四代對照」一次並排四個年代，看城市如何長成今天的樣子。',
+      'ob.s2.body': '「對照拉條」讓你左右滑動比對：與現代街道對照，或和上一個年代的古地圖兩相比對；「四代對照」一次並排四個年代，看城市如何長成今天的樣子。',
       'ob.s3.title': '沖洗老明信片',
       'ob.s3.body': '全臺 217 個歷史現場藏著日治時期的老明信片。散步時讓 App 開著、按下「定位」，走到地點 50 公尺內，明信片就會自動「顯影」收進圖鑑。',
       'ob.s4.title': '出發吧',
@@ -4346,7 +4346,7 @@
       'ob.s1.title': 'Welcome to Old-Map Stroll',
       'ob.s1.body': 'Overlay 19 historical maps of Taiwan (1904 onward) on today\'s streets. The road under your feet may once have been an irrigation canal, a sugar railway, or a vanished village.',
       'ob.s2.title': 'Slide between eras',
-      'ob.s2.body': 'Swipe Compare lets you drag between NOW and THEN; Four Eras shows the same spot across four periods, side by side.',
+      'ob.s2.body': 'Swipe Compare lets you drag to compare — against today\'s streets, or one old map against the previous era. Four Eras shows the same spot across four periods, side by side.',
       'ob.s3.title': 'Develop vintage postcards',
       'ob.s3.body': 'Keep the app open and tap Locate as you stroll — walk within 50 m of any of 217 historic sites and its Japanese-era postcard "develops" into your collection.',
       'ob.s4.title': 'Set off',
@@ -4561,7 +4561,7 @@
       'ob.s1.title': '旧地図散策へようこそ',
       'ob.s1.body': '1904年以降の台湾歴史地図19枚を、今日の街並みに重ねます。足元の道は、百年前は水路や製糖鉄道、消えた集落だったかもしれません。',
       'ob.s2.title': '今と昔をスライド比較',
-      'ob.s2.body': '「比較スライダー」で NOW と THEN を左右に見比べ、「四代対照」で同じ場所の四つの時代を並べて眺められます。',
+      'ob.s2.body': '「比較スライダー」で左右に見比べ——現代の街並みと、または一つ前の時代の古地図同士で。「四代対照」では同じ場所の四つの時代を並べて眺められます。',
       'ob.s3.title': '古い絵葉書を現像',
       'ob.s3.body': '散策中はアプリを開いて「現在地」をタップ。全台217か所の歴史スポットの50m以内に近づくと、日本統治時代の絵葉書が自動的に「現像」されコレクションに加わります。',
       'ob.s4.title': 'さあ、出発',
@@ -5575,9 +5575,14 @@
   // ── Swipe-compare mode (#2) ──────────────────────
   let compareMode = false;
   let compareX = 0.5; // 0 to 1 across screen
+  // 對照模式左側自動帶入「上一個年代」的歷史圖層（古地圖 vs 古地圖）。
+  // 若目前圖層已是最舊的一張，compareLeftId 維持 null，左側退回現代底圖。
+  let compareLeftId = null;
 
   const compareDivider = document.getElementById('compare-divider');
   const compareBtn = document.getElementById('btn-compare');
+  const compareLabelLeft = document.getElementById('compare-label-left');
+  const compareLabelRight = document.getElementById('compare-label-right');
 
   function applyCompareClip() {
     if (!activeId || !layerCache[activeId]) return;
@@ -5633,16 +5638,67 @@
       // divider; remember the user's previous opacity to restore on exit.
       compareSavedOpacity = opacities[activeId];
       setOpacity(activeId, 1);
+      setupCompareLeftLayer(); // 左側：上一個年代的古地圖（若有）
       updateCompareDividerPos();
       applyCompareClip();
     } else {
       // Restore previous opacity
+      teardownCompareLeftLayer();
       if (activeId && compareSavedOpacity != null) {
         setOpacity(activeId, compareSavedOpacity);
         compareSavedOpacity = null;
       }
+      resetCompareLabels();
       applyCompareClip(); // clear
     }
+  }
+
+  // 對照模式左側圖層：HISTORICAL_MAPS 已依年代排序，取目前圖層的「前一項」
+  // 即相鄰的更舊地圖，疊在目前圖層之下、現代底圖之上；目前圖層被裁成右半，
+  // 左半便露出這張更舊的圖，達成「古地圖 vs 古地圖」對拖。沒有更舊的（已是
+  // 最舊一張）就維持原行為——左側顯示現代底圖、標示 NOW。
+  function setupCompareLeftLayer() {
+    const idx = HISTORICAL_MAPS.findIndex(m => m.id === activeId);
+    const curDef = HISTORICAL_MAPS[idx];
+    const prevDef = idx > 0 ? HISTORICAL_MAPS[idx - 1] : null;
+    if (prevDef) {
+      compareLeftId = prevDef.id;
+      if (!layerCache[compareLeftId]) {
+        layerCache[compareLeftId] = L.tileLayer(prevDef.url, {
+          attribution: '歷史圖資 © 中央研究院',
+          tileSize: 256,
+          opacity: 1,
+          maxZoom: MAP_MAX_ZOOM,
+          maxNativeZoom: prevDef.maxNativeZoom ?? 16,
+        });
+        trackTileLayer(layerCache[compareLeftId]);
+      }
+      layerCache[compareLeftId].setOpacity(1); // 直接設圖層透明度，不動面板滑桿
+      layerCache[compareLeftId].addTo(map);
+      // 確保堆疊順序：底圖 < 上一年代 < 目前圖層
+      if (layerCache[activeId]) layerCache[activeId].bringToFront();
+      setCompareLabels(prevDef, curDef);
+    } else {
+      compareLeftId = null;
+      setCompareLabels(null, curDef); // 左 NOW、右 當前年代
+    }
+  }
+
+  function teardownCompareLeftLayer() {
+    if (compareLeftId && layerCache[compareLeftId]) {
+      map.removeLayer(layerCache[compareLeftId]);
+    }
+    compareLeftId = null;
+  }
+
+  // 左右標籤：有上一年代就顯示兩側年份（如 1904 / 1921）；無則左 NOW、右年份。
+  function setCompareLabels(leftDef, rightDef) {
+    if (compareLabelLeft) compareLabelLeft.textContent = leftDef ? leftDef.year : t('compare.now');
+    if (compareLabelRight) compareLabelRight.textContent = rightDef ? rightDef.year : t('compare.then');
+  }
+  function resetCompareLabels() {
+    if (compareLabelLeft) compareLabelLeft.textContent = t('compare.now');
+    if (compareLabelRight) compareLabelRight.textContent = t('compare.then');
   }
 
   compareBtn.addEventListener('click', () => setCompareMode(!compareMode));
@@ -5698,11 +5754,27 @@
   window.addEventListener('resize', () => { if (compareMode) updateCompareDividerPos(); });
   map.on('move zoom', () => { if (compareMode) updateCompareDividerPos(); });
 
-  // Re-apply clip when active layer changes (setActive is called elsewhere)
+  // Re-apply clip when active layer changes (setActive is called elsewhere).
+  // In compare mode, also rebuild the left "previous era" companion so the
+  // pairing follows the newly chosen layer; restore the old layer's opacity
+  // first so the slider isn't left stuck at 100%.
   const _origSetActive = setActive;
   setActive = function (id) {
+    if (!compareMode) { _origSetActive(id); return; }
+    teardownCompareLeftLayer();
+    if (activeId && compareSavedOpacity != null) {
+      setOpacity(activeId, compareSavedOpacity);
+      compareSavedOpacity = null;
+    }
     _origSetActive(id);
-    if (compareMode) applyCompareClip();
+    if (activeId) {
+      compareSavedOpacity = opacities[activeId];
+      setOpacity(activeId, 1);
+      setupCompareLeftLayer();
+      applyCompareClip();
+    } else {
+      setCompareMode(false); // 關掉唯一啟用的圖層 → 退出對照模式
+    }
   };
 
   // ── Four-era collage (#7) ────────────────────────

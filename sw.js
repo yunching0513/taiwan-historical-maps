@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v43-2026-06-15'; // 定位被拒重試：重查權限 + 卡死升級指引
+const CACHE_VERSION = 'v44-2026-06-15'; // 對照拉條支援古地圖 vs 古地圖（上一年代）
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
