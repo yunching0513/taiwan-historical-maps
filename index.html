@@ -855,6 +855,11 @@
     color: #F1EFE9; letter-spacing: 0.04em; line-height: 1;
     transition: opacity 0.4s ease;
   }
+  /* 預載「準備中…」用明體，年代數字仍維持等寬字 */
+  .tl-year.preparing {
+    font-family: var(--zh-serif);
+    letter-spacing: 0.12em;
+  }
   .tl-label {
     font-family: var(--zh-serif);
     font-size: 15px; color: var(--indigo); margin-top: 6px;
@@ -5940,6 +5945,7 @@
       return layerCache[def.id];
     }
     function showYear(def) {
+      yearEl.classList.remove('preparing');
       yearEl.style.opacity = 0; labelEl.style.opacity = 0;
       setTimeout(() => {
         yearEl.textContent = def.year;
@@ -5955,6 +5961,7 @@
       stopBtn.hidden = false;
     }
     function showStatus(big, small) {
+      yearEl.classList.add('preparing');
       yearEl.style.opacity = 1; labelEl.style.opacity = 1;
       yearEl.textContent = big; labelEl.textContent = small;
     }
