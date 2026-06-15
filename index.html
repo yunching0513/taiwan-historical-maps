@@ -2009,6 +2009,60 @@
     color: var(--silver);
     font-style: italic;
   }
+  /* ── 致謝視窗內的贊助小區塊 ── */
+  .credits-sponsor {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    background: var(--paper-2);
+    border: 1px solid var(--mist);
+    border-radius: 8px;
+    margin-bottom: 14px;
+  }
+  .credits-sponsor-qr {
+    flex-shrink: 0;
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+  .credits-sponsor-text {
+    flex: 1;
+    min-width: 0;
+  }
+  .credits-sponsor-text strong {
+    display: block;
+    font-family: var(--zh-serif);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .credits-sponsor-text p {
+    font-family: var(--zh-serif);
+    font-size: 12px;
+    color: var(--graphite);
+    line-height: 1.6;
+    margin: 0 0 6px;
+  }
+  .credits-sponsor-btn {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--vermilion);
+    background: transparent;
+    color: var(--vermilion);
+    font-family: var(--zh-sans);
+    font-size: 11px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+  }
+  .credits-sponsor-btn:hover {
+    background: var(--vermilion);
+    color: var(--paper);
+  }
 
   /* Toast for "明信片發現了" */
   .pc-toast {
@@ -3875,6 +3929,15 @@
   <div class="credits-card" role="dialog" aria-labelledby="credits-title">
     <button type="button" class="credits-close" id="credits-close" aria-label="關閉">✕</button>
     <h2 class="credits-title" id="credits-title" data-i18n="credits.title">資料來源與致謝</h2>
+    <!-- 贊助小區塊：顯示在致謝視窗最上方 -->
+    <div class="credits-sponsor">
+      <img class="credits-sponsor-qr" src="icons/donate-qr.jpg" alt="LINE Pay 收款碼" loading="lazy" />
+      <div class="credits-sponsor-text">
+        <strong data-i18n="credits.sponsor.title">☕ 喜歡這個 App？</strong>
+        <p data-i18n="credits.sponsor.body">老地圖的維護需要時間與費用。若這趟散策讓你愉快，歡迎掃碼用 LINE Pay 請我喝杯咖啡。</p>
+        <button type="button" class="credits-sponsor-btn" id="credits-donate-btn" data-i18n="credits.sponsor.btn">打開贊助視窗</button>
+      </div>
+    </div>
     <p class="credits-intro" data-i18n="credits.intro">
       本 App 所有明信片影像皆來自 Wikimedia Commons，經驗證為 PD-Japan 或 PD-Taiwan 公領域（著作權已屆期失效）。本 App 僅做匯整呈現與地理註記，不主張任何版權。如下表逐筆列出每張影像對應的原始檔案連結，點擊即可造訪 Wikimedia Commons 該檔案頁面查看高解析原圖、作者資訊與授權細節。
     </p>
@@ -3994,6 +4057,9 @@
       'tip.coffee.yes': '好啊',
       'tip.coffee.later': '下次吧',
       'credits.title': '資料來源與致謝',
+      'credits.sponsor.title': '☕ 喜歡這個 App？',
+      'credits.sponsor.body': '老地圖的維護需要時間與費用。若這趟散策讓你愉快，歡迎掃碼用 LINE Pay 請我喝杯咖啡。',
+      'credits.sponsor.btn': '打開贊助視窗',
       'credits.intro': '本 App 所有明信片影像皆來自 Wikimedia Commons，經驗證為 PD-Japan 或 PD-Taiwan 公領域（著作權已屆期失效）。本 App 僅做匯整呈現與地理註記，不主張任何版權。如下表逐筆列出每張影像對應的原始檔案連結，點擊即可造訪 Wikimedia Commons 該檔案頁面查看高解析原圖、作者資訊與授權細節。',
       'credits.meta.historical': 'Historical maps',
       'credits.meta.basemaps': 'Base maps',
@@ -4204,6 +4270,9 @@
       'tip.coffee.yes': 'Sure',
       'tip.coffee.later': 'Maybe later',
       'credits.title': 'Sources & Credits',
+      'credits.sponsor.title': '☕ Enjoying this app?',
+      'credits.sponsor.body': 'Keeping the old maps alive takes time and effort. If you enjoyed the stroll, feel free to scan and buy me a coffee via LINE Pay.',
+      'credits.sponsor.btn': 'Open support window',
       'credits.intro': 'All postcard images in this app come from Wikimedia Commons, verified as PD-Japan or PD-Taiwan (public domain, copyright expired). This app provides only curation and geo-tagging — no copyright is claimed. The list below shows the original Wikimedia Commons file URL for every image; click to view the high-resolution original, author info, and license details.',
       'credits.meta.historical': 'Historical maps',
       'credits.meta.basemaps': 'Base maps',
@@ -4414,6 +4483,9 @@
       'tip.coffee.yes': 'いいよ',
       'tip.coffee.later': '今度ね',
       'credits.title': '出典と謝辞',
+      'credits.sponsor.title': '☕ このアプリを気に入りましたか？',
+      'credits.sponsor.body': '古地図の維持には時間と費用がかかります。この散策が楽しかったら、LINE Pay でコーヒーを一杯おごっていただければ嬉しいです。',
+      'credits.sponsor.btn': 'サポート画面を開く',
       'credits.intro': 'このアプリの全ての絵葉書画像は Wikimedia Commons より、PD-Japan または PD-Taiwan（パブリックドメイン、著作権満了）として検証されたものです。本アプリは整理と地理タグ付けのみを行い、いかなる著作権も主張しません。下記リストには各画像の Wikimedia Commons 原典 URL を記載しており、クリックすると高解像度の原画像、作者情報、ライセンス詳細を閲覧できます。',
       'credits.meta.historical': '歴史地図',
       'credits.meta.basemaps': 'ベースマップ',
@@ -8821,6 +8893,16 @@
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && overlay.classList.contains('show')) close();
     });
+
+    // "打開贊助視窗" button inside the credits card
+    const donateBtn = document.getElementById('credits-donate-btn');
+    if (donateBtn) {
+      donateBtn.addEventListener('click', () => {
+        close();
+        if (typeof openDonate === 'function') openDonate();
+        else document.getElementById('btn-donate')?.click();
+      });
+    }
   })();
 
   // ── Donation modal (街口 / LINE Pay 收款碼) ──
