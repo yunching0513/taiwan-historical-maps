@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v38-2026-06-15'; // 公民科學回報 endpoint live (Apps Script backend wired in)
+const CACHE_VERSION = 'v39-2026-06-15'; // 贊助改 街口/LINE Pay 收款碼（移除明碼帳號）+ 好心情輕提示
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;

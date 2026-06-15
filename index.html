@@ -2471,6 +2471,14 @@
     border-color: var(--ink);
     color: var(--paper);
   }
+  .donate-scan {
+    text-align: center;
+    font-family: var(--zh-sans);
+    font-size: 12.5px;
+    color: var(--graphite);
+    line-height: 1.6;
+    margin: 12px 4px 14px;
+  }
   .donate-thanks {
     text-align: center;
     font-size: 11px;
@@ -2478,6 +2486,61 @@
     line-height: 1.6;
     margin: 0;
   }
+  /* ── 好心情時刻：輕量贊助提示 (gentle coffee nudge) ── */
+  .coffee-tip {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translate(-50%, 140%);
+    z-index: 9400;
+    max-width: min(92vw, 420px);
+    background: var(--paper);
+    border: 1px solid var(--mist);
+    border-radius: 14px;
+    box-shadow: 0 14px 44px rgba(31, 29, 25, 0.28);
+    padding: 14px 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.42s cubic-bezier(0.2, 0.7, 0.3, 1), opacity 0.42s ease;
+  }
+  .coffee-tip.show {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .coffee-tip-text {
+    font-family: var(--zh-serif);
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--ink);
+    margin: 0;
+  }
+  .coffee-tip-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+  .coffee-tip-btn {
+    appearance: none; -webkit-appearance: none;
+    border: 1px solid var(--mist);
+    background: var(--paper-2);
+    color: var(--graphite);
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-family: var(--zh-serif);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.16s, color 0.16s, border-color 0.16s;
+  }
+  .coffee-tip-btn.primary {
+    background: var(--vermilion);
+    border-color: var(--vermilion);
+    color: var(--paper);
+  }
+  .coffee-tip-btn:active { transform: scale(0.97); }
   .donate-thanks em {
     display: block;
     font-family: var(--en-serif);
@@ -3686,18 +3749,21 @@
     <button type="button" class="donate-card-close" id="donate-close" aria-label="關閉">✕</button>
     <h3 class="donate-card-title" id="donate-title" data-i18n="donate.title">Buy me a coffee</h3>
     <p class="donate-card-sub" data-i18n="donate.sub">☕ 請作者喝杯咖啡</p>
-    <img class="donate-qr" src="icons/donate-qr.jpg" alt="ATM 轉帳 QR Code" loading="lazy" />
-    <div class="donate-account-row">
-      <div class="donate-account-info">
-        <span class="bank" data-i18n="donate.bank">(013) 國泰世華</span>
-        <span id="donate-account">699506013601</span>
-      </div>
-      <button type="button" class="donate-copy-btn" id="donate-copy" data-i18n="donate.copy">複製</button>
-    </div>
+    <img class="donate-qr" src="icons/donate-qr.jpg" alt="收款碼 QR Code" loading="lazy" />
+    <p class="donate-scan" data-i18n="donate.scan">用 街口支付 / LINE Pay 掃碼，就能請我喝杯咖啡</p>
     <p class="donate-thanks">
       <span data-i18n="donate.thanks">謝謝你支持這個 App 的維護與更新</span>
       <em data-i18n="donate.thanks.sub">Thank you for keeping the old maps alive.</em>
     </p>
+  </div>
+</div>
+
+<!-- 好心情時刻：收藏幾張明信片後，溫和地邀請贊助（一次性、可關） -->
+<div class="coffee-tip" id="coffee-tip" role="dialog" aria-live="polite">
+  <p class="coffee-tip-text" id="coffee-tip-text" data-i18n="tip.coffee.title">喜歡這趟散策嗎？☕ 請作者喝杯咖啡，讓老地圖繼續走下去</p>
+  <div class="coffee-tip-actions">
+    <button type="button" class="coffee-tip-btn" id="coffee-tip-later" data-i18n="tip.coffee.later">下次吧</button>
+    <button type="button" class="coffee-tip-btn primary" id="coffee-tip-yes" data-i18n="tip.coffee.yes">好啊</button>
   </div>
 </div>
 
@@ -3921,11 +3987,12 @@
       'era.picker.cell': '格',
       'donate.title': 'Buy me a coffee',
       'donate.sub': '☕ 請作者喝杯咖啡',
-      'donate.bank': '(013) 國泰世華',
-      'donate.copy': '複製',
-      'donate.copied': '✓ 已複製',
+      'donate.scan': '用 街口支付 / LINE Pay 掃碼，就能請我喝杯咖啡',
       'donate.thanks': '謝謝你支持這個 App 的維護與更新',
       'donate.thanks.sub': 'Thank you for keeping the old maps alive.',
+      'tip.coffee.title': '喜歡這趟散策嗎？☕ 請作者喝杯咖啡，讓老地圖繼續走下去',
+      'tip.coffee.yes': '好啊',
+      'tip.coffee.later': '下次吧',
       'credits.title': '資料來源與致謝',
       'credits.intro': '本 App 所有明信片影像皆來自 Wikimedia Commons，經驗證為 PD-Japan 或 PD-Taiwan 公領域（著作權已屆期失效）。本 App 僅做匯整呈現與地理註記，不主張任何版權。如下表逐筆列出每張影像對應的原始檔案連結，點擊即可造訪 Wikimedia Commons 該檔案頁面查看高解析原圖、作者資訊與授權細節。',
       'credits.meta.historical': 'Historical maps',
@@ -4130,11 +4197,12 @@
       'era.picker.cell': 'Cell',
       'donate.title': 'Buy me a coffee',
       'donate.sub': '☕ Support this project',
-      'donate.bank': '(013) Cathay United Bank',
-      'donate.copy': 'Copy',
-      'donate.copied': '✓ Copied',
+      'donate.scan': 'Scan with JKOPay / LINE Pay to buy me a coffee',
       'donate.thanks': 'Thanks for keeping this app alive',
       'donate.thanks.sub': 'Thank you for keeping the old maps alive.',
+      'tip.coffee.title': 'Enjoying the stroll? ☕ Buy the author a coffee to keep the old maps walking.',
+      'tip.coffee.yes': 'Sure',
+      'tip.coffee.later': 'Maybe later',
       'credits.title': 'Sources & Credits',
       'credits.intro': 'All postcard images in this app come from Wikimedia Commons, verified as PD-Japan or PD-Taiwan (public domain, copyright expired). This app provides only curation and geo-tagging — no copyright is claimed. The list below shows the original Wikimedia Commons file URL for every image; click to view the high-resolution original, author info, and license details.',
       'credits.meta.historical': 'Historical maps',
@@ -4339,11 +4407,12 @@
       'era.picker.cell': 'セル',
       'donate.title': 'コーヒーをご馳走',
       'donate.sub': '☕ このプロジェクトを応援',
-      'donate.bank': '(013) 國泰世華 (Cathay United)',
-      'donate.copy': 'コピー',
-      'donate.copied': '✓ コピー済',
+      'donate.scan': '街口支付 / LINE Pay で読み取って、コーヒーを一杯',
       'donate.thanks': 'このアプリの維持と更新を支援していただきありがとうございます',
       'donate.thanks.sub': 'Thank you for keeping the old maps alive.',
+      'tip.coffee.title': '散策は楽しめましたか？☕ 作者にコーヒーを一杯、古地図を歩き続けるために。',
+      'tip.coffee.yes': 'いいよ',
+      'tip.coffee.later': '今度ね',
       'credits.title': '出典と謝辞',
       'credits.intro': 'このアプリの全ての絵葉書画像は Wikimedia Commons より、PD-Japan または PD-Taiwan（パブリックドメイン、著作権満了）として検証されたものです。本アプリは整理と地理タグ付けのみを行い、いかなる著作権も主張しません。下記リストには各画像の Wikimedia Commons 原典 URL を記載しており、クリックすると高解像度の原画像、作者情報、ライセンス詳細を閲覧できます。',
       'credits.meta.historical': '歴史地図',
@@ -7126,6 +7195,7 @@
       try { sfx.collect(); } catch {}
       showPostcardToast(`${t('pc.toast.collected')}${currentLang === 'en' && newlyCollected.en ? newlyCollected.en : newlyCollected.title}`);
       openPostcardModal(newlyCollected, 'collect');
+      try { maybeOfferCoffee(); } catch {}
     }
     renderPostcardMarkers(user);
   }
@@ -8753,13 +8823,16 @@
     });
   })();
 
-  // ── Donation modal (QR-based ATM transfer for now) ──
+  // ── Donation modal (街口 / LINE Pay 收款碼) ──
+  // openDonate is exposed so the gentle "coffee nudge" can open the same
+  // modal; donateAvailable stays false inside the native app (store policy
+  // forbids external payment links), which also suppresses the nudge.
+  let openDonate = null;
+  let donateAvailable = false;
   (function setupDonate() {
     const trigger = document.getElementById('btn-donate');
     const overlay = document.getElementById('donate-overlay');
     const closeBtn = document.getElementById('donate-close');
-    const copyBtn = document.getElementById('donate-copy');
-    const accountEl = document.getElementById('donate-account');
     if (!trigger || !overlay) return;
 
     // Google Play 付款政策不允許 App 內導向外部轉帳，因此在 TWA（Play 版
@@ -8801,29 +8874,35 @@
       if (e.key === 'Escape' && overlay.classList.contains('show')) close();
     });
 
-    copyBtn.addEventListener('click', async () => {
-      const text = accountEl.textContent.trim();
-      try {
-        await navigator.clipboard.writeText(text);
-      } catch {
-        // Older browsers / non-secure contexts: fall back to a hidden textarea.
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.select();
-        try { document.execCommand('copy'); } catch {}
-        document.body.removeChild(ta);
-      }
-      copyBtn.classList.add('copied');
-      copyBtn.textContent = t('donate.copied');
-      setTimeout(() => {
-        copyBtn.classList.remove('copied');
-        copyBtn.textContent = t('donate.copy');
-      }, 1600);
-    });
+    openDonate = open;
+    donateAvailable = true;
   })();
+
+  // ── 好心情時刻：輕量贊助提示 (gentle coffee nudge) ──────────────
+  // Shown once, only after the user has actually collected a few postcards
+  // on-location (a genuine "delight moment"), never in the native app, and
+  // never if they've already opened the donate modal. Dismissible; the
+  // shown flag persists so it won't nag again.
+  const COFFEE_TIP_KEY = 'taiwanOldMaps.coffeeTipShown';
+  const COFFEE_TIP_THRESHOLD = 3; // collected postcards before we ask
+  function maybeOfferCoffee() {
+    if (!donateAvailable) return;           // native app or no donate UI
+    const tip = document.getElementById('coffee-tip');
+    if (!tip) return;
+    try { if (localStorage.getItem(COFFEE_TIP_KEY) === '1') return; } catch {}
+    if (collectedPostcards.size < COFFEE_TIP_THRESHOLD) return;
+    if (tip.classList.contains('show')) return;
+    try { localStorage.setItem(COFFEE_TIP_KEY, '1'); } catch {}
+    const hide = () => tip.classList.remove('show');
+    const yes = document.getElementById('coffee-tip-yes');
+    const later = document.getElementById('coffee-tip-later');
+    yes.onclick = () => { hide(); if (typeof openDonate === 'function') openDonate(); };
+    later.onclick = hide;
+    // Let the collection toast/modal land first, then slide it up.
+    setTimeout(() => tip.classList.add('show'), 2600);
+    // Auto-dismiss if ignored for a while (stays unobtrusive).
+    setTimeout(hide, 16000);
+  }
 
   // ── First-run onboarding tour ────────────────────
   (function setupOnboarding() {
