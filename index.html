@@ -2432,6 +2432,14 @@
     border-color: var(--vermilion);
     color: var(--paper);
   }
+  /* 姊妹專案外連（pill 形式的 <a>） */
+  .panel-foot .sister-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+  }
+  .panel-foot .sister-pill .arr { color: var(--vermilion); font-size: 11px; }
   .backup-hint {
     margin-top: 6px;
     font-size: 10px;
@@ -3707,6 +3715,21 @@
         <button type="button" class="sfx-pill" id="theme-toggle">紙色</button>
       </div>
 
+      <!-- ── 姊妹專案外連 ─────────────────────────────────────── -->
+      <div class="lang-row" role="group" aria-label="Sister sites">
+        <span class="mono" data-i18n="sister.label">姊妹專案</span>
+        <a class="sfx-pill sister-pill" id="sister-nl"
+           href="https://yunching0513.github.io/Netherlands-historical-map/?city=amsterdam&amp;year=1925"
+           target="_blank" rel="noopener">
+          <span data-i18n="sister.nl">🇳🇱 荷蘭古地圖散策</span><span class="arr">↗</span>
+        </a>
+        <a class="sfx-pill sister-pill" id="sister-kanto"
+           href="demo/japan-tokyo.html"
+           target="_blank" rel="noopener">
+          <span data-i18n="sister.kanto">🗾 關東古地圖</span><span class="arr">↗</span>
+        </a>
+      </div>
+
       <!-- ── Backup / restore ─────────────────────────────────── -->
       <div class="lang-row" role="group" aria-label="Backup">
         <span class="mono" data-i18n="backup.label">資料備份</span>
@@ -4188,6 +4211,9 @@
       'theme.label': '配色',
       'theme.light': '紙色',
       'theme.dark': '墨黑',
+      'sister.label': '姊妹專案',
+      'sister.nl': '🇳🇱 荷蘭古地圖散策',
+      'sister.kanto': '🗾 關東古地圖',
       'backup.label': '資料備份',
       'backup.export': '匯出',
       'backup.restore': '還原',
@@ -4406,6 +4432,9 @@
       'theme.label': 'Theme',
       'theme.light': 'Paper',
       'theme.dark': 'Ink black',
+      'sister.label': 'Sister sites',
+      'sister.nl': '🇳🇱 Netherlands old maps',
+      'sister.kanto': '🗾 Kanto old maps',
       'backup.label': 'Backup',
       'backup.export': 'Export',
       'backup.restore': 'Restore',
@@ -4624,6 +4653,9 @@
       'theme.label': '配色',
       'theme.light': '紙色',
       'theme.dark': '墨黒',
+      'sister.label': '姉妹サイト',
+      'sister.nl': '🇳🇱 オランダ古地図さんぽ',
+      'sister.kanto': '🗾 関東古地図',
       'backup.label': 'バックアップ',
       'backup.export': '書き出し',
       'backup.restore': '復元',

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>日本歷史地圖示範 · 東京（政府公開授權）</title>
+<title>關東古地圖散策 · Kanto Old-Map Stroll</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
   html, body { margin: 0; height: 100%; font-family: "Noto Sans TC", system-ui, sans-serif; }
@@ -23,13 +23,23 @@
   .layer .lic { font-size: 10px; color: #8f897d; margin: 3px 0 0 22px; }
   .layer input[type=range] { width: 100%; margin: 8px 0 0; accent-color: #C15F3C; }
   .hint { font-size: 10.5px; color: #b9b3a6; line-height: 1.5; margin-top: 4px; }
+  .back { display:inline-block; margin-top:10px; font-size:11px; color:#C15F3C; text-decoration:none; }
+  .back:hover { text-decoration:underline; }
+  .places { display:flex; gap:6px; margin:0 0 10px; }
+  .place-btn { flex:1; padding:6px 4px; border:1px solid rgba(255,255,255,.18); background:transparent; color:#F1EFE9; font-size:12px; border-radius:8px; cursor:pointer; }
+  .place-btn:hover { border-color:#C15F3C; color:#C15F3C; }
 </style>
 </head>
 <body>
 <div id="map"></div>
 <div class="panel">
-  <h1>日本歷史地圖示範 · 東京</h1>
-  <p class="sub">全部為日本政府／公立機構公開授權圖資（無 NC 限制）</p>
+  <h1>關東古地圖散策</h1>
+  <p class="sub">日本政府／公立機構公開授權圖資（無 NC 限制）· 關東</p>
+
+  <div class="places">
+    <button type="button" class="place-btn" data-lat="35.6812" data-lng="139.7671" data-z="15">東京</button>
+    <button type="button" class="place-btn" data-lat="35.4498" data-lng="139.6425" data-z="14">橫濱</button>
+  </div>
 
   <div class="layer">
     <label><input type="radio" name="hist" value="rapid" checked /> 迅速測図（實測地圖）<span class="yr">1880s</span></label>
@@ -47,6 +57,7 @@
     <input type="range" min="0" max="1" step="0.01" value="0.85" data-for="usa" />
   </div>
   <p class="hint">底圖：CARTO / OpenStreetMap。拉透明度即可今昔對照。</p>
+  <a class="back" href="../index.html">← 台灣舊地圖散策</a>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -87,6 +98,11 @@
     s.addEventListener('input', e => {
       const id = e.target.dataset.for;
       defs[id].setOpacity(parseFloat(e.target.value));
+    });
+  });
+  document.querySelectorAll('.place-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      map.flyTo([parseFloat(btn.dataset.lat), parseFloat(btn.dataset.lng)], parseInt(btn.dataset.z, 10));
     });
   });
 </script>
