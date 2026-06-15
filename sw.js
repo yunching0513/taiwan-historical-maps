@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v39-2026-06-15'; // 贊助改 街口/LINE Pay 收款碼（移除明碼帳號）+ 好心情輕提示
+const CACHE_VERSION = 'v40-2026-06-15'; // 贊助文案改為 LINE Pay 收款碼
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
