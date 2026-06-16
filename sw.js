@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v47-2026-06-15'; // 移除 App 內建日本模式（關東改走獨立分頁）
+const CACHE_VERSION = 'v48-2026-06-16'; // 關東分頁：隱藏藍色 radio，改整列點選（手機友善）
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;

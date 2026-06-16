@@ -18,10 +18,17 @@
   .panel .sub { font-size: 11px; color: #b9b3a6; margin: 0 0 12px; }
   .layer { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,.12); }
   .layer:last-of-type { border-bottom: none; }
-  .layer label { display: flex; align-items: center; gap: 7px; font-size: 13px; cursor: pointer; }
-  .layer .yr { margin-left: auto; font-family: monospace; font-size: 10px; color: #C15F3C; }
-  .layer .lic { font-size: 10px; color: #8f897d; margin: 3px 0 0 22px; }
-  .layer input[type=range] { width: 100%; margin: 8px 0 0; accent-color: #C15F3C; }
+  .layer label { display: flex; align-items: center; gap: 9px; font-size: 13px; cursor: pointer; padding: 9px 10px; border: 1px solid transparent; border-radius: 9px; transition: background .15s, border-color .15s; -webkit-tap-highlight-color: transparent; }
+  /* 隱藏預設藍色 radio：改用整列點選 + 自訂朱色圓點，手機好按 */
+  .layer input[type=radio] { display: none; }
+  .layer label::before { content: ''; width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid #8f897d; flex-shrink: 0; transition: background .15s, border-color .15s; }
+  .layer label:active { background: rgba(255,255,255,.06); }
+  .layer.sel label { border-color: #C15F3C; background: rgba(193,95,60,.16); }
+  .layer.sel label::before { background: #C15F3C; border-color: #C15F3C; box-shadow: 0 0 0 3px rgba(193,95,60,.22); }
+  .layer .yr { margin-left: auto; font-family: monospace; font-size: 10px; color: #8f897d; }
+  .layer.sel .yr { color: #C15F3C; }
+  .layer .lic { font-size: 10px; color: #8f897d; margin: 3px 0 0 12px; }
+  .layer input[type=range] { width: 100%; margin: 10px 0 0; height: 24px; accent-color: #C15F3C; }
   .hint { font-size: 10.5px; color: #b9b3a6; line-height: 1.5; margin-top: 4px; }
   .back { display:inline-block; margin-top:10px; font-size:11px; color:#C15F3C; text-decoration:none; }
   .back:hover { text-decoration:underline; }
@@ -87,11 +94,19 @@
   let current = 'rapid';
   defs[current].addTo(map);
 
+  function markSelected(val) {
+    document.querySelectorAll('input[name=hist]').forEach(r => {
+      r.closest('.layer').classList.toggle('sel', r.value === val);
+    });
+  }
+  markSelected(current);
+
   document.querySelectorAll('input[name=hist]').forEach(r => {
     r.addEventListener('change', e => {
       if (defs[current]) map.removeLayer(defs[current]);
       current = e.target.value;
       defs[current].addTo(map);
+      markSelected(current);
     });
   });
   document.querySelectorAll('input[type=range]').forEach(s => {
