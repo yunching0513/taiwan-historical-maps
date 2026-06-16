@@ -12,9 +12,24 @@
     position: absolute; top: 12px; left: 12px; z-index: 1000;
     background: rgba(26,24,21,0.86); color: #F1EFE9;
     padding: 14px 16px; border-radius: 12px; width: 268px;
+    max-width: calc(100vw - 24px);
     box-shadow: 0 12px 40px -12px rgba(0,0,0,0.6); backdrop-filter: blur(6px);
   }
-  .panel h1 { font-size: 15px; margin: 0 0 2px; letter-spacing: .04em; }
+  .panel h1 { font-size: 15px; margin: 0 38px 2px 0; letter-spacing: .04em; }
+  /* 收合鈕 */
+  .panel-toggle {
+    position: absolute; top: 10px; right: 10px;
+    width: 30px; height: 30px; border-radius: 8px;
+    border: 1px solid rgba(255,255,255,.22); background: transparent;
+    color: #F1EFE9; font-size: 13px; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .2s, background .15s; -webkit-tap-highlight-color: transparent;
+  }
+  .panel-toggle:hover { background: rgba(255,255,255,.08); }
+  .panel.collapsed .panel-toggle { transform: rotate(-90deg); }
+  .panel.collapsed { width: auto; padding-bottom: 12px; }
+  .panel.collapsed h1 { margin-bottom: 0; }
+  .panel.collapsed .panel-body { display: none; }
   .panel .sub { font-size: 11px; color: #b9b3a6; margin: 0 0 12px; }
   .layer { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,.12); }
   .layer:last-of-type { border-bottom: none; }
@@ -39,8 +54,10 @@
 </head>
 <body>
 <div id="map"></div>
-<div class="panel">
+<div class="panel" id="panel">
+  <button type="button" class="panel-toggle" id="panel-toggle" aria-label="收合功能列" aria-expanded="true">▾</button>
   <h1>關東古地圖散策</h1>
+  <div class="panel-body" id="panel-body">
   <p class="sub">日本政府／公立機構公開授權圖資（無 NC 限制）· 關東</p>
 
   <div class="places">
@@ -65,6 +82,7 @@
   </div>
   <p class="hint">底圖：CARTO / OpenStreetMap。拉透明度即可今昔對照。</p>
   <a class="back" href="../index.html">← 台灣舊地圖散策</a>
+  </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -120,6 +138,24 @@
       map.flyTo([parseFloat(btn.dataset.lat), parseFloat(btn.dataset.lng)], parseInt(btn.dataset.z, 10));
     });
   });
+
+  // 功能列收合（記住狀態）。手機預設收合，桌機預設展開。
+  const panel = document.getElementById('panel');
+  const panelToggle = document.getElementById('panel-toggle');
+  const COLLAPSE_KEY = 'kantoPanelCollapsed';
+  function setCollapsed(on) {
+    panel.classList.toggle('collapsed', on);
+    panelToggle.textContent = on ? '▸' : '▾';
+    panelToggle.setAttribute('aria-expanded', String(!on));
+    panelToggle.setAttribute('aria-label', on ? '展開功能列' : '收合功能列');
+    try { localStorage.setItem(COLLAPSE_KEY, on ? '1' : '0'); } catch {}
+  }
+  let startCollapsed;
+  try { startCollapsed = localStorage.getItem(COLLAPSE_KEY); } catch {}
+  if (startCollapsed === null || startCollapsed === undefined)
+    startCollapsed = window.matchMedia('(max-width: 600px)').matches ? '1' : '0';
+  setCollapsed(startCollapsed === '1');
+  panelToggle.addEventListener('click', () => setCollapsed(!panel.classList.contains('collapsed')));
 </script>
 </body>
 </html>
