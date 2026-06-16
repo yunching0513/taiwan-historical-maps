@@ -9,11 +9,16 @@
   html, body { margin: 0; height: 100%; font-family: "Noto Sans TC", system-ui, sans-serif; }
   #map { position: absolute; inset: 0; }
   .panel {
-    position: absolute; top: 12px; left: 12px; z-index: 1000;
+    position: absolute; bottom: 12px; left: 12px; top: auto; z-index: 1000;
     background: rgba(26,24,21,0.86); color: #F1EFE9;
     padding: 14px 16px; border-radius: 12px; width: 268px;
-    max-width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); overflow-y: auto;
     box-shadow: 0 12px 40px -12px rgba(0,0,0,0.6); backdrop-filter: blur(6px);
+  }
+  /* 手機：底部整條收合式面板（仿台灣 App 的 bottom sheet） */
+  @media (max-width: 600px) {
+    .panel { left: 0; right: 0; bottom: 0; width: auto; max-width: none;
+             border-radius: 14px 14px 0 0; max-height: 72vh; }
   }
   .panel h1 { font-size: 15px; margin: 0 38px 2px 0; letter-spacing: .04em; }
   /* 收合鈕 */
@@ -23,10 +28,9 @@
     border: 1px solid rgba(255,255,255,.22); background: transparent;
     color: #F1EFE9; font-size: 13px; line-height: 1; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    transition: transform .2s, background .15s; -webkit-tap-highlight-color: transparent;
+    transition: background .15s; -webkit-tap-highlight-color: transparent;
   }
   .panel-toggle:hover { background: rgba(255,255,255,.08); }
-  .panel.collapsed .panel-toggle { transform: rotate(-90deg); }
   .panel.collapsed { width: auto; padding-bottom: 12px; }
   .panel.collapsed h1 { margin-bottom: 0; }
   .panel.collapsed .panel-body { display: none; }
@@ -145,7 +149,7 @@
   const COLLAPSE_KEY = 'kantoPanelCollapsed';
   function setCollapsed(on) {
     panel.classList.toggle('collapsed', on);
-    panelToggle.textContent = on ? '▸' : '▾';
+    panelToggle.textContent = on ? '▴' : '▾';
     panelToggle.setAttribute('aria-expanded', String(!on));
     panelToggle.setAttribute('aria-label', on ? '展開功能列' : '收合功能列');
     try { localStorage.setItem(COLLAPSE_KEY, on ? '1' : '0'); } catch {}

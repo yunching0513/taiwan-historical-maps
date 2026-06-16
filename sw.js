@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v49-2026-06-16'; // 關東分頁功能列可收合（手機預設收合）
+const CACHE_VERSION = 'v50-2026-06-16'; // 關東分頁功能列移到底部（手機 bottom sheet）
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
