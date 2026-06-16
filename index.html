@@ -3271,6 +3271,7 @@
       background: var(--paper-2);
       position: relative;
       z-index: 2;
+      touch-action: none; /* 自行處理上/下滑手勢，避免瀏覽器攔截 */
     }
     .sheet-handle::before {
       content: '';
@@ -5062,8 +5063,30 @@
     sheetHandle.setAttribute('aria-expanded', String(!peek));
   }
 
+  // Tap toggles; a vertical swipe on the handle opens/closes directly so the
+  // sheet behaves like a native Android bottom drawer (swipe down → collapse).
+  let sheetStartY = null;
+  let sheetSwiped = false;
+  sheetHandle.addEventListener('touchstart', (e) => {
+    if (!isMobile()) return;
+    sheetStartY = e.touches[0].clientY;
+    sheetSwiped = false;
+  }, { passive: true });
+  sheetHandle.addEventListener('touchmove', (e) => {
+    if (!isMobile() || sheetStartY === null) return;
+    if (Math.abs(e.touches[0].clientY - sheetStartY) > 22) sheetSwiped = true;
+  }, { passive: true });
+  sheetHandle.addEventListener('touchend', (e) => {
+    if (!isMobile() || sheetStartY === null) return;
+    const dy = e.changedTouches[0].clientY - sheetStartY;
+    sheetStartY = null;
+    if (dy > 28) { setPeek(true); sheetSwiped = true; }        // swipe down → collapse
+    else if (dy < -28) { setPeek(false); sheetSwiped = true; } // swipe up → expand
+  }, { passive: true });
+
   sheetHandle.addEventListener('click', () => {
     if (!isMobile()) return;
+    if (sheetSwiped) { sheetSwiped = false; return; } // swipe already handled it
     setPeek(!panelEl.classList.contains('peek'));
   });
 
