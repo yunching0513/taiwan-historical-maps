@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v54-2026-06-16'; // 明信片抽卡：每 4 小時一張、每天最多 3 張
+const CACHE_VERSION = 'v55-2026-06-16'; // 音效擴充：抽卡期待音、冷卻提醒、顯影光點、介面輕點
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;

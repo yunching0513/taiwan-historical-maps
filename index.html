@@ -5147,13 +5147,15 @@
     const dy = e.changedTouches[0].clientY - sheetStartY;
     sheetStartY = null;
     if (dy > 28) { setPeek(true); sheetSwiped = true; }        // swipe down → collapse
-    else if (dy < -28) { setPeek(false); sheetSwiped = true; } // swipe up → expand
+    else if (dy < -28) { setPeek(false); sheetSwiped = true; try { sfx.tap(); } catch {} } // swipe up → expand
   }, { passive: true });
 
   sheetHandle.addEventListener('click', () => {
     if (!isMobile()) return;
     if (sheetSwiped) { sheetSwiped = false; return; } // swipe already handled it
-    setPeek(!panelEl.classList.contains('peek'));
+    const willOpen = panelEl.classList.contains('peek');
+    setPeek(!willOpen);
+    if (willOpen) { try { sfx.tap(); } catch {} } // 展開時給一聲輕點回饋
   });
 
   // Default to peek on mobile so the map is visible on first load. Suppress
@@ -9400,12 +9402,18 @@
         try { fn(c, c.currentTime + 0.02); } catch {}
       };
     }
+    // 細微的高音光點群，疊在顯影／收藏尾巴，像銀鹽在顯影液裡閃爍
+    function shimmer(c, t) {
+      tone(c, t + 0.17, 1975.5, 0.5, 0.012, 'triangle');  // B6
+      tone(c, t + 0.33, 2349.3, 0.45, 0.010, 'triangle'); // D7
+    }
     return {
-      // 顯影：濾波氣息緩緩開啟，遠處一聲風鈴——相紙浮現的瞬間
+      // 顯影：濾波氣息緩緩開啟，遠處風鈴與細碎光點——相紙浮現的瞬間
       develop: guard((c, t) => {
         noise(c, t, 1.3, 0.05, 350, 2400);
         tone(c, t + 0.55, 1318.5, 0.9, 0.05);
         tone(c, t + 0.55, 2637, 0.5, 0.015);
+        shimmer(c, t + 0.55);
       }),
       // 收藏成功：木琴般的兩音上行（E5 → A5），溫暖不刺耳
       collect: guard((c, t) => {
@@ -9413,11 +9421,30 @@
         tone(c, t, 1318.5, 0.3, 0.02);
         tone(c, t + 0.15, 880, 0.7, 0.09);
         tone(c, t + 0.15, 1760, 0.35, 0.02);
+        shimmer(c, t + 0.15);
       }),
       // 蓋印：完成一段散策的沉穩「咚」
       stamp: guard((c, t) => {
         tone(c, t, 110, 0.22, 0.16);
         noise(c, t, 0.06, 0.04, 1200, 300);
+      }),
+      // 抽卡：洗牌般的氣息＋五聲音階上行，勾起「會抽到哪張」的好奇與期待
+      draw: guard((c, t) => {
+        noise(c, t, 0.34, 0.022, 2800, 600);              // 翻卡／洗牌的細沙聲
+        const up = [523.3, 587.3, 659.3, 783.99, 880];    // C5 D5 E5 G5 A5（五聲音階）
+        up.forEach((f, i) => tone(c, t + i * 0.055, f, 0.16, 0.04, 'triangle'));
+      }),
+      // 冷卻結束：音樂盒般的三音，溫柔提醒「可以再抽一張了」
+      ready: guard((c, t) => {
+        tone(c, t, 783.99, 0.5, 0.05);                    // G5
+        tone(c, t + 0.12, 1046.5, 0.5, 0.05);             // C6
+        tone(c, t + 0.24, 1318.5, 0.7, 0.045);            // E6
+        tone(c, t + 0.24, 2637, 0.35, 0.012);
+      }),
+      // 介面輕點：柔和的「噗」，給展開面板、開卡等動作一點觸覺回饋
+      tap: guard((c, t) => {
+        tone(c, t, 523.3, 0.07, 0.035, 'sine');
+        tone(c, t, 1046.5, 0.05, 0.010, 'sine');
       }),
       get enabled() { return enabled; },
       toggle() {
@@ -9522,6 +9549,8 @@
         drawBtn.disabled = false;
         drawBtn.textContent = t('pc.draw.ready');
         drawHint.textContent = t('pc.draw.left').replace('{n}', st.remainingToday);
+        // 若是倒數歸零的那一刻（drawTick 仍在跑），給一聲音樂盒提醒
+        if (drawTick) { try { sfx.ready(); } catch {} }
         stopDrawTick();
       } else if (st.reason === 'daily') {
         drawBtn.disabled = true;
@@ -9538,6 +9567,7 @@
     refreshPcDrawBtn = refreshDrawBtn; // 供 setLang 切語言時重繪
     if (drawBtn) drawBtn.addEventListener('click', () => {
       if (!drawStatus().ok) return;
+      try { sfx.draw(); } catch {} // 抽卡前的期待音；顯影音由 open() 接續
       open(); // 抽新卡：內部會 recordDraw + 顯影 + refreshDrawBtn
     });
     refreshDrawBtn();
