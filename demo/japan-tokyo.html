@@ -18,7 +18,22 @@
   /* 手機：底部整條收合式面板（仿台灣 App 的 bottom sheet） */
   @media (max-width: 600px) {
     .panel { left: 0; right: 0; bottom: 0; width: auto; max-width: none;
-             border-radius: 14px 14px 0 0; max-height: 72vh; }
+             border-radius: 14px 14px 0 0; max-height: 72vh;
+             display: flex; flex-direction: column; overflow: hidden; }
+    .panel-body { overflow-y: auto; flex: 1 1 auto; min-height: 0; }
+    .sheet-handle { display: flex; }
+  }
+  /* 拖曳把手（只在手機底部面板顯示） */
+  .sheet-handle {
+    display: none; justify-content: center;
+    padding: 10px 0 6px; flex-shrink: 0;
+    margin: -14px -16px 8px; /* 抵銷 panel padding 讓把手滿版 */
+    touch-action: none; cursor: grab;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sheet-handle-pill {
+    width: 36px; height: 4px;
+    background: rgba(255,255,255,.32); border-radius: 2px;
   }
   .panel h1 { font-size: 15px; margin: 0 38px 2px 0; letter-spacing: .04em; }
   /* 收合鈕 */
@@ -59,6 +74,7 @@
 <body>
 <div id="map"></div>
 <div class="panel" id="panel">
+  <div class="sheet-handle" id="sheet-handle" aria-hidden="true"><div class="sheet-handle-pill"></div></div>
   <button type="button" class="panel-toggle" id="panel-toggle" aria-label="收合功能列" aria-expanded="true">▾</button>
   <h1>關東古地圖散策</h1>
   <div class="panel-body" id="panel-body">
@@ -142,6 +158,16 @@
       map.flyTo([parseFloat(btn.dataset.lat), parseFloat(btn.dataset.lng)], parseInt(btn.dataset.z, 10));
     });
   });
+
+  // 拖曳把手：向下滑動 > 40px 即收合面板（手機底部 sheet 手勢）
+  const sheetHandle = document.getElementById('sheet-handle');
+  if (sheetHandle) {
+    let _startY = 0;
+    sheetHandle.addEventListener('touchstart', e => { _startY = e.touches[0].clientY; }, { passive: true });
+    sheetHandle.addEventListener('touchend', e => {
+      if (e.changedTouches[0].clientY - _startY > 40) setCollapsed(true);
+    }, { passive: true });
+  }
 
   // 功能列收合（記住狀態）。手機預設收合，桌機預設展開。
   const panel = document.getElementById('panel');
