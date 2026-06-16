@@ -3230,10 +3230,16 @@
       border-top: 1px solid var(--ink);
       padding: 0 0 calc(20px + env(safe-area-inset-bottom, 0px));
       box-shadow: 0 -12px 36px -16px rgba(31,29,25,0.4);
-      transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), max-height 0.4s ease;
+      /* Animate transform only — GPU-composited, no reflow. Animating
+         max-height instead caused a one-frame content flash on Android. */
+      transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
       transform: translateY(0);
+      will-change: transform;
       overflow: hidden;
     }
+    /* Suppress the slide transition on first paint so the sheet doesn't
+       flash open then snap to peek while the page is loading. */
+    .panel.no-anim { transition: none; }
     /* Inner scroll container so the handle stays pinned */
     .panel-scroll {
       max-height: calc(82vh - 36px);
@@ -3247,16 +3253,19 @@
       padding-top: 10px;
     }
 
-    /* Peek state — only handle + a thin status line visible. We collapse the
-       panel tighter and hide panel-head content so the "舊地圖散策" title
-       isn't half-clipped under the sheet handle. */
+    /* Peek state — slide the sheet down so only the 60px handle strip peeks
+       above the bottom edge. Height stays 82vh; we translate instead of
+       shrinking max-height, which keeps the open/close animation flash-free. */
     .panel.peek {
-      max-height: 60px;
+      transform: translateY(calc(100% - 60px));
     }
     .panel.peek .panel-scroll {
       overflow: hidden;
       pointer-events: none;
+      /* Delay hiding until the sheet has slid away, so content doesn't
+         vanish abruptly mid-animation. Revealed instantly when opening. */
       visibility: hidden;
+      transition: visibility 0s linear 0.4s;
     }
 
     .sheet-handle {
@@ -5090,8 +5099,14 @@
     setPeek(!panelEl.classList.contains('peek'));
   });
 
-  // Default to peek on mobile so the map is visible on first load
-  if (isMobile()) setPeek(true);
+  // Default to peek on mobile so the map is visible on first load. Suppress
+  // the slide transition for this initial state, then re-enable it next frame
+  // so user-triggered open/close still animates (and doesn't flash on load).
+  if (isMobile()) {
+    panelEl.classList.add('no-anim');
+    setPeek(true);
+    requestAnimationFrame(() => requestAnimationFrame(() => panelEl.classList.remove('no-anim')));
+  }
 
   // Re-evaluate peek state on resize / rotate
   window.addEventListener('resize', () => {
