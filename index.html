@@ -1503,6 +1503,45 @@
     font-weight: 600;
   }
 
+  /* Postcard draw — a 4h-cooldown gacha (max 3/day) that gives a reason to
+     reopen the app. Reuses the welcome-postcard modal to reveal the card. */
+  .pc-draw {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .pc-draw-btn {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid var(--vermilion);
+    background: var(--vermilion);
+    color: var(--paper);
+    font-family: var(--zh-sans);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s, transform 0.1s;
+  }
+  .pc-draw-btn:hover:not(:disabled) { background: var(--indigo-d); border-color: var(--indigo-d); }
+  .pc-draw-btn:active:not(:disabled) { transform: scale(0.98); }
+  .pc-draw-btn:disabled {
+    background: transparent;
+    color: var(--ash);
+    border-color: var(--stone);
+    cursor: default;
+    font-variant-numeric: tabular-nums;
+  }
+  .pc-draw-hint {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--ash);
+    text-align: center;
+    min-height: 12px;
+  }
+
   /* Map markers (camera pins) */
   .pc-marker {
     width: 28px; height: 28px;
@@ -3626,6 +3665,11 @@
       <span class="num">0</span> / 0 collected · 走到地點附近自動沖洗
     </div>
 
+    <div class="pc-draw" id="pc-draw">
+      <button type="button" class="pc-draw-btn" id="pc-draw-btn">🎴 抽一張明信片</button>
+      <div class="pc-draw-hint" id="pc-draw-hint"></div>
+    </div>
+
     <div class="section-label">
       <span class="num">06 — Calendar</span>
       <span class="en" data-i18n="sec.calendar.sub">月曆</span>
@@ -4070,6 +4114,10 @@
       'pc.download': '下載',
       'pc.toast.collected': '🎴 沖洗了一張明信片：',
       'pc.toast.share_hint': '長按圖片即可儲存或分享',
+      'pc.draw.ready': '🎴 抽一張明信片',
+      'pc.draw.wait': '⏳ {t} 後可再抽',
+      'pc.draw.daily': '今日 3 張抽完，明天見',
+      'pc.draw.left': '今天還可抽 {n} 張 · 每 4 小時一張',
       'cal.weekday.sun': '日', 'cal.weekday.mon': '一', 'cal.weekday.tue': '二',
       'cal.weekday.wed': '三', 'cal.weekday.thu': '四', 'cal.weekday.fri': '五',
       'cal.weekday.sat': '六',
@@ -4288,6 +4336,10 @@
       'pc.download': 'Download',
       'pc.toast.collected': '🎴 New postcard developed: ',
       'pc.toast.share_hint': 'Long-press the image to save or share',
+      'pc.draw.ready': '🎴 Draw a postcard',
+      'pc.draw.wait': '⏳ Next draw in {t}',
+      'pc.draw.daily': "Today's 3 drawn — back tomorrow",
+      'pc.draw.left': '{n} left today · one every 4h',
       'cal.weekday.sun': 'S', 'cal.weekday.mon': 'M', 'cal.weekday.tue': 'T',
       'cal.weekday.wed': 'W', 'cal.weekday.thu': 'T', 'cal.weekday.fri': 'F',
       'cal.weekday.sat': 'S',
@@ -4506,6 +4558,10 @@
       'pc.download': '保存',
       'pc.toast.collected': '🎴 新しい絵葉書が現像されました：',
       'pc.toast.share_hint': '画像を長押しで保存または共有',
+      'pc.draw.ready': '🎴 絵葉書を引く',
+      'pc.draw.wait': '⏳ あと {t} で再抽選',
+      'pc.draw.daily': '本日の3枚は完了 — また明日',
+      'pc.draw.left': '本日あと {n} 枚 · 4時間ごとに1枚',
       'cal.weekday.sun': '日', 'cal.weekday.mon': '月', 'cal.weekday.tue': '火',
       'cal.weekday.wed': '水', 'cal.weekday.thu': '木', 'cal.weekday.fri': '金',
       'cal.weekday.sat': '土',
@@ -4712,6 +4768,7 @@
     try { typeof renderTraceList === 'function' && renderTraceList(); } catch {}
     try { typeof renderPackList === 'function' && renderPackList(); } catch {}
     try { typeof renderPostcardGrid === 'function' && renderPostcardGrid(); } catch {}
+    try { typeof refreshPcDrawBtn === 'function' && refreshPcDrawBtn(); } catch {}
     try { typeof renderCalendar === 'function' && renderCalendar(); } catch {}
     try { typeof renderSeals === 'function' && renderSeals(); } catch {}
     try { typeof updateCityUI === 'function' && updateCityUI(); } catch {}
@@ -6916,6 +6973,48 @@
       localStorage.setItem('taiwanOldMaps.drawnPostcards', JSON.stringify([...drawnPostcards]));
     } catch {}
   }
+
+  // ── 抽卡冷卻：每 4 小時可抽一張、每天最多 3 張，培養每天回訪的儀式感 ──
+  // 以 epoch ms 陣列記錄每次抽卡時間。「每天」依使用者所在時區的日曆日計算。
+  const DRAW_COOLDOWN_MS = 4 * 60 * 60 * 1000; // 4 小時
+  const DRAW_MAX_PER_DAY = 3;
+  let refreshPcDrawBtn = null; // 由 setupWelcomePostcard 指派，供 setLang 重繪
+  function loadDrawLog() {
+    try {
+      const arr = JSON.parse(localStorage.getItem('taiwanOldMaps.pcDraws') || '[]');
+      return Array.isArray(arr) ? arr.filter(n => typeof n === 'number') : [];
+    } catch { return []; }
+  }
+  function saveDrawLog(log) {
+    try { localStorage.setItem('taiwanOldMaps.pcDraws', JSON.stringify(log)); } catch {}
+  }
+  function isSameLocalDay(a, b) {
+    const x = new Date(a), y = new Date(b);
+    return x.getFullYear() === y.getFullYear() && x.getMonth() === y.getMonth() && x.getDate() === y.getDate();
+  }
+  // 回傳目前抽卡狀態：是否可抽、原因、今日剩餘張數、冷卻剩餘毫秒。
+  function drawStatus(now = Date.now()) {
+    const log = loadDrawLog().filter(ts => now - ts < 48 * 60 * 60 * 1000); // 留近 48h 即可
+    const todayCount = log.filter(ts => isSameLocalDay(ts, now)).length;
+    const last = log.length ? Math.max(...log) : 0;
+    const cooldownLeft = last ? Math.max(0, DRAW_COOLDOWN_MS - (now - last)) : 0;
+    const remainingToday = Math.max(0, DRAW_MAX_PER_DAY - todayCount);
+    let ok = true, reason = '';
+    if (remainingToday <= 0) { ok = false; reason = 'daily'; }
+    else if (cooldownLeft > 0) { ok = false; reason = 'cooldown'; }
+    return { ok, reason, remainingToday, cooldownLeft, log };
+  }
+  function recordDraw(now = Date.now()) {
+    const { log } = drawStatus(now);
+    log.push(now);
+    saveDrawLog(log);
+  }
+  function fmtCooldown(ms) {
+    const s = Math.ceil(ms / 1000);
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+    const pad = n => String(n).padStart(2, '0');
+    return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${m}:${pad(sec)}`;
+  }
   const postcardMarkers = new Map(); // id → leaflet marker
 
   // City groups that the user has manually expanded in the panel.
@@ -7876,8 +7975,8 @@
       'taiwanOldMaps.postcardOpenCities', 'taiwanOldMaps.showPostcardMarkers',
       'taiwanOldMaps.theme', 'taiwanOldMaps.pcFont', 'taiwanOldMaps.sound',
       'taiwanOldMaps.lang', 'taiwanOldMaps.lastCity', 'taiwanOldMaps.onboarded',
-      'taiwanOldMaps.wpcDate', 'taiwanOldMaps.bgLocationConsent',
-      'taiwanOldMaps.reportQueue',
+      'taiwanOldMaps.wpcDate', 'taiwanOldMaps.wpcAutoDate', 'taiwanOldMaps.pcDraws',
+      'taiwanOldMaps.bgLocationConsent', 'taiwanOldMaps.reportQueue',
     ];
     const expBtn = document.getElementById('backup-export');
     const impBtn = document.getElementById('backup-import');
@@ -9355,11 +9454,14 @@
       const pc = pcArg || drawCard();
       currentPc = pc;
       if (!pcArg) {
-        // 每日抽卡：抽到的卡進卡夾（泛黃預覽態），走到現場才升級全彩收藏
+        // 抽卡：抽到的卡進卡夾（泛黃預覽態），走到現場才升級全彩收藏。
+        // 記一次抽卡時間，啟動 4 小時冷卻並更新按鈕狀態。
         drawnPostcards.add(pc.id);
         persistDrawnPostcards();
+        recordDraw();
         try { renderPostcardGrid(); } catch {}
         try { renderPostcardMarkers(lastUserLatLng); } catch {} // 地圖標記轉朱框
+        try { refreshDrawBtn(); } catch {}
       }
       const img = document.getElementById('wpc-img');
       // 顯影效果：等圖載入後才開始沖洗動畫
@@ -9408,19 +9510,51 @@
       if (currentPc && typeof downloadPostcardCard === 'function') downloadPostcardCard(currentPc);
     });
 
-    // 每日抽卡：一天一張（localStorage 記日期），培養每天打開的儀式感。
-    // 非深連結場景、非首次開啟（讓位給新手導覽）才顯示。
+    // ── 抽卡按鈕：每 4 小時一張、每天最多 3 張 ──────────────
+    const drawBtn = document.getElementById('pc-draw-btn');
+    const drawHint = document.getElementById('pc-draw-hint');
+    let drawTick = null;
+    function stopDrawTick() { if (drawTick) { clearInterval(drawTick); drawTick = null; } }
+    function refreshDrawBtn() {
+      if (!drawBtn) return;
+      const st = drawStatus();
+      if (st.ok) {
+        drawBtn.disabled = false;
+        drawBtn.textContent = t('pc.draw.ready');
+        drawHint.textContent = t('pc.draw.left').replace('{n}', st.remainingToday);
+        stopDrawTick();
+      } else if (st.reason === 'daily') {
+        drawBtn.disabled = true;
+        drawBtn.textContent = t('pc.draw.daily');
+        drawHint.textContent = '';
+        stopDrawTick();
+      } else { // cooldown
+        drawBtn.disabled = true;
+        drawBtn.textContent = t('pc.draw.wait').replace('{t}', fmtCooldown(st.cooldownLeft));
+        drawHint.textContent = t('pc.draw.left').replace('{n}', st.remainingToday);
+        if (!drawTick) drawTick = setInterval(refreshDrawBtn, 1000);
+      }
+    }
+    refreshPcDrawBtn = refreshDrawBtn; // 供 setLang 切語言時重繪
+    if (drawBtn) drawBtn.addEventListener('click', () => {
+      if (!drawStatus().ok) return;
+      open(); // 抽新卡：內部會 recordDraw + 顯影 + refreshDrawBtn
+    });
+    refreshDrawBtn();
+
+    // 開場問候：當天首次開啟、若此刻可抽，自動沖洗一張當「今日的時光明信片」
+    //（算進當日 3 張額度）。非深連結、已過新手導覽才觸發；一天只自動跳一次。
     // 注意：不能把 ?city= 算進 scripted——selectCity 會把它寫回網址，
-    // 否則使用者切過城市後就永遠抽不到卡。
+    // 否則使用者切過城市後就永遠不會自動問候。
     const scripted = params.get('panel') || params.get('picker') || params.get('layer');
     const today = new Date().toISOString().slice(0, 10);
-    let onboarded = false, lastDraw = null;
+    let onboarded = false, autoDate = null;
     try {
       onboarded = localStorage.getItem('taiwanOldMaps.onboarded') === '1';
-      lastDraw = localStorage.getItem('taiwanOldMaps.wpcDate');
+      autoDate = localStorage.getItem('taiwanOldMaps.wpcAutoDate');
     } catch {}
-    if (onboarded && !scripted && lastDraw !== today) {
-      try { localStorage.setItem('taiwanOldMaps.wpcDate', today); } catch {}
+    if (onboarded && !scripted && autoDate !== today && drawStatus().ok) {
+      try { localStorage.setItem('taiwanOldMaps.wpcAutoDate', today); } catch {}
       setTimeout(open, 1400);
     }
   })();

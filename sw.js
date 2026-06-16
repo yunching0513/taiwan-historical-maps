@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v53-2026-06-16'; // 底部面板改 transform 滑動動畫，修復 Android 開啟閃爍
+const CACHE_VERSION = 'v54-2026-06-16'; // 明信片抽卡：每 4 小時一張、每天最多 3 張
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
