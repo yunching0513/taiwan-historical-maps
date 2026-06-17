@@ -2442,6 +2442,16 @@
     border-color: var(--vermilion);
     color: var(--paper);
   }
+  .panel-foot .sfx-vol {
+    flex: 1 1 70px;
+    min-width: 56px;
+    max-width: 120px;
+    height: 18px;
+    accent-color: var(--vermilion);
+    cursor: pointer;
+    transition: opacity 0.18s;
+  }
+  .panel-foot .sfx-vol:disabled { cursor: default; }
   /* 姊妹專案外連（pill 形式的 <a>） */
   .panel-foot .sister-pill {
     display: inline-flex;
@@ -3721,6 +3731,9 @@
       <div class="lang-row" role="group" aria-label="Sound">
         <span class="mono" data-i18n="sfx.label">音效</span>
         <button type="button" class="sfx-pill" id="sfx-toggle">🔊 開</button>
+        <button type="button" class="sfx-pill" id="sfx-minimal" data-i18n="sfx.minimal" title="只在重要時刻發聲">精簡</button>
+        <input type="range" class="sfx-vol" id="sfx-vol" min="0" max="1" step="0.05" value="0.8"
+               data-i18n="sfx.vol" data-i18n-attr="aria-label" aria-label="音量" />
       </div>
 
       <!-- ── Postcard font toggle ─────────────────────────────── -->
@@ -4225,6 +4238,8 @@
       'sfx.label': '音效',
       'sfx.on': '🔊 開',
       'sfx.off': '🔇 關',
+      'sfx.minimal': '精簡',
+      'sfx.vol': '音量',
       'pcfont.label': '明信片字體',
       'pcfont.mincho': '日本明體',
       'pcfont.gothic': '黑體',
@@ -4447,6 +4462,8 @@
       'sfx.label': 'Sound',
       'sfx.on': '🔊 On',
       'sfx.off': '🔇 Off',
+      'sfx.minimal': 'Minimal',
+      'sfx.vol': 'Volume',
       'pcfont.label': 'Postcard font',
       'pcfont.mincho': 'Mincho 明體',
       'pcfont.gothic': 'Gothic 黑體',
@@ -4669,6 +4686,8 @@
       'sfx.label': '効果音',
       'sfx.on': '🔊 オン',
       'sfx.off': '🔇 オフ',
+      'sfx.minimal': 'シンプル',
+      'sfx.vol': '音量',
       'pcfont.label': '絵葉書の書体',
       'pcfont.mincho': '明朝体',
       'pcfont.gothic': 'ゴシック体',
@@ -4989,7 +5008,10 @@
       cityListInner.appendChild(group);
     });
     cityListInner.querySelectorAll('.city-pill').forEach(pill => {
-      pill.addEventListener('click', () => selectCity(pill.dataset.id));
+      pill.addEventListener('click', () => {
+        try { sfx.page(); } catch {}
+        selectCity(pill.dataset.id);
+      });
     });
   }
   buildCityList();
@@ -5106,6 +5128,7 @@
         `;
         row.addEventListener('click', e => {
           if (e.target.closest('.opacity-slot')) return;
+          try { sfx.page(); } catch {}
           setActive(hm.id);
         });
         row.querySelector('input[type=range]').addEventListener('input', e => {
@@ -7976,6 +7999,7 @@
       'taiwanOldMaps.postcards', 'taiwanOldMaps.drawnPostcards', 'taiwanOldMaps.traces',
       'taiwanOldMaps.postcardOpenCities', 'taiwanOldMaps.showPostcardMarkers',
       'taiwanOldMaps.theme', 'taiwanOldMaps.pcFont', 'taiwanOldMaps.sound',
+      'taiwanOldMaps.soundVol', 'taiwanOldMaps.soundMinimal',
       'taiwanOldMaps.lang', 'taiwanOldMaps.lastCity', 'taiwanOldMaps.onboarded',
       'taiwanOldMaps.wpcDate', 'taiwanOldMaps.wpcAutoDate', 'taiwanOldMaps.pcDraws',
       'taiwanOldMaps.bgLocationConsent', 'taiwanOldMaps.reportQueue',
@@ -9353,8 +9377,14 @@
   // ── 音效（Web Audio 合成，無音檔；音量刻意壓低求舒適）──
   const sfx = (function () {
     const KEY = 'taiwanOldMaps.sound';
+    const VOL_KEY = 'taiwanOldMaps.soundVol';
+    const MIN_KEY = 'taiwanOldMaps.soundMinimal';
     let enabled = true;
+    let masterVol = 0.8;   // 0–1 主音量
+    let minimal = false;   // 精簡模式：只在「重要時刻」（收藏／稀有／顯影／蓋印）發聲
     try { enabled = localStorage.getItem(KEY) !== '0'; } catch {}
+    try { const v = parseFloat(localStorage.getItem(VOL_KEY)); if (!isNaN(v)) masterVol = Math.min(1, Math.max(0, v)); } catch {}
+    try { minimal = localStorage.getItem(MIN_KEY) === '1'; } catch {}
     let ctx = null;
     function ac() {
       if (!ctx) {
@@ -9373,7 +9403,7 @@
       const o = c.createOscillator(), g = c.createGain();
       o.type = type; o.frequency.value = freq;
       g.gain.setValueAtTime(0, t0);
-      g.gain.linearRampToValueAtTime(vol, t0 + 0.012);
+      g.gain.linearRampToValueAtTime(vol * masterVol, t0 + 0.012);
       g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
       o.connect(g).connect(c.destination);
       o.start(t0); o.stop(t0 + dur + 0.05);
@@ -9389,14 +9419,17 @@
       f.frequency.exponentialRampToValueAtTime(Math.max(fEnd, 40), t0 + dur);
       const g = c.createGain();
       g.gain.setValueAtTime(0, t0);
-      g.gain.linearRampToValueAtTime(vol, t0 + dur * 0.35);
+      g.gain.linearRampToValueAtTime(vol * masterVol, t0 + dur * 0.35);
       g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
       src.connect(f); f.connect(g); g.connect(c.destination);
       src.start(t0); src.stop(t0 + dur + 0.05);
     }
-    function guard(fn) {
+    // ambient=true 的音效屬「氛圍／回饋」類，精簡模式下會略過，只保留重要時刻。
+    function guard(fn, ambient) {
       return function () {
         if (!enabled) return;
+        if (ambient && minimal) return;
+        if (masterVol <= 0) return;
         const c = ac();
         if (!c || c.state !== 'running') return;
         try { fn(c, c.currentTime + 0.02); } catch {}
@@ -9414,6 +9447,19 @@
         tone(c, t + 0.55, 1318.5, 0.9, 0.05);
         tone(c, t + 0.55, 2637, 0.5, 0.015);
         shimmer(c, t + 0.55);
+      }),
+      // 稀有新卡：顯影氣息＋大調五聲上行琶音＋光點瀑布，比 develop 更華麗，
+      // 專給「抽到還沒收藏過的新卡」時播放，放大收集的成就感。
+      rare: guard((c, t) => {
+        noise(c, t, 1.3, 0.05, 350, 2700);
+        const arp = [659.3, 880, 1046.5, 1318.5, 1760];   // E5 A5 C6 E6 A6
+        arp.forEach((f, i) => {
+          tone(c, t + 0.5 + i * 0.10, f, 0.75, 0.05, 'triangle');
+          tone(c, t + 0.5 + i * 0.10, f * 2, 0.4, 0.012, 'triangle'); // 八度泛音添光澤
+        });
+        tone(c, t + 1.05, 2349.3, 0.6, 0.014, 'triangle'); // 光點瀑布
+        tone(c, t + 1.20, 2637, 0.6, 0.012, 'triangle');
+        tone(c, t + 1.35, 3135.96, 0.55, 0.010, 'triangle');
       }),
       // 收藏成功：木琴般的兩音上行（E5 → A5），溫暖不刺耳
       collect: guard((c, t) => {
@@ -9433,20 +9479,36 @@
         noise(c, t, 0.34, 0.022, 2800, 600);              // 翻卡／洗牌的細沙聲
         const up = [523.3, 587.3, 659.3, 783.99, 880];    // C5 D5 E5 G5 A5（五聲音階）
         up.forEach((f, i) => tone(c, t + i * 0.055, f, 0.16, 0.04, 'triangle'));
-      }),
+      }, true),
       // 冷卻結束：音樂盒般的三音，溫柔提醒「可以再抽一張了」
       ready: guard((c, t) => {
         tone(c, t, 783.99, 0.5, 0.05);                    // G5
         tone(c, t + 0.12, 1046.5, 0.5, 0.05);             // C6
         tone(c, t + 0.24, 1318.5, 0.7, 0.045);            // E6
         tone(c, t + 0.24, 2637, 0.35, 0.012);
-      }),
+      }, true),
       // 介面輕點：柔和的「噗」，給展開面板、開卡等動作一點觸覺回饋
       tap: guard((c, t) => {
         tone(c, t, 523.3, 0.07, 0.035, 'sine');
         tone(c, t, 1046.5, 0.05, 0.010, 'sine');
-      }),
+      }, true),
+      // 翻頁：極輕的紙頁氣聲，給切換城市／圖層一點翻閱的觸感
+      page: guard((c, t) => {
+        noise(c, t, 0.16, 0.014, 2000, 500);
+        tone(c, t + 0.015, 392, 0.06, 0.010, 'sine');
+      }, true),
       get enabled() { return enabled; },
+      get minimal() { return minimal; },
+      get volume() { return masterVol; },
+      setVolume(v) {
+        masterVol = Math.min(1, Math.max(0, Number(v) || 0));
+        try { localStorage.setItem(VOL_KEY, String(masterVol)); } catch {}
+      },
+      toggleMinimal() {
+        minimal = !minimal;
+        try { localStorage.setItem(MIN_KEY, minimal ? '1' : '0'); } catch {}
+        return minimal;
+      },
       toggle() {
         enabled = !enabled;
         try { localStorage.setItem(KEY, enabled ? '1' : '0'); } catch {}
@@ -9480,6 +9542,9 @@
     function open(pcArg) {
       const pc = pcArg || drawCard();
       currentPc = pc;
+      // 是否抽到「全新的卡」（從沒抽過也沒收藏過）——決定揭曉時放稀有音還是一般顯影音。
+      // 必須在 drawnPostcards.add 之前判斷。
+      const isNewCard = !pcArg && !drawnPostcards.has(pc.id) && !collectedPostcards.has(pc.id);
       if (!pcArg) {
         // 抽卡：抽到的卡進卡夾（泛黃預覽態），走到現場才升級全彩收藏。
         // 記一次抽卡時間，啟動 4 小時冷卻並更新按鈕狀態。
@@ -9496,7 +9561,7 @@
       img.onload = () => {
         void img.offsetWidth; // reflow，讓動畫可重播
         img.classList.add('developing');
-        try { sfx.develop(); } catch {}
+        try { (isNewCard ? sfx.rare : sfx.develop)(); } catch {}
       };
       img.src = `icons/postcards/${pc.id}.jpg`;
       document.getElementById('wpc-title').textContent =
@@ -9593,13 +9658,37 @@
   (function setupSfxToggle() {
     const btn = document.getElementById('sfx-toggle');
     if (!btn) return;
+    const minBtn = document.getElementById('sfx-minimal');
+    const vol = document.getElementById('sfx-vol');
     function paint() {
       // 動態換 i18n key，語言切換時 applyI18n 會維持正確文案
       btn.dataset.i18n = sfx.enabled ? 'sfx.on' : 'sfx.off';
       btn.textContent = t(sfx.enabled ? 'sfx.on' : 'sfx.off');
       btn.classList.toggle('active', sfx.enabled);
+      // 精簡鈕與音量條：音效關閉時停用並淡化
+      if (minBtn) {
+        minBtn.classList.toggle('active', sfx.enabled && sfx.minimal);
+        minBtn.disabled = !sfx.enabled;
+        minBtn.style.opacity = sfx.enabled ? '' : '0.4';
+      }
+      if (vol) {
+        vol.value = sfx.volume;
+        vol.disabled = !sfx.enabled;
+        vol.style.opacity = sfx.enabled ? '' : '0.4';
+      }
     }
     btn.addEventListener('click', () => { sfx.toggle(); paint(); });
+    if (minBtn) minBtn.addEventListener('click', () => {
+      if (!sfx.enabled) return;
+      const nowMinimal = sfx.toggleMinimal();
+      if (!nowMinimal) { try { sfx.tap(); } catch {} } // 切回完整模式時給一聲回饋
+      paint();
+    });
+    if (vol) {
+      vol.addEventListener('input', () => sfx.setVolume(parseFloat(vol.value)));
+      // 放開時用「收藏音」試聽當前音量
+      vol.addEventListener('change', () => { try { sfx.collect(); } catch {} });
+    }
     paint();
   })();
 
