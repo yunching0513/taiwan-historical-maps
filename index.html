@@ -905,6 +905,12 @@
   .tl-chooser-btn:hover { border-color:var(--graphite); color:var(--ink); }
   .tl-chooser-btn.primary { background:var(--vermilion); border-color:var(--vermilion); color:#fff; }
   .tl-chooser-btn.primary:hover { background:var(--indigo-d); border-color:var(--indigo-d); color:#fff; }
+  .tl-speed { display:flex; align-items:center; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
+  .tl-speed-lb { font-size:11.5px; color:var(--ash); margin-right:2px; }
+  .tl-speed-btn { border:1px solid var(--stone); background:transparent; color:var(--graphite); font-family:var(--zh-sans); font-size:12px; padding:4px 12px; border-radius:4px; cursor:pointer; transition:all .15s; -webkit-tap-highlight-color:transparent; }
+  .tl-speed-btn:hover { border-color:var(--graphite); color:var(--ink); }
+  .tl-speed-btn.sel { background:var(--vermilion); border-color:var(--vermilion); color:#fff; }
+  .tl-rec-tip { font-size:10.5px; line-height:1.6; color:var(--ash); margin:10px 0 0; padding-top:10px; border-top:1px dotted var(--mist); }
 
   /* ── Four-era collage modal (#7) ─────────────────── */
   .era-modal[hidden] { display: none; }
@@ -1417,6 +1423,53 @@
     gap: 10px;
     margin-top: 10px;
   }
+  /* 分區大區（北/中/南/東/離島）：可收合的 <details> */
+  .pc-region { margin: 12px 0 0; }
+  .pc-region:first-child { margin-top: 4px; }
+  .pc-region > summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1.5px solid var(--stone);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pc-region > summary::-webkit-details-marker { display: none; }
+  .pc-region > summary::marker { content: ''; }
+  .pc-region[open] > summary .pc-city-caret {
+    transform: rotate(90deg);
+    color: var(--vermilion);
+  }
+  .pc-region-zh {
+    font-family: var(--zh-serif);
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--ink);
+    letter-spacing: 0.1em;
+  }
+  .pc-region-en {
+    flex: 1;
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 11px;
+    color: var(--ash);
+    letter-spacing: 0.04em;
+  }
+  .pc-region[open] > summary .pc-region-zh { color: var(--vermilion); }
+  .pc-region-body { padding-left: 2px; }
+  /* 區內縣市小標題（非收合，僅作分隔） */
+  .pc-city-head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 16px 0 0;
+    padding: 4px 0;
+    border-bottom: 1px dotted var(--mist);
+  }
+  .pc-region-body .pc-city-head:first-child { margin-top: 12px; }
   .postcard-cell {
     position: relative;
     aspect-ratio: 4 / 5.5;
@@ -3792,7 +3845,14 @@
   <div class="tl-chooser-card" role="dialog" aria-labelledby="tl-chooser-title">
     <div class="tl-chooser-title" id="tl-chooser-title" data-i18n="tl.choose.title">時光快轉 · 選擇年代</div>
     <div class="tl-chooser-hint" data-i18n="tl.choose.hint">勾選要播放的歷史圖。標「偏糊」者在目前縮放畫質較低，已預設不選。</div>
+    <div class="tl-speed" id="tl-speed" role="group" aria-label="速度">
+      <span class="tl-speed-lb" data-i18n="tl.speed.label">每頁停留</span>
+      <button type="button" class="tl-speed-btn" data-speed="fast" data-i18n="tl.speed.fast">快</button>
+      <button type="button" class="tl-speed-btn" data-speed="mid" data-i18n="tl.speed.mid">中 4秒</button>
+      <button type="button" class="tl-speed-btn" data-speed="slow" data-i18n="tl.speed.slow">慢 6秒</button>
+    </div>
     <div class="tl-chooser-list" id="tl-chooser-list"></div>
+    <div class="tl-rec-tip" data-i18n="tl.rec.tip">想存成影片？播放時用手機內建「螢幕錄影」即可錄下並分享。</div>
     <div class="tl-chooser-foot">
       <button type="button" class="tl-chooser-btn" id="tl-chooser-all" data-i18n="tl.choose.all">全選</button>
       <span style="flex:1"></span>
@@ -4114,6 +4174,11 @@
       'tl.choose.all': '全選',
       'tl.choose.cancel': '取消',
       'tl.choose.play': '▶ 開始',
+      'tl.speed.label': '每頁停留',
+      'tl.speed.fast': '快',
+      'tl.speed.mid': '中 4秒',
+      'tl.speed.slow': '慢 6秒',
+      'tl.rec.tip': '想存成影片？播放時用手機內建「螢幕錄影」即可錄下並分享。',
       'pc.toggle': '地圖標記',
       'pc.count.suffix': '收進卡夾 · 開著 App 按定位、走近現場自動沖洗',
       'pc.locked.title': '未發掘',
@@ -4337,6 +4402,11 @@
       'tl.choose.all': 'All',
       'tl.choose.cancel': 'Cancel',
       'tl.choose.play': '▶ Start',
+      'tl.speed.label': 'Per frame',
+      'tl.speed.fast': 'Fast',
+      'tl.speed.mid': 'Med 4s',
+      'tl.speed.slow': 'Slow 6s',
+      'tl.rec.tip': 'Want to save it as a video? Use your phone’s built-in Screen Recording while it plays.',
       'strata.four_era.sub': '',
       'pc.toggle': 'Pins',
       'pc.count.suffix': 'in binder · keep app open, tap Locate, walk near a site',
@@ -4561,6 +4631,11 @@
       'tl.choose.all': '全選択',
       'tl.choose.cancel': 'キャンセル',
       'tl.choose.play': '▶ 開始',
+      'tl.speed.label': '1コマ',
+      'tl.speed.fast': '速い',
+      'tl.speed.mid': '中 4秒',
+      'tl.speed.slow': '遅い 6秒',
+      'tl.rec.tip': '動画として保存したい場合は、再生中にスマホの「画面収録」をご利用ください。',
       'strata.four_era.sub': 'Four Eras',
       'pc.toggle': '地図ピン',
       'pc.count.suffix': '収集済 · アプリを開き現在地をオン、近づくと現像',
@@ -6187,6 +6262,26 @@
     if (!btn || !overlay) return;
     let playing = false, stopFlag = false;
 
+    // 每頁停留時間（毫秒）。使用者可選，偏好記在 localStorage。
+    const TL_DWELL = { fast: 1200, mid: 3400, slow: 6000 };
+    let tlSpeed = 'mid';
+    try { const s = localStorage.getItem('taiwanOldMaps.tlSpeed'); if (s && TL_DWELL[s]) tlSpeed = s; } catch {}
+    const speedWrap = document.getElementById('tl-speed');
+    function paintSpeed() {
+      if (!speedWrap) return;
+      speedWrap.querySelectorAll('.tl-speed-btn').forEach(b => b.classList.toggle('sel', b.dataset.speed === tlSpeed));
+    }
+    if (speedWrap) {
+      speedWrap.querySelectorAll('.tl-speed-btn').forEach(b => {
+        b.addEventListener('click', () => {
+          tlSpeed = b.dataset.speed;
+          try { localStorage.setItem('taiwanOldMaps.tlSpeed', tlSpeed); } catch {}
+          paintSpeed();
+        });
+      });
+      paintSpeed();
+    }
+
     const sleep = ms => new Promise(r => setTimeout(r, ms));
     function fade(layer, from, to, ms) {
       return new Promise(res => {
@@ -6277,7 +6372,8 @@
         ]);
         if (prev) map.removeLayer(prev);
         prev = layer; prevTarget = target;
-        for (let k = 0; k < 12 && !stopFlag; k++) await sleep(100);
+        const dwellSteps = Math.round((TL_DWELL[tlSpeed] || 3400) / 100);
+        for (let k = 0; k < dwellSteps && !stopFlag; k++) await sleep(100);
       }
       const ended = !stopFlag;
       setUI(false);
@@ -6454,26 +6550,34 @@
   // City label registry — keeps panel headings and source attribution
   // in one place. Add a city entry here when extending to a new region.
   const POSTCARD_CITIES = [
-    { id: 'keelung',   zh: '基隆', en: 'Kīrūn · Keelung' },
-    { id: 'taipei',    zh: '臺北', en: 'Taihoku · Taipei' },
-    { id: 'wenshan',   zh: '文山', en: 'Bunsan · Wenshan' },
-    { id: 'newtaipei', zh: '新北', en: 'Shintoku · New Taipei' },
-    { id: 'yilan',     zh: '宜蘭', en: 'Giran · Yilan' },
-    { id: 'taoyuan',   zh: '桃園', en: 'Tōen · Taoyuan' },
-    { id: 'hsinchu',   zh: '新竹', en: 'Shinchiku · Hsinchu' },
-    { id: 'miaoli',    zh: '苗栗', en: 'Byōritsu · Miaoli' },
-    { id: 'taichung',  zh: '臺中', en: 'Taichū · Taichung' },
-    { id: 'changhua',  zh: '彰化', en: 'Shōka · Changhua' },
-    { id: 'nantou',    zh: '南投', en: 'Nantō · Nantou' },
-    { id: 'yunlin',    zh: '雲林', en: 'Unrin · Yunlin' },
-    { id: 'chiayi',    zh: '嘉義', en: 'Kagi · Chiayi' },
-    { id: 'tainan',    zh: '臺南', en: 'Tainan · Tainan' },
-    { id: 'kaohsiung', zh: '高雄', en: 'Takao · Kaohsiung' },
-    { id: 'pingtung',  zh: '屏東', en: 'Heitō · Pingtung' },
-    { id: 'hualien',   zh: '花蓮', en: 'Karenkō · Hualien' },
-    { id: 'taitung',   zh: '臺東', en: 'Taitō · Taitung' },
-    { id: 'penghu',    zh: '澎湖', en: 'Hōko · Penghu' },
-    { id: 'school',    zh: '學校', en: 'Gakuen · Taihoku Schools' },
+    { id: 'keelung',   region: 'north',   zh: '基隆', en: 'Kīrūn · Keelung' },
+    { id: 'taipei',    region: 'north',   zh: '臺北', en: 'Taihoku · Taipei' },
+    { id: 'wenshan',   region: 'north',   zh: '文山', en: 'Bunsan · Wenshan' },
+    { id: 'newtaipei', region: 'north',   zh: '新北', en: 'Shintoku · New Taipei' },
+    { id: 'yilan',     region: 'north',   zh: '宜蘭', en: 'Giran · Yilan' },
+    { id: 'taoyuan',   region: 'north',   zh: '桃園', en: 'Tōen · Taoyuan' },
+    { id: 'hsinchu',   region: 'north',   zh: '新竹', en: 'Shinchiku · Hsinchu' },
+    { id: 'school',    region: 'north',   zh: '學校', en: 'Gakuen · Taihoku Schools' },
+    { id: 'miaoli',    region: 'central', zh: '苗栗', en: 'Byōritsu · Miaoli' },
+    { id: 'taichung',  region: 'central', zh: '臺中', en: 'Taichū · Taichung' },
+    { id: 'changhua',  region: 'central', zh: '彰化', en: 'Shōka · Changhua' },
+    { id: 'nantou',    region: 'central', zh: '南投', en: 'Nantō · Nantou' },
+    { id: 'yunlin',    region: 'central', zh: '雲林', en: 'Unrin · Yunlin' },
+    { id: 'chiayi',    region: 'south',   zh: '嘉義', en: 'Kagi · Chiayi' },
+    { id: 'tainan',    region: 'south',   zh: '臺南', en: 'Tainan · Tainan' },
+    { id: 'kaohsiung', region: 'south',   zh: '高雄', en: 'Takao · Kaohsiung' },
+    { id: 'pingtung',  region: 'south',   zh: '屏東', en: 'Heitō · Pingtung' },
+    { id: 'hualien',   region: 'east',    zh: '花蓮', en: 'Karenkō · Hualien' },
+    { id: 'taitung',   region: 'east',    zh: '臺東', en: 'Taitō · Taitung' },
+    { id: 'penghu',    region: 'island',  zh: '澎湖', en: 'Hōko · Penghu' },
+  ];
+  // 明信片面板的分區（沿用 REGIONS 的 id，但用較完整的中文名）
+  const POSTCARD_REGIONS = [
+    { id: 'north',   zh: '北部', en: 'North' },
+    { id: 'central', zh: '中部', en: 'Central' },
+    { id: 'south',   zh: '南部', en: 'South' },
+    { id: 'east',    zh: '東部', en: 'East' },
+    { id: 'island',  zh: '離島', en: 'Islands' },
   ];
 
   const POSTCARDS = [
@@ -7045,9 +7149,10 @@
   // City groups that the user has manually expanded in the panel.
   // Default empty Set = everything collapsed on first visit; reloading
   // preserves whatever the user opened.
-  const postcardOpenCities = (() => {
+  // 明信片面板現以「北/中/南/東/離島」分區收合，記住展開了哪些區。
+  const postcardOpenRegions = (() => {
     try {
-      const raw = JSON.parse(localStorage.getItem('taiwanOldMaps.postcardOpenCities') || '[]');
+      const raw = JSON.parse(localStorage.getItem('taiwanOldMaps.postcardOpenRegions') || '[]');
       return new Set(Array.isArray(raw) ? raw : []);
     } catch { return new Set(); }
   })();
@@ -7146,54 +7251,69 @@
   function renderPostcardGrid() {
     const grid = document.getElementById('postcard-grid');
     if (!grid) return;
-    // Group cards by city so the panel shows a header strip per city
-    // followed by that city's 2-col grid.
+    // 兩層結構：外層為「北/中/南/東/離島」可收合大區（只 5 個，面板清爽），
+    // 區內再以縣市為輕量小標題＋該市 2 欄卡片。
     const byCity = new Map();
     POSTCARDS.forEach(pc => {
       const arr = byCity.get(pc.city) || [];
       arr.push(pc);
       byCity.set(pc.city, arr);
     });
-    const html = [];
-    POSTCARD_CITIES.forEach(city => {
+    const inBinder = id => collectedPostcards.has(id) || drawnPostcards.has(id);
+
+    function cityBlock(city) {
       const cards = byCity.get(city.id);
-      if (!cards || !cards.length) return;
-      // 卡夾數：已收藏（走到現場）＋已抽到（每日卡），去重計算——
-      // 兩種都算「進了卡夾」，所以抽每日卡時城市小計與總數都會增加。
-      const inBinderHere = cards.filter(c => collectedPostcards.has(c.id) || drawnPostcards.has(c.id)).length;
-      // Persist the open city via a localStorage Set so toggle survives
-      // a reload. Default closed — keeps the panel scannable with
-      // 200+ total cards.
-      const isOpen = postcardOpenCities.has(city.id);
-      html.push(`
-        <details class="pc-city" data-city="${city.id}"${isOpen ? ' open' : ''}>
-        <summary>
-          <span class="pc-city-caret">▸</span>
+      if (!cards || !cards.length) return { html: '', got: 0, total: 0 };
+      // 卡夾數：已收藏（走到現場）＋已抽到（每日卡），去重計算。
+      const here = cards.filter(c => inBinder(c.id)).length;
+      const cells = cards.map(pc => {
+        const collected = collectedPostcards.has(pc.id);
+        const drawn = !collected && drawnPostcards.has(pc.id);
+        const imgSrc = (collected || drawn) ? `icons/postcards/${pc.id}.jpg` : 'icons/postcards/_unknown.jpg';
+        // English locale: surface the existing pc.en field on each
+        // postcard. zh + ja: keep pc.title (kanji place names read
+        // well in Japanese; descriptions remain zh per Phase A scope).
+        const tileTitle = (currentLang === 'en' && pc.en) ? pc.en : pc.title;
+        const label = (collected || drawn)
+          ? `${tileTitle}<span class="pc-year">${pc.year}</span>`
+          : `??? <span class="pc-year">— · —</span>`;
+        return `
+          <div class="postcard-cell ${collected ? 'collected' : drawn ? 'drawn' : 'locked'}" data-id="${pc.id}">
+            <img src="${imgSrc}" alt="${(collected || drawn) ? tileTitle : t('pc.locked.title')}" loading="lazy" />
+            <div class="pc-label">${label}</div>
+            ${collected ? '<div class="pc-badge">✓</div>' : drawn ? '<div class="pc-badge pc-badge--drawn">🎴</div>' : ''}
+          </div>`;
+      }).join('');
+      const html = `
+        <div class="pc-city-head">
           <span class="pc-city-zh">${city.zh}</span>
           <span class="pc-city-en">${city.en}</span>
-          <span class="pc-city-tally">${inBinderHere} / ${cards.length}</span>
-        </summary>
-        <div class="pc-city-grid">
-          ${cards.map(pc => {
-            const collected = collectedPostcards.has(pc.id);
-            const drawn = !collected && drawnPostcards.has(pc.id);
-            const imgSrc = (collected || drawn) ? `icons/postcards/${pc.id}.jpg` : 'icons/postcards/_unknown.jpg';
-            // English locale: surface the existing pc.en field on each
-            // postcard. zh + ja: keep pc.title (kanji place names read
-            // well in Japanese; descriptions remain zh per Phase A scope).
-            const tileTitle = (currentLang === 'en' && pc.en) ? pc.en : pc.title;
-            const label = (collected || drawn)
-              ? `${tileTitle}<span class="pc-year">${pc.year}</span>`
-              : `??? <span class="pc-year">— · —</span>`;
-            return `
-              <div class="postcard-cell ${collected ? 'collected' : drawn ? 'drawn' : 'locked'}" data-id="${pc.id}">
-                <img src="${imgSrc}" alt="${(collected || drawn) ? tileTitle : t('pc.locked.title')}" loading="lazy" />
-                <div class="pc-label">${label}</div>
-                ${collected ? '<div class="pc-badge">✓</div>' : drawn ? '<div class="pc-badge pc-badge--drawn">🎴</div>' : ''}
-              </div>
-            `;
-          }).join('')}
+          <span class="pc-city-tally">${here} / ${cards.length}</span>
         </div>
+        <div class="pc-city-grid">${cells}</div>`;
+      return { html, got: here, total: cards.length };
+    }
+
+    const html = [];
+    POSTCARD_REGIONS.forEach(region => {
+      const cities = POSTCARD_CITIES.filter(c => c.region === region.id);
+      let body = '', got = 0, total = 0;
+      cities.forEach(city => {
+        const b = cityBlock(city);
+        body += b.html; got += b.got; total += b.total;
+      });
+      if (!total) return;
+      // 預設收合，避免 200+ 張卡塞滿面板；展開狀態記在 localStorage。
+      const isOpen = postcardOpenRegions.has(region.id);
+      html.push(`
+        <details class="pc-region" data-region="${region.id}"${isOpen ? ' open' : ''}>
+        <summary>
+          <span class="pc-city-caret">▸</span>
+          <span class="pc-region-zh">${region.zh}</span>
+          <span class="pc-region-en">${region.en}</span>
+          <span class="pc-city-tally">${got} / ${total}</span>
+        </summary>
+        <div class="pc-region-body">${body}</div>
         </details>
       `);
     });
@@ -7201,18 +7321,18 @@
     const totalEl = document.getElementById('postcard-count');
     if (totalEl) {
       // 去重：抽到又走到現場收藏的卡只算一次
-      const inBinder = new Set([...collectedPostcards, ...drawnPostcards]).size;
-      totalEl.innerHTML = `<span class="num">${inBinder}</span> / ${POSTCARDS.length} ${t('pc.count.suffix')}`;
+      const got = new Set([...collectedPostcards, ...drawnPostcards]).size;
+      totalEl.innerHTML = `<span class="num">${got}</span> / ${POSTCARDS.length} ${t('pc.count.suffix')}`;
     }
-    // Wire up open/close persistence on each <details>
-    grid.querySelectorAll('details.pc-city').forEach(el => {
+    // Wire up open/close persistence on each region <details>
+    grid.querySelectorAll('details.pc-region').forEach(el => {
       el.addEventListener('toggle', () => {
-        const id = el.dataset.city;
-        if (el.open) postcardOpenCities.add(id);
-        else postcardOpenCities.delete(id);
+        const id = el.dataset.region;
+        if (el.open) postcardOpenRegions.add(id);
+        else postcardOpenRegions.delete(id);
         try {
-          localStorage.setItem('taiwanOldMaps.postcardOpenCities',
-            JSON.stringify([...postcardOpenCities]));
+          localStorage.setItem('taiwanOldMaps.postcardOpenRegions',
+            JSON.stringify([...postcardOpenRegions]));
         } catch {}
       });
     });
@@ -7997,7 +8117,8 @@
   (function setupBackup() {
     const LS_KEYS = [
       'taiwanOldMaps.postcards', 'taiwanOldMaps.drawnPostcards', 'taiwanOldMaps.traces',
-      'taiwanOldMaps.postcardOpenCities', 'taiwanOldMaps.showPostcardMarkers',
+      'taiwanOldMaps.postcardOpenCities', 'taiwanOldMaps.postcardOpenRegions',
+      'taiwanOldMaps.showPostcardMarkers', 'taiwanOldMaps.tlSpeed',
       'taiwanOldMaps.theme', 'taiwanOldMaps.pcFont', 'taiwanOldMaps.sound',
       'taiwanOldMaps.soundVol', 'taiwanOldMaps.soundMinimal',
       'taiwanOldMaps.lang', 'taiwanOldMaps.lastCity', 'taiwanOldMaps.onboarded',
