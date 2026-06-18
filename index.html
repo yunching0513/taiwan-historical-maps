@@ -6397,7 +6397,7 @@
         const blurry = (def.maxNativeZoom ?? 16) <= z - 2; // 放大逾 4 倍視為偏糊
         const lb = currentLang === 'en' && def.en ? def.en : def.label;
         return `<label class="tl-chooser-row">
-          <input type="checkbox" value="${def.id}" ${blurry ? '' : 'checked'}>
+          <input type="checkbox" value="${def.id}">
           <span class="yr">${def.year}</span><span class="lb">${lb}</span>
           ${blurry ? `<span class="blur">${t('tl.blurry')}</span>` : ''}
         </label>`;
