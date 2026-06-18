@@ -228,6 +228,47 @@
     margin-left: auto;
   }
 
+  /* ── Collapsible panel sections ─────────────────── */
+  details.panel-section > summary.section-label {
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  details.panel-section > summary.section-label::-webkit-details-marker { display: none; }
+  details.panel-section > summary.section-label::marker { content: ''; }
+  details.panel-section > summary.section-label .num::before {
+    content: '▸ ';
+    font-size: 7px;
+    display: inline-block;
+    transition: transform 0.18s;
+    color: var(--indigo);
+    vertical-align: 1px;
+    opacity: 0.7;
+  }
+  details.panel-section[open] > summary.section-label .num::before {
+    transform: rotate(90deg);
+  }
+
+  /* ── Help-fab pulse (after first onboarding) ────── */
+  @keyframes help-pulse {
+    0%, 100% { box-shadow: 0 4px 16px -6px rgba(31, 29, 25, 0.25); }
+    50% { box-shadow: 0 0 0 8px rgba(214, 91, 58, 0.22), 0 4px 16px -6px rgba(31, 29, 25, 0.25); }
+  }
+  .help-fab.pulse {
+    animation: help-pulse 1.4s ease-in-out 3;
+    border-color: var(--vermilion);
+    color: var(--vermilion);
+  }
+  .help-fab-label {
+    font-family: var(--zh-serif);
+    font-style: normal;
+    font-size: 8px;
+    letter-spacing: 0.05em;
+    opacity: 0.75;
+    line-height: 1;
+  }
+
   /* ── City selector ─────────────────────────────── */
   .city-current {
     display: grid;
@@ -3053,17 +3094,22 @@
     left: 14px;
     bottom: 18px;
     z-index: 1000;
-    width: 36px; height: 36px;
-    border-radius: 50%;
+    width: 40px;
+    border-radius: 20px;
     border: 1px solid var(--stone);
     background: var(--paper-2);
     color: var(--graphite);
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 17px;
+    font-size: 16px;
     cursor: pointer;
     box-shadow: 0 4px 16px -6px rgba(31, 29, 25, 0.25);
     transition: all 0.15s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 7px 4px 5px;
+    gap: 1px;
   }
   .help-fab:hover {
     border-color: var(--vermilion);
@@ -3583,10 +3629,12 @@
       <div class="head-meta" id="head-meta">N — · E —</div>
     </header>
 
-    <div class="section-label">
+    <!-- ▾ 00 — Region ──────────────────────────────── -->
+    <details class="panel-section" id="sec-00" open>
+    <summary class="section-label">
       <span class="num">00 — Region</span>
       <span class="en" data-i18n="sec.region.sub" data-i18n-hide-empty="1">city · county</span>
-    </div>
+    </summary>
 
     <div class="city-current" id="city-current" role="button" aria-expanded="false">
       <div>
@@ -3604,11 +3652,14 @@
       <span data-i18n="notice.islands">離島地區歷史圖磚覆蓋有限，部分年代可能無資料。</span>
       <span class="en" data-i18n="notice.islands.sub" data-i18n-hide-empty="1">Historical tile coverage is limited for outlying islands.</span>
     </div>
+    </details>
 
-    <div class="section-label">
+    <!-- ▾ 01 — Base ─────────────────────────────────── -->
+    <details class="panel-section" id="sec-01">
+    <summary class="section-label">
       <span class="num">01 — Base</span>
       <span class="en" data-i18n="sec.base.sub" data-i18n-hide-empty="1">base map · 底圖</span>
-    </div>
+    </summary>
 
     <div class="base-pills" id="base-pills">
       <button type="button" class="base-pill" data-id="plain">
@@ -3626,6 +3677,14 @@
       <div id="loc-coords">—</div>
       <div id="loc-accuracy">—</div>
     </div>
+    </details>
+
+    <!-- ▾ 02 — Traces ───────────────────────────────── -->
+    <details class="panel-section" id="sec-02">
+    <summary class="section-label">
+      <span class="num">02 — Traces</span>
+      <span class="en" data-i18n="sec.traces.sub" data-i18n-hide-empty="1">saved walks</span>
+    </summary>
 
     <div class="rec-status" id="rec-status">
       <div class="label" data-i18n="rec.label">Recording</div>
@@ -3654,33 +3713,17 @@
       <input type="file" id="photo-file" accept="image/*" capture="environment" hidden />
     </div>
 
-    <!-- Photo lightbox -->
-    <div class="photo-lightbox" id="photo-lightbox" hidden>
-      <div class="lb-backdrop" id="lb-backdrop"></div>
-      <div class="lb-card">
-        <img class="lb-image" id="lb-image" alt="" />
-        <div class="lb-meta">
-          <div class="lb-date" id="lb-date">—</div>
-          <div class="lb-coords" id="lb-coords">—</div>
-          <div class="lb-layer" id="lb-layer"></div>
-        </div>
-        <button type="button" class="lb-close" id="lb-close" aria-label="關閉">✕</button>
-      </div>
-    </div>
-
-    <div class="section-label">
-      <span class="num">02 — Traces</span>
-      <span class="en" data-i18n="sec.traces.sub" data-i18n-hide-empty="1">saved walks</span>
-    </div>
-
     <div class="trace-list" id="trace-list">
       <div class="trace-empty"><span data-i18n="traces.empty">尚無記錄</span> · <span data-i18n="traces.empty.sub" data-i18n-hide-empty="1">No saved traces</span></div>
     </div>
+    </details>
 
-    <div class="section-label">
+    <!-- ▾ 03 — Strata ───────────────────────────────── -->
+    <details class="panel-section" id="sec-03" open>
+    <summary class="section-label">
       <span class="num">03 — Strata</span>
       <span class="en" data-i18n="sec.strata.sub" data-i18n-hide-empty="1">historical layers</span>
-    </div>
+    </summary>
 
     <div class="strata-actions">
       <button type="button" class="strata-act" id="btn-compare">
@@ -3695,11 +3738,14 @@
     </button>
 
     <div id="historical-layers"></div>
+    </details>
 
-    <div class="section-label">
+    <!-- ▾ 04 — Offline ──────────────────────────────── -->
+    <details class="panel-section" id="sec-04">
+    <summary class="section-label">
       <span class="num">04 — Offline</span>
       <span class="en" data-i18n="sec.offline.sub" data-i18n-hide-empty="1">offline packs</span>
-    </div>
+    </summary>
 
     <button type="button" class="btn btn-pack" id="btn-pack">
       <span class="dot"></span>
@@ -3710,8 +3756,11 @@
     <div class="pack-list" id="pack-list">
       <div class="trace-empty"><span data-i18n="pack.empty">尚無離線包</span> · <span data-i18n="pack.empty.sub" data-i18n-hide-empty="1">No offline packs</span></div>
     </div>
+    </details>
 
-    <div class="section-label section-label--row">
+    <!-- ▾ 05 — Postcards ────────────────────────────── -->
+    <details class="panel-section" id="sec-05">
+    <summary class="section-label section-label--row">
       <span>
         <span class="num">05 — Postcards</span>
         <span class="en" data-i18n="sec.postcards.sub">明信片散策</span>
@@ -3721,7 +3770,7 @@
         <span class="pc-toggle-track"><span class="pc-toggle-thumb"></span></span>
         <span class="pc-toggle-label" data-i18n="pc.toggle">地圖標記</span>
       </label>
-    </div>
+    </summary>
 
     <div class="postcard-grid" id="postcard-grid"></div>
     <div class="postcard-count" id="postcard-count">
@@ -3732,11 +3781,14 @@
       <button type="button" class="pc-draw-btn" id="pc-draw-btn">🎴 抽一張明信片</button>
       <div class="pc-draw-hint" id="pc-draw-hint"></div>
     </div>
+    </details>
 
-    <div class="section-label">
+    <!-- ▾ 06 — Calendar ─────────────────────────────── -->
+    <details class="panel-section" id="sec-06">
+    <summary class="section-label">
       <span class="num">06 — Calendar</span>
       <span class="en" data-i18n="sec.calendar.sub">月曆</span>
-    </div>
+    </summary>
 
     <div class="cal-header">
       <button type="button" class="cal-nav" id="cal-prev" aria-label="上一月" data-i18n="cal.nav.prev" data-i18n-attr="aria-label">◀</button>
@@ -3746,16 +3798,20 @@
     <div class="cal-weekdays"><span data-i18n="cal.weekday.sun">日</span><span data-i18n="cal.weekday.mon">一</span><span data-i18n="cal.weekday.tue">二</span><span data-i18n="cal.weekday.wed">三</span><span data-i18n="cal.weekday.thu">四</span><span data-i18n="cal.weekday.fri">五</span><span data-i18n="cal.weekday.sat">六</span></div>
     <div class="cal-days" id="cal-days"></div>
     <div class="cal-summary" id="cal-summary"></div>
+    </details>
 
-    <div class="section-label">
+    <!-- ▾ 07 — Seals ───────────────────────────────── -->
+    <details class="panel-section" id="sec-07">
+    <summary class="section-label">
       <span class="num">07 — Seals</span>
       <span class="en" data-i18n="sec.seals.sub">縣市印章</span>
-    </div>
+    </summary>
 
     <div class="seal-grid" id="seal-grid"></div>
     <div class="seal-count" id="seal-count">
       <span class="num">0</span> / 22 <span data-i18n="seals.visited">visited</span>
     </div>
+    </details>
 
     <footer class="panel-foot">
       <span class="mono" data-i18n="foot.sources">Sources</span>
@@ -3862,8 +3918,22 @@
   </div>
 </div>
 
+<!-- Photo lightbox (position: fixed — kept outside panel sections) -->
+<div class="photo-lightbox" id="photo-lightbox" hidden>
+  <div class="lb-backdrop" id="lb-backdrop"></div>
+  <div class="lb-card">
+    <img class="lb-image" id="lb-image" alt="" />
+    <div class="lb-meta">
+      <div class="lb-date" id="lb-date">—</div>
+      <div class="lb-coords" id="lb-coords">—</div>
+      <div class="lb-layer" id="lb-layer"></div>
+    </div>
+    <button type="button" class="lb-close" id="lb-close" aria-label="關閉">✕</button>
+  </div>
+</div>
+
 <!-- Floating help button — reopen onboarding tour -->
-<button type="button" class="help-fab" id="btn-help" aria-label="操作說明" data-i18n="ob.help.aria" data-i18n-attr="aria-label">?</button>
+<button type="button" class="help-fab" id="btn-help" aria-label="操作說明" data-i18n="ob.help.aria" data-i18n-attr="aria-label">?<span class="help-fab-label">說明</span></button>
 
 <!-- Welcome postcard — a random vintage postcard greets each app open -->
 <div class="wpc-overlay" id="wpc-overlay" aria-hidden="true">
@@ -8118,7 +8188,7 @@
     const LS_KEYS = [
       'taiwanOldMaps.postcards', 'taiwanOldMaps.drawnPostcards', 'taiwanOldMaps.traces',
       'taiwanOldMaps.postcardOpenCities', 'taiwanOldMaps.postcardOpenRegions',
-      'taiwanOldMaps.showPostcardMarkers', 'taiwanOldMaps.tlSpeed',
+      'taiwanOldMaps.openSections', 'taiwanOldMaps.showPostcardMarkers', 'taiwanOldMaps.tlSpeed',
       'taiwanOldMaps.theme', 'taiwanOldMaps.pcFont', 'taiwanOldMaps.sound',
       'taiwanOldMaps.soundVol', 'taiwanOldMaps.soundMinimal',
       'taiwanOldMaps.lang', 'taiwanOldMaps.lastCity', 'taiwanOldMaps.onboarded',
@@ -9465,9 +9535,14 @@
       overlay.setAttribute('aria-hidden', 'false');
     }
     function close() {
+      const firstTime = localStorage.getItem(ONBOARDED_KEY) !== '1';
       overlay.classList.remove('show');
       overlay.setAttribute('aria-hidden', 'true');
       try { localStorage.setItem(ONBOARDED_KEY, '1'); } catch {}
+      if (firstTime) {
+        helpBtn.classList.add('pulse');
+        setTimeout(() => helpBtn.classList.remove('pulse'), 5000);
+      }
     }
 
     nextBtn.addEventListener('click', () => {
@@ -9493,6 +9568,41 @@
     let seen = false;
     try { seen = localStorage.getItem(ONBOARDED_KEY) === '1'; } catch {}
     if (!seen && !scripted) setTimeout(open, 600);
+  })();
+
+  // ── Collapsible section state persistence ────────
+  (function setupSectionCollapse() {
+    const OPEN_KEY = 'taiwanOldMaps.openSections';
+    const DEFAULT_OPEN = new Set(['sec-00', 'sec-03']);
+
+    function saveState() {
+      const open = [];
+      document.querySelectorAll('details.panel-section').forEach(el => {
+        if (el.open) open.push(el.id);
+      });
+      try { localStorage.setItem(OPEN_KEY, JSON.stringify(open)); } catch {}
+    }
+
+    // Restore from localStorage (overrides HTML defaults)
+    try {
+      const raw = localStorage.getItem(OPEN_KEY);
+      if (raw) {
+        const saved = new Set(JSON.parse(raw));
+        document.querySelectorAll('details.panel-section').forEach(el => {
+          el.open = saved.has(el.id);
+        });
+      }
+    } catch {}
+
+    document.querySelectorAll('details.panel-section').forEach(el => {
+      el.addEventListener('toggle', saveState);
+    });
+
+    // Postcards toggle: prevent label click from toggling the section
+    const pcToggleLabel = document.querySelector('#sec-05 .pc-toggle');
+    if (pcToggleLabel) {
+      pcToggleLabel.addEventListener('click', e => e.stopPropagation());
+    }
   })();
 
   // ── 音效（Web Audio 合成，無音檔；音量刻意壓低求舒適）──
