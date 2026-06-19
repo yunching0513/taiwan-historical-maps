@@ -3088,12 +3088,18 @@
   .geo-steps li { margin-bottom: 4px; }
   .geo-steps b { color: var(--vermilion); font-weight: 600; }
 
-  /* Floating「？」— reopen the tour anytime */
-  .help-fab {
+  /* Floating「？」+ 今日明信片頁籤 — anchored bottom-left as a stack */
+  .help-stack {
     position: absolute;
     left: 14px;
     bottom: 18px;
     z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .help-fab {
     width: 40px;
     border-radius: 20px;
     border: 1px solid var(--stone);
@@ -3114,6 +3120,55 @@
   .help-fab:hover {
     border-color: var(--vermilion);
     color: var(--vermilion);
+  }
+
+  /* 今日明信片小頁籤：貼在「?」球上方，標籤本身就是教學 */
+  .today-pc-tab {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px 7px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--stone);
+    background: var(--paper-2);
+    color: var(--graphite);
+    font-family: var(--zh-serif);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 4px 16px -6px rgba(31, 29, 25, 0.25);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .today-pc-tab:hover {
+    border-color: var(--vermilion);
+    color: var(--vermilion);
+  }
+  .today-pc-tab .tpc-emoji { font-size: 14px; line-height: 1; }
+  /* 未讀小紅點：當天有新明信片但還沒從頁籤點開過 */
+  .today-pc-tab .tpc-dot {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--vermilion);
+    border: 1.5px solid var(--paper);
+    opacity: 0;
+    transform: scale(0.4);
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .today-pc-tab.has-new .tpc-dot {
+    opacity: 1;
+    transform: scale(1);
+    animation: tpc-dot-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes tpc-dot-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(214, 91, 58, 0.5); }
+    50% { box-shadow: 0 0 0 5px rgba(214, 91, 58, 0); }
   }
 
   /* ── Mobile-only elements (hidden on desktop) ──── */
@@ -3540,8 +3595,8 @@
     }
     .leaflet-control-attribution { display: none; }
 
-    /* Keep the help「？」above the collapsed bottom sheet */
-    .help-fab {
+    /* Keep the help「？」+ tab above the collapsed bottom sheet */
+    .help-stack {
       bottom: calc(env(safe-area-inset-bottom, 0px) + 74px);
     }
 
@@ -3932,8 +3987,14 @@
   </div>
 </div>
 
-<!-- Floating help button — reopen onboarding tour -->
-<button type="button" class="help-fab" id="btn-help" aria-label="操作說明" data-i18n="ob.help.aria" data-i18n-attr="aria-label">?<span class="help-fab-label">說明</span></button>
+<!-- Floating stack: 今日明信片頁籤 + 說明球 -->
+<div class="help-stack">
+  <button type="button" class="today-pc-tab" id="today-pc-tab" data-i18n="tpc.tab.aria" data-i18n-attr="aria-label" aria-label="今日明信片">
+    <span class="tpc-emoji">🎴</span><span class="tpc-text" data-i18n="tpc.tab">今日明信片</span>
+    <span class="tpc-dot" aria-hidden="true"></span>
+  </button>
+  <button type="button" class="help-fab" id="btn-help" aria-label="操作說明" data-i18n="ob.help.aria" data-i18n-attr="aria-label">?<span class="help-fab-label">說明</span></button>
+</div>
 
 <!-- Welcome postcard — a random vintage postcard greets each app open -->
 <div class="wpc-overlay" id="wpc-overlay" aria-hidden="true">
@@ -4367,6 +4428,8 @@
       'ob.s4.body': '開啟 GPS 記錄你的散策路線、沿途拍照，收集 22 縣市印章。歷史不在課本裡，就在你走的這條路上。',
       'ob.s4.pick': '選擇你的城市，從那裡開始：',
       'wpc.tag': '今日的時光明信片',
+      'tpc.tab': '今日明信片',
+      'tpc.tab.aria': '查看今日的時光明信片',
       'wpc.hint': '走到現場 50 公尺內，就能把它收進你的圖鑑',
       'wpc.close': '開始散策',
       'wpc.go': '帶我去這裡',
@@ -4596,6 +4659,8 @@
       'ob.s4.body': 'Record your stroll with GPS, snap photos along the way, and collect seals from all 22 cities and counties. History isn\'t in a textbook — it\'s on the street you\'re walking.',
       'ob.s4.pick': 'Pick your city to start there:',
       'wpc.tag': 'Today\'s postcard from the past',
+      'tpc.tab': 'Today\'s card',
+      'tpc.tab.aria': 'View today\'s postcard from the past',
       'wpc.hint': 'Walk within 50 m of this spot to add it to your collection',
       'wpc.close': 'Start strolling',
       'wpc.go': 'Take me there',
@@ -4825,6 +4890,8 @@
       'ob.s4.body': 'GPSで散策ルートを記録し、写真を撮り、22県市の印章を集めましょう。歴史は教科書の中ではなく、いま歩いているこの道にあります。',
       'ob.s4.pick': 'あなたの街を選んで、そこから始めましょう：',
       'wpc.tag': '今日の時間旅行絵葉書',
+      'tpc.tab': '今日の絵葉書',
+      'tpc.tab.aria': '今日の時間旅行絵葉書を見る',
       'wpc.hint': '現地から50m以内に近づくと、コレクションに加わります',
       'wpc.close': '散策を始める',
       'wpc.go': 'ここに連れて行って',
@@ -8193,6 +8260,7 @@
       'taiwanOldMaps.soundVol', 'taiwanOldMaps.soundMinimal',
       'taiwanOldMaps.lang', 'taiwanOldMaps.lastCity', 'taiwanOldMaps.onboarded',
       'taiwanOldMaps.wpcDate', 'taiwanOldMaps.wpcAutoDate', 'taiwanOldMaps.pcDraws',
+      'taiwanOldMaps.wpcTodayId', 'taiwanOldMaps.wpcTabSeen',
       'taiwanOldMaps.bgLocationConsent', 'taiwanOldMaps.reportQueue',
     ];
     const expBtn = document.getElementById('backup-export');
@@ -9756,7 +9824,35 @@
     const closeBtn = document.getElementById('wpc-close');
     const dismissBtn = document.getElementById('wpc-dismiss');
     const goBtn = document.getElementById('wpc-go');
+    const todayTab = document.getElementById('today-pc-tab');
     let currentPc = null;
+
+    // ── 「今日明信片」頁籤狀態 ───────────────────────
+    // 今日的卡：當天自動問候 / 手動抽到的最新一張，記在 localStorage，
+    // 點頁籤可重看（不耗額度）。標籤文字本身就在教使用者那張卡是什麼。
+    const todayStr = () => new Date().toISOString().slice(0, 10);
+    function getTodayCard() {
+      try {
+        const raw = JSON.parse(localStorage.getItem('taiwanOldMaps.wpcTodayId') || 'null');
+        if (raw && raw.date === todayStr()) return POSTCARDS.find(p => p.id === raw.id) || null;
+      } catch {}
+      return null;
+    }
+    function setTodayCard(id) {
+      try { localStorage.setItem('taiwanOldMaps.wpcTodayId', JSON.stringify({ date: todayStr(), id })); } catch {}
+      updateTabState();
+    }
+    function updateTabState() {
+      if (!todayTab) return;
+      let seen = null;
+      try { seen = localStorage.getItem('taiwanOldMaps.wpcTabSeen'); } catch {}
+      // 有今日卡、且還沒從頁籤點開過 → 顯示未讀紅點吸引注意
+      todayTab.classList.toggle('has-new', !!getTodayCard() && seen !== todayStr());
+    }
+    function markTabSeen() {
+      try { localStorage.setItem('taiwanOldMaps.wpcTabSeen', todayStr()); } catch {}
+      updateTabState();
+    }
 
     function close() {
       overlay.classList.remove('show');
@@ -9782,6 +9878,7 @@
         drawnPostcards.add(pc.id);
         persistDrawnPostcards();
         recordDraw();
+        setTodayCard(pc.id); // 這張成為「今日明信片」，頁籤可重看
         try { renderPostcardGrid(); } catch {}
         try { renderPostcardMarkers(lastUserLatLng); } catch {} // 地圖標記轉朱框
         try { refreshDrawBtn(); } catch {}
@@ -9832,6 +9929,20 @@
     if (dlBtn) dlBtn.addEventListener('click', () => {
       if (currentPc && typeof downloadPostcardCard === 'function') downloadPostcardCard(currentPc);
     });
+
+    // ── 「今日明信片」頁籤：重看今日卡，若還沒有就現抽一張 ──
+    if (todayTab) {
+      todayTab.addEventListener('click', () => {
+        markTabSeen();
+        const card = getTodayCard();
+        if (card) { open(card); return; }          // 重看今日卡，不耗額度
+        if (drawStatus().ok) { open(); return; }   // 今天還沒抽 → 現抽一張當今日卡
+        // 額度用完且今日無卡：回味卡夾裡最近抽到的；都沒有就預覽一張
+        const recent = [...drawnPostcards];
+        open(recent.length ? (POSTCARDS.find(p => p.id === recent[recent.length - 1]) || drawCard()) : drawCard());
+      });
+      updateTabState();
+    }
 
     // ── 抽卡按鈕：每 4 小時一張、每天最多 3 張 ──────────────
     const drawBtn = document.getElementById('pc-draw-btn');
