@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v63-2026-06-19'; // 底部面板改 1:1 拖曳開合 + 修透明殘影（will-change 動態化）
+const CACHE_VERSION = 'v64-2026-06-19'; // 附近的時光：開場推薦鄰近現場的可滑動故事卡堆
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
