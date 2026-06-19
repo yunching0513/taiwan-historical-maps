@@ -130,8 +130,19 @@
   html.theme-dark .search-input { color: var(--ink); }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; }
+  /* Full-screen map app: lock the page root so a vertical drag on the map
+     (or a scroll-boundary fling) can't trigger Android's pull-to-refresh /
+     overscroll bounce or toggle the address bar — both read as the whole
+     screen "jumping". All real scrolling happens in inner containers
+     (.panel-scroll, modal cards), which keep their own overflow. */
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
   body {
+    position: fixed;
+    inset: 0;
     font-family: var(--zh-sans);
     background: var(--paper);
     color: var(--ink);
