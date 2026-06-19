@@ -150,7 +150,7 @@ tf = textbox(s, 0.85, 5.35, 11.5, 1.3)
 for i, ln in enumerate([
     "把百年來的臺灣歷史地圖，疊回你腳下的街道",
     "A walking-first PPGIS · PWA · iOS / Android · 中 / EN / 日",
-    "吳昀慶　Yunching Wu",
+    "吳昀慶、張芸翠、朱穎芃",
 ]):
     p = para(tf, i == 0); p.space_after = Pt(4)
     run(p, ln, MONO if i else ZH_SANS, 11 if i else 12, ASH if i else GRAPH, spacing=1.2)
@@ -417,7 +417,7 @@ for i, ln in enumerate([
     "舊地圖散策 · Taiwan Old-Map Stroll",
     "PWA · iOS / Android · 三語 · 離線可用 · 開源",
     "圖資 © 中央研究院 GIS · NLSC · CARTO / OpenStreetMap",
-    "吳昀慶　Yunching Wu　·　github.com/yunching0513",
+    "吳昀慶、張芸翠、朱穎芃",
 ]):
     p = para(tf, i == 0); p.space_after = Pt(4)
     run(p, ln, MONO, 10.5, ASH, spacing=1.2)
