@@ -3442,12 +3442,20 @@
       padding: 0 0 calc(20px + env(safe-area-inset-bottom, 0px));
       box-shadow: 0 -12px 36px -16px rgba(31,29,25,0.4);
       /* Animate transform only — GPU-composited, no reflow. Animating
-         max-height instead caused a one-frame content flash on Android. */
+         max-height instead caused a one-frame content flash on Android.
+         NOTE: do NOT set a permanent `will-change: transform` here — on
+         Android WebView it makes the panel hold a partial layer texture,
+         so the region revealed mid-slide renders transparent (map bleeds
+         through). We promote the layer on demand from JS (drag start /
+         snap) and drop it on transitionend instead. */
       transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
       transform: translateY(0);
-      will-change: transform;
+      backface-visibility: hidden;
       overflow: hidden;
     }
+    /* While the finger is dragging the sheet, follow it 1:1 with no
+       transition; the snap-to-open/close transition is re-enabled on release. */
+    .panel.dragging { transition: none; }
     /* Suppress the slide transition on first paint so the sheet doesn't
        flash open then snap to peek while the page is loading. */
     .panel.no-anim { transition: none; }
@@ -4266,7 +4274,7 @@
       'search.aria.clear': '清除',
       'search.aria.locate': '定位',
       'search.aria.record': '記錄路線',
-      'sheet.hint': 'Tap to open · 點此展開',
+      'sheet.hint': '上滑展開 · Swipe up',
       'sec.region.sub': 'city · county',
       'sec.base.sub': 'base map · 底圖',
       'sec.traces.sub': 'saved walks',
@@ -4497,7 +4505,7 @@
       'search.aria.clear': 'Clear',
       'search.aria.locate': 'Locate me',
       'search.aria.record': 'Record route',
-      'sheet.hint': 'Tap to open',
+      'sheet.hint': 'Swipe up to open',
       'sec.region.sub': 'city · county',
       'sec.base.sub': 'base map',
       'sec.traces.sub': 'saved walks',
@@ -4728,7 +4736,7 @@
       'search.aria.clear': 'クリア',
       'search.aria.locate': '現在地',
       'search.aria.record': '散策を記録',
-      'sheet.hint': 'タップして展開',
+      'sheet.hint': '上にスワイプで展開',
       'sec.region.sub': '都市・県',
       'sec.base.sub': 'ベースマップ',
       'sec.traces.sub': '散策軌跡',
@@ -5372,33 +5380,110 @@
     sheetHandle.setAttribute('aria-expanded', String(!peek));
   }
 
-  // Tap toggles; a vertical swipe on the handle opens/closes directly so the
-  // sheet behaves like a native Android bottom drawer (swipe down → collapse).
-  let sheetStartY = null;
-  let sheetSwiped = false;
+  // ── Drag-to-open bottom sheet ───────────────────
+  // Follow the finger 1:1 (native-drawer feel) instead of a tap toggle.
+  // We drive `transform` inline during the drag with the transition off,
+  // then snap to open/peek on release. `will-change` is promoted only for
+  // the duration of the gesture/snap and dropped afterwards — leaving it on
+  // permanently makes Android WebView render the revealed lower region
+  // transparent (the map ghosts through the panel).
+  const PEEK_PX = 60;            // visible strip height when collapsed
+  const TAP_SLOP = 8;            // movement under this px counts as a tap
+  let dragStartY = null;         // touch start Y
+  let dragStartPeek = false;     // was the sheet peeked when the drag began
+  let dragMoved = false;         // did the finger travel past the tap slop
+  let dragOffset = 0;            // current translateY in px during drag
+  let lastDy = 0, lastT = 0, velocity = 0; // for fling detection
+  let touchHandled = false;      // swallow the synthetic click after a touch
+
+  const peekOffset = () => Math.max(0, panelEl.offsetHeight - PEEK_PX);
+
+  function promoteLayer() { panelEl.style.willChange = 'transform'; }
+  function dropLayer() { panelEl.style.willChange = ''; }
+
+  // Snap to a target state, animating via the CSS transition, then settle:
+  // clear the inline transform (class takes over) and drop the layer.
+  function snapTo(peek) {
+    panelEl.classList.remove('dragging');          // re-enable transition
+    promoteLayer();
+    // Force the browser to start the transition from the current inline
+    // transform, then move to the class-driven target.
+    panelEl.style.transform = `translateY(${peek ? peekOffset() : 0}px)`;
+    setPeek(peek);
+    const settle = () => {
+      // Bail if a new drag has taken over — it owns the transform now.
+      if (dragStartY !== null || panelEl.classList.contains('dragging')) return;
+      panelEl.style.transform = '';                // hand back to CSS class
+      dropLayer();
+      panelEl.removeEventListener('transitionend', settle);
+    };
+    panelEl.addEventListener('transitionend', settle);
+    // Safety net in case transitionend doesn't fire (interrupted/!isMobile).
+    setTimeout(settle, 480);
+  }
+
   sheetHandle.addEventListener('touchstart', (e) => {
     if (!isMobile()) return;
-    sheetStartY = e.touches[0].clientY;
-    sheetSwiped = false;
-  }, { passive: true });
-  sheetHandle.addEventListener('touchmove', (e) => {
-    if (!isMobile() || sheetStartY === null) return;
-    if (Math.abs(e.touches[0].clientY - sheetStartY) > 22) sheetSwiped = true;
-  }, { passive: true });
-  sheetHandle.addEventListener('touchend', (e) => {
-    if (!isMobile() || sheetStartY === null) return;
-    const dy = e.changedTouches[0].clientY - sheetStartY;
-    sheetStartY = null;
-    if (dy > 28) { setPeek(true); sheetSwiped = true; }        // swipe down → collapse
-    else if (dy < -28) { setPeek(false); sheetSwiped = true; try { sfx.tap(); } catch {} } // swipe up → expand
+    touchHandled = true;
+    dragStartY = e.touches[0].clientY;
+    dragStartPeek = panelEl.classList.contains('peek');
+    dragMoved = false;
+    dragOffset = dragStartPeek ? peekOffset() : 0;
+    lastDy = 0; lastT = e.timeStamp; velocity = 0;
+    panelEl.classList.add('dragging');
+    promoteLayer();
   }, { passive: true });
 
+  sheetHandle.addEventListener('touchmove', (e) => {
+    if (!isMobile() || dragStartY === null) return;
+    const dy = e.touches[0].clientY - dragStartY;
+    if (Math.abs(dy) > TAP_SLOP) dragMoved = true;
+    // Clamp between fully open (0) and peek; allow a little rubber-band past peek.
+    const base = dragStartPeek ? peekOffset() : 0;
+    dragOffset = Math.min(peekOffset() + 24, Math.max(0, base + dy));
+    panelEl.style.transform = `translateY(${dragOffset}px)`;
+    // Track instantaneous velocity (px/ms) for fling detection.
+    const dt = e.timeStamp - lastT;
+    if (dt > 0) velocity = (dy - lastDy) / dt;
+    lastDy = dy; lastT = e.timeStamp;
+  }, { passive: true });
+
+  sheetHandle.addEventListener('touchend', () => {
+    if (!isMobile() || dragStartY === null) return;
+    dragStartY = null;
+    if (!dragMoved) {
+      // Treat as a tap → toggle (preserve the original tap behaviour).
+      panelEl.classList.remove('dragging');
+      panelEl.style.transform = '';
+      const willOpen = panelEl.classList.contains('peek');
+      snapTo(!willOpen);
+      if (willOpen) { try { sfx.tap(); } catch {} }
+      return;
+    }
+    // Decide open vs peek: a clear flick wins; otherwise go by position.
+    let peek;
+    if (velocity > 0.45) peek = true;        // fast flick down → collapse
+    else if (velocity < -0.45) peek = false; // fast flick up → expand
+    else peek = dragOffset > peekOffset() * 0.5;
+    const wasPeek = panelEl.classList.contains('peek'); // state before the snap
+    snapTo(peek);
+    if (wasPeek && !peek) { try { sfx.tap(); } catch {} } // just expanded → 回饋
+  }, { passive: true });
+
+  sheetHandle.addEventListener('touchcancel', () => {
+    if (dragStartY === null) return;
+    dragStartY = null;
+    snapTo(panelEl.classList.contains('peek'));
+  }, { passive: true });
+
+  // Click only fires for keyboard / non-touch activation; the synthetic
+  // click that follows a real touch is swallowed by the touchHandled flag.
   sheetHandle.addEventListener('click', () => {
+    if (touchHandled) { touchHandled = false; return; }
     if (!isMobile()) return;
-    if (sheetSwiped) { sheetSwiped = false; return; } // swipe already handled it
     const willOpen = panelEl.classList.contains('peek');
-    setPeek(!willOpen);
-    if (willOpen) { try { sfx.tap(); } catch {} } // 展開時給一聲輕點回饋
+    snapTo(!willOpen);
+    if (willOpen) { try { sfx.tap(); } catch {} }
   });
 
   // Default to peek on mobile so the map is visible on first load. Suppress
