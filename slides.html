@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>舊地圖散策 · 專案簡報 / Taiwan Old-Map Stroll — Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500&family=EB+Garamond:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper:    #F1EFE9;
+    --paper-2:  #EAE8E2;
+    --ink:      #1F1D19;
+    --sumi:     #14130F;
+    --graphite: #4A463E;
+    --ash:      #6E6A60;
+    --silver:   #9C988C;
+    --mist:     #D8D4CA;
+    --stone:    #C9C4B8;
+    --indigo:   #2E4374;
+    --indigo-d: #1F2E52;
+    --vermilion:#D65B3A;
+    --zh-serif: "Noto Serif TC", serif;
+    --zh-sans:  "Noto Sans TC", system-ui, sans-serif;
+    --en-serif: "EB Garamond", Georgia, serif;
+    --mono:     "JetBrains Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: #2A2824;
+    color: var(--ink);
+    font-family: var(--zh-sans);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Stage (16:9, scales to viewport) ───────────── */
+  .stage {
+    position: relative;
+    width: 100vw;
+    height: 56.25vw;       /* 16:9 */
+    max-height: 100vh;
+    max-width: 177.78vh;
+    background: var(--paper);
+    overflow: hidden;
+    box-shadow: 0 40px 120px -30px rgba(0,0,0,0.7);
+  }
+  /* film grain, like the app */
+  .stage::after {
+    content: '';
+    position: absolute; inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0.5;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.30 0 0 0 0 0.30 0 0 0 0 0.29 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ── Slides ─────────────────────────────────────── */
+  .slide {
+    position: absolute; inset: 0;
+    padding: 5.4% 6.4%;
+    display: none;
+    flex-direction: column;
+    z-index: 2;
+  }
+  .slide.active { display: flex; animation: fade 0.5s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+  /* shared bits */
+  .kicker {
+    font-family: var(--mono);
+    font-size: 0.95vw;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--vermilion);
+    display: flex; align-items: center; gap: 0.9vw;
+    margin-bottom: 1.6vw;
+  }
+  .kicker::before {
+    content: '';
+    width: 3.2vw; height: 2px;
+    background: var(--vermilion);
+  }
+  h2 {
+    font-family: var(--zh-serif);
+    font-weight: 700;
+    font-size: 3.0vw;
+    letter-spacing: 0.06em;
+    color: var(--sumi);
+    line-height: 1.18;
+    margin-bottom: 0.5vw;
+  }
+  h2 .en {
+    display: block;
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 1.25vw;
+    letter-spacing: 0.02em;
+    color: var(--indigo);
+    margin-top: 0.5vw;
+  }
+  .lead {
+    font-family: var(--zh-serif);
+    font-size: 1.45vw;
+    line-height: 1.95;
+    color: var(--graphite);
+    letter-spacing: 0.03em;
+    max-width: 64%;
+  }
+  .body { font-size: 1.12vw; line-height: 1.9; color: var(--graphite); letter-spacing: 0.02em; }
+
+  .cols { display: flex; gap: 3vw; flex: 1; min-height: 0; }
+  .col { flex: 1; display: flex; flex-direction: column; }
+
+  /* feature / data cards */
+  .grid { display: grid; gap: 1.1vw; flex: 1; }
+  .g2 { grid-template-columns: 1fr 1fr; }
+  .g3 { grid-template-columns: 1fr 1fr 1fr; }
+  .card {
+    background: var(--paper-2);
+    border: 1px solid var(--stone);
+    border-left: 3px solid var(--indigo);
+    padding: 1.3vw 1.5vw;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .card.v { border-left-color: var(--vermilion); }
+  .card .ttl {
+    font-family: var(--zh-serif);
+    font-weight: 600;
+    font-size: 1.32vw;
+    letter-spacing: 0.05em;
+    color: var(--ink);
+    margin-bottom: 0.3vw;
+    display: flex; align-items: baseline; gap: 0.6vw;
+  }
+  .card .ttl .ic { font-size: 1.5vw; }
+  .card .ttl .en {
+    font-family: var(--en-serif);
+    font-style: italic;
+    font-size: 0.92vw;
+    color: var(--indigo);
+    letter-spacing: 0.01em;
+  }
+  .card .dsc { font-size: 1.0vw; line-height: 1.7; color: var(--ash); letter-spacing: 0.01em; }
+
+  /* big stat row */
+  .stats { display: flex; gap: 2.4vw; margin: 1.8vw 0 1.2vw; }
+  .stat .n {
+    font-family: var(--en-serif);
+    font-size: 4.2vw; line-height: 1;
+    color: var(--vermilion);
+    font-weight: 400;
+  }
+  .stat .l {
+    font-family: var(--mono);
+    font-size: 0.85vw; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--ash);
+    margin-top: 0.5vw;
+  }
+
+  /* timeline strip */
+  .timeline {
+    display: flex; align-items: stretch; gap: 0; margin-top: auto;
+    border-top: 1px solid var(--stone); padding-top: 1.3vw;
+  }
+  .era { flex: 1; padding-right: 1vw; position: relative; }
+  .era + .era { border-left: 1px dotted var(--mist); padding-left: 1vw; }
+  .era .yr { font-family: var(--mono); font-size: 0.95vw; letter-spacing: 0.1em; color: var(--vermilion); }
+  .era .nm { font-family: var(--zh-serif); font-size: 1.05vw; color: var(--ink); margin: 0.25vw 0; font-weight: 600; }
+  .era .sub { font-size: 0.82vw; color: var(--ash); line-height: 1.5; }
+
+  /* architecture diagram */
+  .arch { display: flex; flex-direction: column; gap: 0.9vw; flex: 1; justify-content: center; }
+  .layer { display: flex; align-items: center; gap: 1vw; }
+  .layer .tag {
+    font-family: var(--mono); font-size: 0.8vw; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ash); width: 7vw; text-align: right;
+  }
+  .layer .boxes { display: flex; gap: 0.8vw; flex: 1; }
+  .box {
+    background: var(--paper-2); border: 1px solid var(--stone);
+    padding: 0.7vw 1vw; font-size: 0.98vw; color: var(--ink);
+    flex: 1; display: flex; flex-direction: column; gap: 0.15vw;
+    border-radius: 2px;
+  }
+  .box b { font-family: var(--zh-serif); font-weight: 600; letter-spacing: 0.03em; }
+  .box span { font-family: var(--mono); font-size: 0.74vw; color: var(--ash); letter-spacing: 0.06em; }
+  .box.accent { border-color: var(--indigo); border-left: 3px solid var(--indigo); }
+  .box.fire { border-color: var(--vermilion); border-left: 3px solid var(--vermilion); }
+  .flow { text-align: center; color: var(--silver); font-size: 1.1vw; margin: -0.2vw 0; }
+
+  ul.ticks { list-style: none; display: flex; flex-direction: column; gap: 0.85vw; }
+  ul.ticks li { position: relative; padding-left: 1.6vw; font-size: 1.12vw; line-height: 1.6; color: var(--graphite); }
+  ul.ticks li::before { content: '—'; position: absolute; left: 0; color: var(--vermilion); font-family: var(--mono); }
+  ul.ticks li b { color: var(--ink); font-family: var(--zh-serif); font-weight: 600; }
+
+  .quote {
+    font-family: var(--zh-serif);
+    font-weight: 600;
+    font-size: 2.6vw;
+    line-height: 1.6;
+    letter-spacing: 0.05em;
+    color: var(--sumi);
+    max-width: 80%;
+  }
+  .quote .accent { color: var(--vermilion); }
+
+  /* sources line */
+  .sources { font-family: var(--mono); font-size: 0.82vw; letter-spacing: 0.06em; color: var(--ash); line-height: 1.9; margin-top: auto; border-top: 1px solid var(--stone); padding-top: 1vw; }
+  .sources b { color: var(--graphite); }
+
+  /* ── Title slide ────────────────────────────────── */
+  .title-slide { justify-content: center; }
+  .title-slide .stamp {
+    align-self: flex-start;
+    font-family: var(--mono); font-size: 0.9vw; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--vermilion);
+    border: 1px solid var(--vermilion); padding: 0.5vw 1vw; margin-bottom: 2.2vw;
+  }
+  .title-slide h1 {
+    font-family: var(--zh-serif); font-weight: 700;
+    font-size: 6.4vw; letter-spacing: 0.12em; color: var(--sumi); line-height: 1.05;
+  }
+  .title-slide .sub-en {
+    font-family: var(--en-serif); font-style: italic; font-size: 2.2vw;
+    color: var(--indigo); margin-top: 1vw; letter-spacing: 0.02em;
+  }
+  .title-slide .meta {
+    margin-top: 2.6vw; font-family: var(--mono); font-size: 0.95vw;
+    letter-spacing: 0.14em; color: var(--ash); line-height: 2;
+  }
+  .title-slide .yearline {
+    display: flex; align-items: baseline; gap: 1.2vw; margin-top: 1.8vw;
+    font-family: var(--mono); font-size: 1.1vw; letter-spacing: 0.1em; color: var(--graphite);
+  }
+  .title-slide .yearline .bar { flex: 0 0 6vw; height: 1px; background: var(--stone); align-self: center; }
+
+  /* page footer number */
+  .pageno {
+    position: absolute; right: 6.4%; bottom: 4.4%;
+    font-family: var(--mono); font-size: 0.82vw; letter-spacing: 0.2em;
+    color: var(--silver); z-index: 6;
+  }
+  .brandfoot {
+    position: absolute; left: 6.4%; bottom: 4.4%;
+    font-family: var(--mono); font-size: 0.78vw; letter-spacing: 0.18em;
+    color: var(--silver); z-index: 6; text-transform: uppercase;
+  }
+
+  /* ── Nav controls ───────────────────────────────── */
+  .nav {
+    position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 14px; z-index: 50;
+    background: rgba(20,19,15,0.72); backdrop-filter: blur(6px);
+    padding: 8px 14px; border-radius: 30px;
+  }
+  .nav button {
+    border: none; background: transparent; color: #EDEAE2;
+    font-size: 16px; cursor: pointer; padding: 4px 8px; border-radius: 50%;
+    font-family: var(--mono);
+  }
+  .nav button:hover { color: var(--vermilion); }
+  .nav .count { color: #C9C4B8; font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; min-width: 56px; text-align: center; }
+  .progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--vermilion); z-index: 60; transition: width 0.35s ease; }
+  .hint { position: fixed; top: 12px; right: 16px; z-index: 50; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: rgba(255,255,255,0.45); }
+
+  /* ── Print → PDF (one slide per page, landscape) ── */
+  @media print {
+    @page { size: 1280px 720px; margin: 0; }
+    body { background: #fff; display: block; overflow: visible; }
+    .nav, .progress, .hint { display: none !important; }
+    .stage { width: 1280px; height: 720px; max-width: none; max-height: none; box-shadow: none; page-break-after: always; }
+    .slide { display: flex !important; position: relative; inset: auto; width: 1280px; height: 720px; }
+    /* lock vw-based sizing to the print page width so text doesn't shrink */
+    :root { font-size: 16px; }
+    .slide { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="hint">← → 翻頁 · F 全螢幕 · P 列印成 PDF</div>
+
+<div class="stage" id="stage">
+
+  <!-- 01 — Title -->
+  <section class="slide title-slide active">
+    <div class="stamp">Taiwan · Old-Map Stroll</div>
+    <h1>舊地圖散策</h1>
+    <div class="sub-en">Walk the island through a century of maps</div>
+    <div class="yearline"><span>1897</span><span class="bar"></span><span>1944</span><span class="bar"></span><span>2003</span><span class="bar"></span><span>今 NOW</span></div>
+    <div class="meta">
+      把百年來的臺灣歷史地圖，疊回你腳下的街道<br>
+      A walking-first PPGIS · PWA · iOS / Android · 中 / EN / 日<br>
+      吳昀慶　Yunching Wu
+    </div>
+    <div class="brandfoot">Project Deck</div>
+    <div class="pageno">01 / 10</div>
+  </section>
+
+  <!-- 02 — The idea -->
+  <section class="slide">
+    <div class="kicker">01 · The Idea</div>
+    <h2>你腳下的馬路，百年前是什麼？<span class="en">A time machine you operate with your feet</span></h2>
+    <div class="cols" style="margin-top:1.6vw">
+      <div class="col">
+        <p class="lead" style="max-width:100%">
+          舊地圖散策把 1897 年以來的臺灣歷史地圖，疊在今日的街道上。
+          你現在走的這條路，可能曾是水圳、糖鐵，或一座消失的聚落。
+        </p>
+        <ul class="ticks" style="margin-top:1.8vw">
+          <li><b>不只是看圖</b>　帶著手機走出門，用 GPS 讓歷史在你腳下「對位」</li>
+          <li><b>不只是懷舊</b>　把分散在各機構的圖資，整理成人人可玩的介面</li>
+          <li><b>邊走邊收集</b>　走到歷史現場，老明信片就會「沖洗」顯影</li>
+        </ul>
+      </div>
+      <div class="col" style="justify-content:center">
+        <div class="card v" style="border-left-width:4px">
+          <div class="ttl"><span class="ic">🗺️</span>核心命題</div>
+          <div class="dsc" style="font-size:1.08vw;line-height:1.85">
+            歷史不在課本裡，<br>就在你走的這條路上。<br><br>
+            讓「地點」成為時間的入口，<br>讓散步成為一場考古。
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pageno">02 / 10</div>
+  </section>
+
+  <!-- 03 — Content & data -->
+  <section class="slide">
+    <div class="kicker">02 · Content &amp; Data</div>
+    <h2>內容與資料<span class="en">23 historical layers · 22 cities · 200+ postcards</span></h2>
+    <div class="stats">
+      <div class="stat"><div class="n">23</div><div class="l">歷史圖層 Layers</div></div>
+      <div class="stat"><div class="n">22</div><div class="l">縣市 Cities</div></div>
+      <div class="stat"><div class="n">200+</div><div class="l">老明信片 Postcards</div></div>
+      <div class="stat"><div class="n">3</div><div class="l">語言 中 / EN / 日</div></div>
+    </div>
+    <div class="timeline">
+      <div class="era"><div class="yr">1897 – 1944</div><div class="nm">日治時期</div><div class="sub">臺灣堡圖、蕃地地形圖、二萬五千分一地形圖…（10 圖層）</div></div>
+      <div class="era"><div class="yr">1944 – 1945</div><div class="nm">美軍時期</div><div class="sub">U.S. Army 地形圖與城市地圖（4 圖層）</div></div>
+      <div class="era"><div class="yr">1950 – 2003</div><div class="nm">戰後經建版</div><div class="sub">臺灣地形圖、經建版一～四版（7 圖層）</div></div>
+      <div class="era"><div class="yr">1966 / 1969</div><div class="nm">CORONA 衛星</div><div class="sub">冷戰時期解密衛星影像（2 圖層）</div></div>
+    </div>
+    <div class="sources">
+      <b>資料來源 Sources</b>　歷史圖資 · 中央研究院人社中心 GIS　|　現代底圖 · CARTO + OpenStreetMap　|　正射影像 · 國土測繪中心 NLSC　|　日本圖資 · 農研機構 迅速測図 / 國土地理院
+    </div>
+    <div class="pageno">03 / 10</div>
+  </section>
+
+  <!-- 04 — Core map features -->
+  <section class="slide">
+    <div class="kicker">03 · Core Features</div>
+    <h2>讀圖的四種方式<span class="en">Four ways to read time on the map</span></h2>
+    <div class="grid g2" style="margin-top:1.4vw">
+      <div class="card">
+        <div class="ttl"><span class="ic">🎚️</span>圖層疊加 <span class="en">Overlay &amp; opacity</span></div>
+        <div class="dsc">任選一張古地圖疊上現代街道，用透明度滑桿細調，讓今昔同時可見。</div>
+      </div>
+      <div class="card">
+        <div class="ttl"><span class="ic">↔️</span>對照拉條 <span class="en">Swipe compare</span></div>
+        <div class="dsc">左右滑動分界線，一邊現代、一邊古圖；也能古圖對古圖，比較不同年代。</div>
+      </div>
+      <div class="card">
+        <div class="ttl"><span class="ic">⊞</span>四代對照 <span class="en">Four eras</span></div>
+        <div class="dsc">四個年代並排同步縮放平移，一眼看完城市百年的長成過程。</div>
+      </div>
+      <div class="card v">
+        <div class="ttl"><span class="ic">▶</span>時光快轉 <span class="en">Time-lapse</span></div>
+        <div class="dsc">自選年代依序淡入淡出，從 1897 一路播到今天，像翻動一本會動的地圖。</div>
+      </div>
+    </div>
+    <div class="pageno">04 / 10</div>
+  </section>
+
+  <!-- 05 — Explore & collect -->
+  <section class="slide">
+    <div class="kicker">04 · Explore &amp; Collect</div>
+    <h2>把散步變成一場考古<span class="en">Gamified field exploration</span></h2>
+    <div class="grid g3" style="margin-top:1.4vw">
+      <div class="card v">
+        <div class="ttl"><span class="ic">📮</span>明信片顯影</div>
+        <div class="dsc">走到歷史現場 50 公尺內，日治老明信片自動「沖洗」收進圖鑑。</div>
+      </div>
+      <div class="card">
+        <div class="ttl"><span class="ic">🎴</span>每日抽卡</div>
+        <div class="dsc">每 4 小時、每日上限 3 張，沒走到也能先收藏回味。</div>
+      </div>
+      <div class="card">
+        <div class="ttl"><span class="ic">🧭</span>附近的時光</div>
+        <div class="dsc">一開 App 就推鄰近現場的故事卡，連偏鄉也有可探索的方向。</div>
+      </div>
+      <div class="card">
+        <div class="ttl"><span class="ic">👣</span>散策記錄</div>
+        <div class="dsc">GPS 記錄路線、距離與時間，沿途拍照釘在地圖上。</div>
+      </div>
+      <div class="card">
+        <div class="ttl"><span class="ic">🪧</span>縣市印章</div>
+        <div class="dsc">走訪 22 縣市收集印章，集成一本旅行護照。</div>
+      </div>
+      <div class="card">
+        <div class="ttl"><span class="ic">📅</span>散策月曆</div>
+        <div class="dsc">把每天的足跡標進月曆，回顧自己的時間旅行。</div>
+      </div>
+    </div>
+    <div class="pageno">05 / 10</div>
+  </section>
+
+  <!-- 06 — Architecture -->
+  <section class="slide">
+    <div class="kicker">05 · Architecture</div>
+    <h2>基本架構<span class="en">A pure front-end PWA — no server required</span></h2>
+    <div class="arch">
+      <div class="layer">
+        <div class="tag">Shell</div>
+        <div class="boxes">
+          <div class="box accent"><b>單檔 PWA</b><span>HTML + CSS + Vanilla JS</span></div>
+          <div class="box"><b>Leaflet.js</b><span>地圖 / 圖磚渲染 · 淡入淡出</span></div>
+          <div class="box"><b>Web Audio API</b><span>即時合成音效，無音檔</span></div>
+        </div>
+      </div>
+      <div class="flow">▼</div>
+      <div class="layer">
+        <div class="tag">Offline</div>
+        <div class="boxes">
+          <div class="box fire"><b>Service Worker</b><span>App Shell 預快取 · 離線可用</span></div>
+          <div class="box"><b>圖磚 LRU 快取</b><span>~1200 張上限 · 自動驅逐</span></div>
+          <div class="box"><b>localStorage</b><span>收藏 / 路線 / 設定，全存本機</span></div>
+        </div>
+      </div>
+      <div class="flow">▼</div>
+      <div class="layer">
+        <div class="tag">Data / Edge</div>
+        <div class="boxes">
+          <div class="box accent"><b>Cloudflare Workers</b><span>中研院圖磚代理 + CORS</span></div>
+          <div class="box"><b>中研院 / NLSC / 日本</b><span>歷史圖磚與正射影像來源</span></div>
+          <div class="box"><b>Capacitor 7</b><span>同一套碼上架 iOS / Android</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="pageno">06 / 10</div>
+  </section>
+
+  <!-- 07 — Offline & performance -->
+  <section class="slide">
+    <div class="kicker">06 · Offline &amp; Performance</div>
+    <h2>離線優先，走到山裡也能用<span class="en">Built to work without a signal</span></h2>
+    <div class="cols" style="margin-top:1.4vw">
+      <div class="col">
+        <ul class="ticks">
+          <li><b>分桶快取策略</b>　App Shell、執行時資源、圖磚、釘選離線包各自獨立，升級不互相清空</li>
+          <li><b>圖磚 LRU 驅逐</b>　常用圖磚留下、舊的自動淘汰，控制儲存在 100–150 MB 內</li>
+          <li><b>離線包下載</b>　把當前範圍整包釘住，出發前載好，山區無訊號照樣疊圖</li>
+          <li><b>網路優先 / 快取優先</b>　HTML 走網路優先即時更新；圖磚走快取優先省流量</li>
+        </ul>
+      </div>
+      <div class="col" style="justify-content:center">
+        <div class="card" style="border-left-color:var(--vermilion)">
+          <div class="ttl"><span class="ic">⚙️</span>SW 快取分桶</div>
+          <div class="dsc" style="font-family:var(--mono);font-size:0.92vw;line-height:2.1;color:var(--graphite)">
+            shell-cache　·　App 外殼<br>
+            runtime-cache　·　CDN / 字型<br>
+            tiles-cache　·　圖磚 (LRU 1200)<br>
+            pinned-cache　·　離線包 (永不驅逐)
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pageno">07 / 10</div>
+  </section>
+
+  <!-- 08 — Creative touches -->
+  <section class="slide">
+    <div class="kicker">07 · Creative Craft</div>
+    <h2>讓人想一直走下去的小巧思<span class="en">The details that make it feel alive</span></h2>
+    <div class="grid g3" style="margin-top:1.4vw">
+      <div class="card v">
+        <div class="ttl"><span class="ic">🎞️</span>走到才「顯影」</div>
+        <div class="dsc">未抵達的明信片以模糊泛黃預覽呈現，親自走到現場才全彩沖洗 — 保留抵達的獎勵感。</div>
+      </div>
+      <div class="card">
+        <div class="ttl"><span class="ic">🔊</span>純合成音效</div>
+        <div class="dsc">翻頁、顯影、抽到稀有卡的聲音全由 Web Audio 即時合成，零音檔、零延遲。</div>
+      </div>
+      <div class="card">
+        <div class="ttl"><span class="ic">📜</span>老紙質美學</div>
+        <div class="dsc">紙張底色、噪點顆粒、襯線字與朱紅印記，整個介面就像一份會動的舊地圖。</div>
+      </div>
+      <div class="card">
+        <div class="ttl"><span class="ic">↕️</span>拖曳式抽屜</div>
+        <div class="dsc">底部面板 1:1 跟手拖曳、依速度甩動吸附，符合手機直覺；並修掉 Android 合成殘影。</div>
+      </div>
+      <div class="card">
+        <div class="ttl"><span class="ic">✨</span>淡入淡出疊圖</div>
+        <div class="dsc">切換年代時圖磚交叉淡化，像底片疊印，而非生硬的瞬間跳換。</div>
+      </div>
+      <div class="card">
+        <div class="ttl"><span class="ic">🧑‍🏫</span>漸進式引導</div>
+        <div class="dsc">首訪導覽、今日明信片頁籤、可收合面板，讓複雜功能慢慢被發現。</div>
+      </div>
+    </div>
+    <div class="pageno">08 / 10</div>
+  </section>
+
+  <!-- 09 — Academic framing -->
+  <section class="slide">
+    <div class="kicker">08 · Research Framing</div>
+    <h2>一個「步行核心」的公眾參與式 GIS<span class="en">Walking-first PPGIS — and where it's heading</span></h2>
+    <div class="cols" style="margin-top:1.4vw">
+      <div class="col">
+        <p class="body" style="max-width:100%;margin-bottom:1.2vw">
+          多數 PPGIS 讓人坐在電腦前點圖填報；本專案把參與的觸發點移到<b style="color:var(--ink)">「身體實際走到的位置」</b>，
+          以接近觸發的收集與在地敘事，重新定義公眾如何與歷史地理互動。
+        </p>
+        <ul class="ticks">
+          <li><b>現況</b>　非同步勘誤閉環：使用者回報釘位 / 史料 → 人工審核 → 釋出</li>
+          <li><b>下一步</b>　即時 PPGIS：多人同步的知識共創</li>
+        </ul>
+      </div>
+      <div class="col" style="justify-content:center">
+        <div class="card accent" style="border-left-color:var(--indigo)">
+          <div class="ttl"><span class="ic">🚀</span>未來架構 Roadmap</div>
+          <div class="dsc" style="font-size:1.0vw;line-height:1.9">
+            <b style="color:var(--ink)">Supabase</b> (PostgreSQL + PostGIS + Realtime)<br>
+            · 使用者勘誤上傳<br>
+            · 多源交叉驗證 / 研究者審核<br>
+            · 通過後即時推播至所有用戶端
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pageno">09 / 10</div>
+  </section>
+
+  <!-- 10 — Closing -->
+  <section class="slide title-slide">
+    <div class="kicker">10 · Closing</div>
+    <div class="quote">
+      歷史不在課本裡，<br>就在你<span class="accent">走的這條路</span>上。
+    </div>
+    <div class="meta" style="margin-top:2.4vw;font-family:var(--mono);font-size:0.95vw;letter-spacing:0.14em;color:var(--ash);line-height:2.1">
+      舊地圖散策 · Taiwan Old-Map Stroll<br>
+      PWA · iOS / Android · 三語 · 離線可用 · 開源<br>
+      圖資 © 中央研究院 GIS · NLSC · CARTO / OpenStreetMap<br>
+      吳昀慶　Yunching Wu　·　github.com/yunching0513
+    </div>
+    <div class="brandfoot">Thank you</div>
+    <div class="pageno">10 / 10</div>
+  </section>
+
+</div>
+
+<div class="nav">
+  <button id="prev" aria-label="上一張">‹</button>
+  <span class="count" id="count">1 / 10</span>
+  <button id="next" aria-label="下一張">›</button>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const progress = document.getElementById('progress');
+  const count = document.getElementById('count');
+  let i = 0;
+
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    progress.style.width = ((i + 1) / slides.length * 100) + '%';
+    count.textContent = (i + 1) + ' / ' + slides.length;
+    location.hash = i + 1;
+  }
+  function next() { show(i + 1); }
+  function prev() { show(i - 1); }
+
+  document.getElementById('next').addEventListener('click', next);
+  document.getElementById('prev').addEventListener('click', prev);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key.toLowerCase() === 'f') { if (!document.fullscreenElement) document.documentElement.requestFullscreen?.(); else document.exitFullscreen?.(); }
+    else if (e.key.toLowerCase() === 'p') window.print();
+  });
+  // click right/left third of the stage to navigate
+  document.getElementById('stage').addEventListener('click', e => {
+    const x = e.clientX / window.innerWidth;
+    if (x > 0.66) next(); else if (x < 0.34) prev();
+  });
+
+  const start = parseInt(location.hash.replace('#', ''), 10);
+  show(isFinite(start) && start >= 1 ? start - 1 : 0);
+</script>
+</body>
+</html>
