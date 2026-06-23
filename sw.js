@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v64-2026-06-19'; // 附近的時光：開場推薦鄰近現場的可滑動故事卡堆
+const CACHE_VERSION = 'v65-2026-06-23'; // 位置回報入口移到所有明信片卡片（不再只限已收藏）
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;

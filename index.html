@@ -7870,9 +7870,19 @@
       srcEl.classList.add('no-link');
     }
 
-    // Share button — only show on collected cards
+    // Share / download — only on collected cards. Report ("回報") is offered
+    // for any pin, collected or not: a misplaced marker is visible on the map
+    // before you ever discover it, so the correction entry point shouldn't be
+    // gated behind collection.
     const actions = document.getElementById('pc-card-actions');
-    if (actions) actions.hidden = !collected;
+    const shareBtn = document.getElementById('pc-card-share');
+    const dlBtn = document.getElementById('pc-card-download');
+    const repBtn = document.getElementById('pc-card-report');
+    const reportEnabled = !!REPORT_ENDPOINT;
+    if (shareBtn) shareBtn.hidden = !collected;
+    if (dlBtn) dlBtn.hidden = !collected;
+    if (repBtn) repBtn.hidden = !reportEnabled;
+    if (actions) actions.hidden = !(collected || reportEnabled);
 
     if (mode === 'collect') {
       img.classList.add('revealing');
@@ -8738,7 +8748,10 @@
       setMode('position');
       setStatus('');
       submitBtn.disabled = false;
-      forEl.textContent = `${pc.id} · ${pc.title}`;
+      // Don't spoil the title of a not-yet-collected card; the id alone
+      // identifies the postcard for the maintainer.
+      const known = collectedPostcards.has(pc.id);
+      forEl.textContent = known ? `${pc.id} · ${pc.title}` : `${pc.id} · ${t('pc.locked.title')}`;
       overlay.classList.add('show');
       overlay.setAttribute('aria-hidden', 'false');
     };
