@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v65-2026-06-23'; // 位置回報入口移到所有明信片卡片（不再只限已收藏）
+const CACHE_VERSION = 'v66-2026-06-25'; // 面板展開高度降至 78vh 避免壓到搜尋欄；今日明信片改為圓形圖示鈕
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
