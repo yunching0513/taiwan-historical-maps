@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v67-2026-06-25'; // 明信片資料抽離為 data/postcards.js；座標校正
+const CACHE_VERSION = 'v68-2026-06-25'; // 25 筆明信片座標校正（OSM/Wikipedia 查證；花蓮高工等修正）
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
