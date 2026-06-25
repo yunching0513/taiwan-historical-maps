@@ -232,6 +232,30 @@ https://yunching0513.github.io/taiwan-historical-maps/privacy.html
 
 ---
 
+## What's new — v1.1（iOS / Android 共用）
+
+**中文**（貼到 App Store Connect 的「此版本新增功能」）：
+```
+這次更新讓散策更準、更順手：
+
+· 大幅校正多處明信片的地圖位置（含花蓮高工等），讓你能真正走到歷史現場把它收集起來
+· 每張明信片都能回報標錯的位置，一起把地圖修得更準
+· 調整地圖圖層面板，展開時不再擋住上方搜尋列
+· 「今日明信片」改為更簡潔的圓形圖示鈕
+```
+
+**English**：
+```
+This update makes every stroll more accurate and smoother:
+
+· Corrected the map position of many postcards (including Hualien Industrial High) so you can collect them at the real historic site
+· Report a misplaced pin from any postcard to help improve the map together
+· The layer panel no longer overlaps the search bar when opened
+· "Today's Postcard" is now a cleaner round icon button
+```
+
+---
+
 ## Internal testing 邀請的 tester
 
 至少要加 1 個你自己（jtl0513@gmail.com）+ 朋友 / 家人測試。
