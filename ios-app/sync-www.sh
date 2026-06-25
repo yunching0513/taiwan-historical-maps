@@ -8,5 +8,6 @@ rm -rf www
 mkdir -p www
 cp ../index.html ../manifest.webmanifest ../sw.js www/
 cp -R ../icons www/icons
+cp -R ../data www/data   # 明信片資料檔（data/postcards.js），主程式載入時需要
 
-echo "✓ www/ 已同步（index.html + icons + manifest + sw.js）"
+echo "✓ www/ 已同步（index.html + icons + manifest + sw.js + data/）"

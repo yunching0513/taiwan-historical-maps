@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v66-2026-06-25'; // 面板展開高度降至 78vh 避免壓到搜尋欄；今日明信片改為圓形圖示鈕
+const CACHE_VERSION = 'v67-2026-06-25'; // 明信片資料抽離為 data/postcards.js；座標校正
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
@@ -31,6 +31,7 @@ const TILE_CACHE_TRIM_TARGET = 900; // trim down to this after eviction
 const SHELL_URLS = [
   './',
   './index.html',
+  './data/postcards.js',
   './manifest.webmanifest',
   './icons/icon.svg',
   './icons/icon-192.png',
