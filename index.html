@@ -4604,6 +4604,7 @@
       'alert.geo.timeout': '定位逾時',
       'alert.geo.fail': '定位失敗',
       'geo.searching': '定位中…GPS 收訊需要一點時間，室內或高樓間會比較慢，請走到開闊處再試。',
+      'geo.autooff': '定位已閒置一段時間，為節省電力自動關閉。點「定位」可重新開啟。',
       'geo.later': '稍後',
       'bgloc.title': '關於背景定位',
       'bgloc.body': '散策會在你記錄路線時，於背景持續使用你的位置資訊來描繪行徑軌跡——即使你切到其他 App 或關閉螢幕。記錄期間通知列會持續顯示一則通知。這會增加耗電量。你的位置只儲存在這支手機，不會上傳。',
@@ -4844,6 +4845,7 @@
       'alert.geo.timeout': 'Location timeout',
       'alert.geo.fail': 'Location failed',
       'geo.searching': 'Locating… GPS needs a moment. It\'s slower indoors or among tall buildings — try an open area.',
+      'geo.autooff': 'Location was idle for a while, so it turned off to save battery. Tap Locate to resume.',
       'geo.later': 'Later',
       'bgloc.title': 'About background location',
       'bgloc.body': 'While recording a route, Old-Map Stroll keeps using your location in the background to trace your path — even if you switch apps or turn off the screen. A persistent notification is shown the whole time. This increases battery use. Your location stays on this device and is never uploaded.',
@@ -5084,6 +5086,7 @@
       'alert.geo.timeout': '位置情報がタイムアウトしました',
       'alert.geo.fail': '位置情報の取得に失敗',
       'geo.searching': '位置を取得中…GPSの受信には少し時間がかかります。屋内や高層ビル街では遅くなるので、開けた場所でお試しください。',
+      'geo.autooff': '位置情報がしばらく操作されなかったため、節電のため自動的にオフになりました。「位置」をタップで再開します。',
       'geo.later': '後で',
       'bgloc.title': 'バックグラウンド位置情報について',
       'bgloc.body': 'ルート記録中、散策は他のアプリに切り替えても画面を消してもバックグラウンドで位置情報を使い続け、軌跡を描きます。記録中は通知バーに常時通知が表示されます。電池消費が増えます。位置情報はこの端末内にのみ保存され、アップロードされません。',
@@ -6048,6 +6051,7 @@
     hasFirstFix = false;
     geoHintShown = false;
     updateButtons();
+    armLocateIdle(); // 啟動閒置自動關閉計時（記錄路線時會在 startRecording 取消）
 
     if (BG) {
       // Native path: keeps firing in background once the user grants
@@ -6126,11 +6130,47 @@
       watchId = null;
     }
     isLocating = false;
+    clearLocateIdle();
     if (userMarker) { map.removeLayer(userMarker); userMarker = null; }
     if (accuracyCircle) { map.removeLayer(accuracyCircle); accuracyCircle = null; }
     locStatus.classList.remove('show');
     updateButtons();
   }
+
+  // ── 定位閒置自動關閉（省電）─────────────────────────────
+  // 只開「定位」卻沒在記錄路線時，使用者常忘了關，GPS 會一直跑——原生背景
+  // 定位更會在背景持續耗電。閒置 LOCATE_IDLE_MS 沒有任何地圖互動就自動關閉
+  // 定位。記錄路線中不受影響（那是刻意長時間執行）。任何平移/縮放都會重新
+  // 計時，避免把正在看地圖的人關掉。背景時 JS 計時器會被系統凍結，所以另用
+  // 時間戳，在回到前景（visibilitychange）時補算是否已超時。
+  const LOCATE_IDLE_MS = 10 * 60 * 1000; // 10 分鐘
+  let locateIdleTimer = null;
+  let locateArmedAt = 0;
+  function clearLocateIdle() {
+    if (locateIdleTimer) { clearTimeout(locateIdleTimer); locateIdleTimer = null; }
+  }
+  function fireLocateIdle() {
+    locateIdleTimer = null;
+    if (isLocating && !isRecording) {
+      stopLocate();
+      try { showPostcardToast(t('geo.autooff')); } catch {}
+    }
+  }
+  function armLocateIdle() {
+    clearLocateIdle();
+    if (!isLocating || isRecording) return; // 記錄中不計時
+    locateArmedAt = Date.now();
+    locateIdleTimer = setTimeout(fireLocateIdle, LOCATE_IDLE_MS);
+  }
+  // 主動操作地圖 → 視為仍在使用，重新計時
+  map.on('movestart zoomstart', () => { if (isLocating && !isRecording) armLocateIdle(); });
+  // 回到前景：補算背景期間經過的時間（背景時 setTimeout 不可靠）
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || !isLocating || isRecording) return;
+    const elapsed = Date.now() - locateArmedAt;
+    if (elapsed >= LOCATE_IDLE_MS) fireLocateIdle();
+    else { clearLocateIdle(); locateIdleTimer = setTimeout(fireLocateIdle, LOCATE_IDLE_MS - elapsed); }
+  });
 
   function onPosition(pos) {
     const { latitude, longitude, accuracy } = pos.coords;
@@ -6204,6 +6244,7 @@
   function startRecording() {
     if (!isLocating) startLocate();
     isRecording = true;
+    clearLocateIdle(); // 記錄路線中不自動關閉定位
     currentTrace = {
       id: 'tr-' + Date.now(),
       name: new Date().toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
@@ -6247,6 +6288,7 @@
     currentTrace = null;
     recStatus.classList.remove('show');
     updateButtons();
+    armLocateIdle(); // 停止記錄後，若定位仍開著，重新啟動閒置自動關閉計時
   }
 
   function addTracePoint(lat, lng, acc, ts) {
