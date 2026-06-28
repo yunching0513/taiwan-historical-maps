@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v69-2026-06-28'; // 定位閒置 10 分鐘自動關閉省電（記錄路線中不受影響）
+const CACHE_VERSION = 'v70-2026-06-28'; // 新增 6 張臺北明信片（榮町/軍司令部/空照/動物園/新公園/1911大水，皆 Commons 公領域）
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
