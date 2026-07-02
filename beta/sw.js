@@ -15,13 +15,13 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v71-2026-07-02'; // 新增 β 測試頻道（/beta/）；activate 不再誤刪 tw-beta-* 快取
-const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
-const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
-const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
+const CACHE_VERSION = 'beta1-2026-07-02'; // β 頻道首發：街景漫遊 walk mode
+const SHELL_CACHE = `tw-beta-shell-${CACHE_VERSION}`;
+const RUNTIME_CACHE = `tw-beta-runtime-${CACHE_VERSION}`;
+const TILE_CACHE = `tw-beta-tiles-${CACHE_VERSION}`;
 // Pinned cache holds user-downloaded offline packs. Version-independent so
 // upgrades don't blow them away. LRU eviction never touches this bucket.
-const PINNED_CACHE = 'tw-historical-pinned';
+const PINNED_CACHE = 'tw-beta-pinned';
 
 // Roughly 100–150 MB at typical tile sizes (30–100 KB each). LRU evicts
 // oldest tiles when the cap is exceeded.
@@ -31,12 +31,12 @@ const TILE_CACHE_TRIM_TARGET = 900; // trim down to this after eviction
 const SHELL_URLS = [
   './',
   './index.html',
-  './data/postcards.js',
   './manifest.webmanifest',
-  './icons/icon.svg',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/icon-180.png',
+  '../data/postcards.js',
+  '../icons/icon.svg',
+  '../icons/icon-192.png',
+  '../icons/icon-512.png',
+  '../icons/icon-180.png',
 ];
 
 const TILE_HOST_PATTERNS = [
@@ -63,8 +63,8 @@ self.addEventListener('activate', event => {
     caches.keys()
       .then(keys => Promise.all(
         keys
-          // 同源的 β 測試頻道（/beta/）有自己的 tw-beta-* 快取——不是我們的，別動。
-          .filter(k => !k.startsWith('tw-beta-'))
+          // β 頻道只清自己的舊快取（tw-beta-*）；正式版的快取一律不動。
+          .filter(k => k.startsWith('tw-beta-'))
           .filter(k => k !== SHELL_CACHE && k !== RUNTIME_CACHE && k !== TILE_CACHE && k !== PINNED_CACHE)
           .map(k => caches.delete(k))
       ))
