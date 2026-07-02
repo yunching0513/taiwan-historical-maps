@@ -3886,6 +3886,18 @@
     z-index:5;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:#cfc4ab;
     background:rgba(25,20,14,.5);padding:5px 12px;border-radius:3px;white-space:nowrap;max-width:92vw;
     overflow:hidden;text-overflow:ellipsis}
+  /* 漫遊中的古地圖透明度滑桿：拉低即見現代街道透出（古今疊合的地面） */
+  .walk-op{position:absolute;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 52px);z-index:6;
+    display:flex;align-items:center;gap:8px;background:rgba(25,20,14,.62);
+    border:1px solid rgba(224,169,109,.45);border-radius:3px;padding:8px 12px}
+  .walk-op .wo-ic{color:#E0A96D;font-size:13px;line-height:1}
+  .walk-op input[type=range]{-webkit-appearance:none;appearance:none;width:110px;height:3px;border-radius:2px;
+    background:linear-gradient(90deg,rgba(224,169,109,.25),rgba(224,169,109,.8));outline:none}
+  .walk-op input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;
+    border-radius:50%;background:var(--vermilion);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);cursor:pointer}
+  .walk-op input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:var(--vermilion);border:2px solid #fff;cursor:pointer}
+  .walk-op .wo-val{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:#E0A96D;min-width:34px;text-align:right}
 </style>
 </head>
 <body>
@@ -4445,6 +4457,7 @@
     <text x="23" y="14" text-anchor="middle" fill="#E0A96D" font-size="8" font-family="monospace">N</text>
   </svg></div>
   <div class="walk-feet"><div class="ring"></div><div class="dot"></div></div>
+  <div class="walk-op"><span class="wo-ic">◐</span><input type="range" id="walk-opacity" min="20" max="100" step="5" value="85" aria-label="古地圖透明度" /><span class="wo-val" id="walk-op-val">85%</span></div>
   <div class="walk-hint" id="walk-hint">—</div>
 </div>
 
@@ -10220,9 +10233,25 @@
     const eraEl = document.getElementById('walk-era');
     const hintEl = document.getElementById('walk-hint');
     const needle = document.getElementById('walk-needle');
-    let walkMap = null, walkLayer = null, walkLayerId = null;
+    let walkMap = null, walkBase = null, walkLayer = null, walkLayerId = null;
     let active = false, rafId = null, pollId = null;
     let heading = 0, targetHeading = 0, pos = null, targetPos = null;
+
+    // 漫遊中的古地圖透明度：獨立於主地圖記憶（拉低=現代街道透出）。
+    const WALK_OP_KEY = 'taiwanOldMaps.walkOpacity';
+    let walkOpacity = 0.85;
+    try {
+      const v = parseFloat(localStorage.getItem(WALK_OP_KEY));
+      if (!Number.isNaN(v) && v >= 0.2 && v <= 1) walkOpacity = v;
+    } catch {}
+    const opSlider = document.getElementById('walk-opacity');
+    const opVal = document.getElementById('walk-op-val');
+    function applyWalkOpacity(v) {
+      walkOpacity = v;
+      if (walkLayer) walkLayer.setOpacity(v);
+      if (opVal) opVal.textContent = Math.round(v * 100) + '%';
+      try { localStorage.setItem(WALK_OP_KEY, String(v)); } catch {}
+    }
 
     function currentDef() {
       return HISTORICAL_MAPS.find(d => d.id === activeId) ||
@@ -10243,9 +10272,16 @@
           fadeAnimation: false, zoomAnimation: false, inertia: false,
         });
       }
+      // 底層鋪現代街道（CARTO 淡色無標籤）——古地圖調透明時透出「今」。
+      if (!walkBase) {
+        walkBase = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+          { maxZoom: 19 }).addTo(walkMap);
+      }
       if (walkLayerId !== def.id) {
         if (walkLayer) walkMap.removeLayer(walkLayer);
-        walkLayer = L.tileLayer(def.url, { maxNativeZoom: def.maxNativeZoom, maxZoom: 19 }).addTo(walkMap);
+        walkLayer = L.tileLayer(def.url, {
+          maxNativeZoom: def.maxNativeZoom, maxZoom: 19, opacity: walkOpacity,
+        }).addTo(walkMap);
         walkLayerId = def.id;
       }
       walkMap._walkZoom = Math.min(def.maxNativeZoom || 16, 17);
@@ -10324,6 +10360,11 @@
     fab.addEventListener('click', open);
     document.getElementById('walk-close').addEventListener('click', close);
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && active) close(); });
+    if (opSlider) {
+      opSlider.value = String(Math.round(walkOpacity * 100));
+      if (opVal) opVal.textContent = Math.round(walkOpacity * 100) + '%';
+      opSlider.addEventListener('input', () => applyWalkOpacity(parseInt(opSlider.value, 10) / 100));
+    }
   })();
 </script>
 </body>

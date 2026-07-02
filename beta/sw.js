@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'beta1-2026-07-02'; // β 頻道首發：街景漫遊 walk mode
+const CACHE_VERSION = 'beta2-2026-07-02'; // 漫遊加透明度滑桿＋現代底圖（古今疊合地面）
 const SHELL_CACHE = `tw-beta-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-beta-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-beta-tiles-${CACHE_VERSION}`;
