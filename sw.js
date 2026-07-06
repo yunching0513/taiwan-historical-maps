@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v71-2026-07-02'; // 新增 β 測試頻道（/beta/）；activate 不再誤刪 tw-beta-* 快取
+const CACHE_VERSION = 'v72-2026-07-04'; // 手機操作體檢：面板內容下拉收合、Android 返回鍵關浮層、觸控目標放大
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;

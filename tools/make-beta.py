@@ -126,6 +126,32 @@ WALK_JS = r"""
     let walkMap = null, walkBase = null, walkLayer = null, walkLayerId = null;
     let active = false, rafId = null, pollId = null;
     let heading = 0, targetHeading = 0, pos = null, targetPos = null;
+    let anchorRatio = 0.78; // 使用者錨點在地面容器內的高度比例（sizeGround 動態算）
+
+    // ── Safari 關鍵修正：平面尺寸依螢幕動態計算 ────────────
+    // rotateX(60°)+perspective(640px) 下，平面上局部 y 超過 d/sin60 ≈ 739px
+    // 的部分會跑到「相機後方」：Chromium 會裁掉，iOS Safari 直接把整塊
+    // 渲染壞掉（畫面出現黑洞）。所以平面深度必須動態算到「剛好蓋滿畫面
+    // 底部」為止，全程保持在相機平面之前。
+    const TILT_DEG = 60, PERSP = 640;
+    function sizeGround() {
+      const wrap = mapEl.parentElement.parentElement; // .walk-groundwrap
+      const H = wrap.clientHeight || 1, W = wrap.clientWidth || 1;
+      const s = Math.sin(TILT_DEG * Math.PI / 180), c = Math.cos(TILT_DEG * Math.PI / 180);
+      const yFor = sy => sy * PERSP / (c * PERSP + sy * s); // 螢幕深度 → 平面局部 y
+      const overhang = 60;                                   // 地平線後方的緩衝（不可見）
+      const hPx = Math.min(yFor(H) * 1.18, (PERSP / s) * 0.92) + overhang;
+      const wPx = Math.max(W * 1.7, 700);
+      mapEl.style.width  = Math.round(wPx) + 'px';
+      mapEl.style.height = Math.round(hPx) + 'px';
+      mapEl.style.left   = Math.round((W - wPx) / 2) + 'px';
+      mapEl.style.top    = (-overhang) + 'px';
+      // 錨點（你站的位置）投影在畫面約 76% 高處，和 CSS 的腳印標記對齊
+      anchorRatio = (yFor(0.76 * H) + overhang) / hPx;
+      mapEl.style.transformOrigin = '50% ' + (anchorRatio * 100).toFixed(2) + '%';
+      if (walkMap) walkMap.invalidateSize({ animate: false });
+    }
+    window.addEventListener('resize', () => { if (active) { sizeGround(); if (pos) setCenter(L.latLng(pos.lat, pos.lng)); } });
 
     // 漫遊中的古地圖透明度：獨立於主地圖記憶（拉低=現代街道透出）。
     const WALK_OP_KEY = 'taiwanOldMaps.walkOpacity';
@@ -177,10 +203,10 @@ WALK_JS = r"""
       walkMap._walkZoom = Math.min(def.maxNativeZoom || 16, 17);
       eraEl.textContent = '◷ ' + def.year + ' · ' + def.label;
     }
-    // 使用者錨點放在容器 78% 高度（畫面下方）：中心 = 錨點往「上」偏 28% 容器高。
+    // 使用者錨點在容器 anchorRatio 高度（畫面下方）：中心 = 錨點上移 (ratio−0.5)·高。
     function setCenter(ll) {
       const z = walkMap._walkZoom;
-      const up = walkMap.getSize().y * 0.28;
+      const up = walkMap.getSize().y * (anchorRatio - 0.5);
       const c = walkMap.unproject(walkMap.project(ll, z).subtract([0, up]), z);
       walkMap.setView(c, z, { animate: false });
     }
@@ -221,6 +247,7 @@ WALK_JS = r"""
       overlay.setAttribute('aria-hidden', 'false');
       ensureMap();
       requestAnimationFrame(() => {
+        sizeGround();
         walkMap.invalidateSize({ animate: false });
         pos = null;
         const ll = anchorLL();
@@ -278,7 +305,7 @@ sw = sw.replace(
     "          .filter(k => k.startsWith('tw-beta-'))")
 # beta has its own version line so channels rev independently
 sw = re.sub(r"const CACHE_VERSION = '[^']+'; //.*",
-            "const CACHE_VERSION = 'beta2-2026-07-02'; // 漫遊加透明度滑桿＋現代底圖（古今疊合地面）",
+            "const CACHE_VERSION = 'beta3-2026-07-04'; // 修 iOS Safari 漫遊黑洞（平面動態尺寸）＋手機操作體檢",
             sw, count=1)
 sw = sw.replace("""const SHELL_URLS = [
   './',

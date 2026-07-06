@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'beta2-2026-07-02'; // 漫遊加透明度滑桿＋現代底圖（古今疊合地面）
+const CACHE_VERSION = 'beta3-2026-07-04'; // 修 iOS Safari 漫遊黑洞（平面動態尺寸）＋手機操作體檢
 const SHELL_CACHE = `tw-beta-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-beta-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-beta-tiles-${CACHE_VERSION}`;

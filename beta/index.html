@@ -243,6 +243,10 @@
     cursor: pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+    /* 手機好點：把上下留白改成 padding，整列都是觸控區（原本只有一行小字高）。
+       視覺節奏不變：14px margin + 12px padding = 原本的 26px。 */
+    margin: 14px 0 0;
+    padding: 12px 0 10px;
   }
   details.panel-section > summary.section-label::-webkit-details-marker { display: none; }
   details.panel-section > summary.section-label::marker { content: ''; }
@@ -3305,8 +3309,8 @@
     gap: 8px;
   }
   .help-fab {
-    width: 40px;
-    border-radius: 20px;
+    width: 44px; /* ≥44px：iOS HIG / Android 48dp 觸控目標下限 */
+    border-radius: 22px;
     border: 1px solid var(--stone);
     background: var(--paper-2);
     color: var(--graphite);
@@ -3330,8 +3334,8 @@
   /* 今日明信片：和「?」說明球一樣的圓形小圖示鈕，疊在說明球上方 */
   .today-pc-tab {
     position: relative;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     display: inline-flex;
     align-items: center;
@@ -3676,7 +3680,7 @@
        above the bottom edge. Height stays 82vh; we translate instead of
        shrinking max-height, which keeps the open/close animation flash-free. */
     .panel.peek {
-      transform: translateY(calc(100% - 60px));
+      transform: translateY(calc(100% - 64px));
     }
     .panel.peek .panel-scroll {
       overflow: hidden;
@@ -3692,7 +3696,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 10px 0 6px;
+      padding: 12px 0 8px;
       cursor: pointer;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
@@ -3703,8 +3707,9 @@
     }
     .sheet-handle::before {
       content: '';
-      width: 44px;
-      height: 3px;
+      width: 48px;
+      height: 5px;
+      border-radius: 3px;
       background: var(--stone);
     }
     .panel.peek .sheet-handle::before {
@@ -5800,6 +5805,115 @@
     snapTo(!willOpen);
     if (willOpen) { try { sfx.tap(); } catch {} }
   });
+
+  // ── 面板內容區「下拉關閉」──────────────────────────
+  // 使用者回饋：只有把手能拖不好用。比照原生 bottom sheet 慣例（iOS sheet /
+  // Android BottomSheetBehavior）：面板開啟、內容已捲到最頂時，繼續往下拉
+  // 就整片跟著手指收合。往上捲、或不在頂端時，完全不干涉原生捲動。
+  // touchmove 需 non-passive：一旦接管，要 preventDefault 擋掉內部彈性捲動。
+  (function setupBodyDragClose() {
+    const scrollEl = panelEl.querySelector('.panel-scroll');
+    if (!scrollEl) return;
+    const ENGAGE_PX = 12;          // 下拉超過此距離才接管（避免誤觸）
+    let startY = null, engaged = false, eligible = false;
+
+    scrollEl.addEventListener('touchstart', (e) => {
+      if (!isMobile() || panelEl.classList.contains('peek')) { eligible = false; return; }
+      startY = e.touches[0].clientY;
+      eligible = scrollEl.scrollTop <= 0;   // 只有在最頂端開始的手勢才可能接管
+      engaged = false;
+      lastDy = 0; lastT = e.timeStamp; velocity = 0;
+    }, { passive: true });
+
+    scrollEl.addEventListener('touchmove', (e) => {
+      if (!isMobile() || startY === null || !eligible) return;
+      const dy = e.touches[0].clientY - startY;
+      if (!engaged) {
+        if (dy < 0 || scrollEl.scrollTop > 0) { eligible = false; return; } // 使用者在捲內容
+        if (dy < ENGAGE_PX) return;
+        engaged = true;
+        panelEl.classList.add('dragging');
+        promoteLayer();
+      }
+      e.preventDefault();
+      dragOffset = Math.min(peekOffset() + 24, Math.max(0, dy - ENGAGE_PX));
+      panelEl.style.transform = `translateY(${dragOffset}px)`;
+      const dt = e.timeStamp - lastT;
+      if (dt > 0) velocity = (dy - lastDy) / dt;
+      lastDy = dy; lastT = e.timeStamp;
+    }, { passive: false });
+
+    function finish() {
+      if (startY === null) return;
+      startY = null;
+      if (!engaged) return;
+      engaged = false;
+      const peek = velocity > 0.45 ? true
+                 : velocity < -0.45 ? false
+                 : dragOffset > peekOffset() * 0.35;
+      snapTo(peek);
+    }
+    scrollEl.addEventListener('touchend', finish, { passive: true });
+    scrollEl.addEventListener('touchcancel', finish, { passive: true });
+  })();
+
+  // ── Android 返回鍵關閉浮層 ─────────────────────────
+  // Android 使用者的肌肉記憶是「按返回鍵關掉眼前的東西」；在 PWA/TWA 裡
+  // 返回鍵預設會直接離開網站。這裡把「浮層開啟」推一筆 history state，
+  // 返回鍵（popstate）就變成「關閉最上層浮層／收合面板」。僅在 Android
+  // 啟用，iOS 沒有系統返回鍵、且要避免干擾 Safari 的邊緣滑動返回。
+  (function setupAndroidBackClose() {
+    if (!/Android/i.test(navigator.userAgent)) return;
+    if (!window.matchMedia('(max-width: 768px)').matches) return;
+    const stack = [];            // 目前開著、且由我們入棧的浮層 id
+    let ignorePop = false;       // 自己 history.back() 消化狀態時跳過 popstate
+    // id → 正規關閉動作（優先走原本的關閉流程，確保清理乾淨）
+    const CLOSERS = {
+      'pc-overlay':      () => { try { closePostcardModal(); } catch {} },
+      'nearby-overlay':  () => document.getElementById('nearby-close')?.click(),
+      'report-overlay':  () => document.getElementById('report-close')?.click(),
+      'credits-overlay': () => document.getElementById('credits-close')?.click(),
+      'wpc-overlay':     () => document.getElementById('wpc-close')?.click(),
+      'walk-overlay':    () => document.getElementById('walk-close')?.click(), // β 頻道才有
+    };
+    Object.keys(CLOSERS).forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      new MutationObserver(() => {
+        const shown = el.classList.contains('show');
+        const idx = stack.indexOf(id);
+        if (shown && idx < 0) {
+          stack.push(id);
+          try { history.pushState({ omsOverlay: id }, ''); } catch {}
+        } else if (!shown && idx >= 0) {
+          // 使用者用 ✕ 關的：把我們補的那筆 history 消化掉
+          stack.splice(idx, 1);
+          ignorePop = true;
+          try { history.back(); } catch { ignorePop = false; }
+        }
+      }).observe(el, { attributes: true, attributeFilter: ['class'] });
+    });
+    // 面板展開也視為一層（返回鍵＝收合面板，而不是離開 App）
+    new MutationObserver(() => {
+      const open = !panelEl.classList.contains('peek');
+      const idx = stack.indexOf('__panel');
+      if (open && idx < 0) {
+        stack.push('__panel');
+        try { history.pushState({ omsOverlay: '__panel' }, ''); } catch {}
+      } else if (!open && idx >= 0) {
+        stack.splice(idx, 1);
+        ignorePop = true;
+        try { history.back(); } catch { ignorePop = false; }
+      }
+    }).observe(panelEl, { attributes: true, attributeFilter: ['class'] });
+    window.addEventListener('popstate', () => {
+      if (ignorePop) { ignorePop = false; return; }
+      const id = stack.pop();
+      if (!id) return;                       // 不是我們的狀態：交還給瀏覽器
+      if (id === '__panel') { snapTo(true); return; }
+      (CLOSERS[id] || (() => {}))();
+    });
+  })();
 
   // Default to peek on mobile so the map is visible on first load. Suppress
   // the slide transition for this initial state, then re-enable it next frame
@@ -10236,6 +10350,32 @@
     let walkMap = null, walkBase = null, walkLayer = null, walkLayerId = null;
     let active = false, rafId = null, pollId = null;
     let heading = 0, targetHeading = 0, pos = null, targetPos = null;
+    let anchorRatio = 0.78; // 使用者錨點在地面容器內的高度比例（sizeGround 動態算）
+
+    // ── Safari 關鍵修正：平面尺寸依螢幕動態計算 ────────────
+    // rotateX(60°)+perspective(640px) 下，平面上局部 y 超過 d/sin60 ≈ 739px
+    // 的部分會跑到「相機後方」：Chromium 會裁掉，iOS Safari 直接把整塊
+    // 渲染壞掉（畫面出現黑洞）。所以平面深度必須動態算到「剛好蓋滿畫面
+    // 底部」為止，全程保持在相機平面之前。
+    const TILT_DEG = 60, PERSP = 640;
+    function sizeGround() {
+      const wrap = mapEl.parentElement.parentElement; // .walk-groundwrap
+      const H = wrap.clientHeight || 1, W = wrap.clientWidth || 1;
+      const s = Math.sin(TILT_DEG * Math.PI / 180), c = Math.cos(TILT_DEG * Math.PI / 180);
+      const yFor = sy => sy * PERSP / (c * PERSP + sy * s); // 螢幕深度 → 平面局部 y
+      const overhang = 60;                                   // 地平線後方的緩衝（不可見）
+      const hPx = Math.min(yFor(H) * 1.18, (PERSP / s) * 0.92) + overhang;
+      const wPx = Math.max(W * 1.7, 700);
+      mapEl.style.width  = Math.round(wPx) + 'px';
+      mapEl.style.height = Math.round(hPx) + 'px';
+      mapEl.style.left   = Math.round((W - wPx) / 2) + 'px';
+      mapEl.style.top    = (-overhang) + 'px';
+      // 錨點（你站的位置）投影在畫面約 76% 高處，和 CSS 的腳印標記對齊
+      anchorRatio = (yFor(0.76 * H) + overhang) / hPx;
+      mapEl.style.transformOrigin = '50% ' + (anchorRatio * 100).toFixed(2) + '%';
+      if (walkMap) walkMap.invalidateSize({ animate: false });
+    }
+    window.addEventListener('resize', () => { if (active) { sizeGround(); if (pos) setCenter(L.latLng(pos.lat, pos.lng)); } });
 
     // 漫遊中的古地圖透明度：獨立於主地圖記憶（拉低=現代街道透出）。
     const WALK_OP_KEY = 'taiwanOldMaps.walkOpacity';
@@ -10287,10 +10427,10 @@
       walkMap._walkZoom = Math.min(def.maxNativeZoom || 16, 17);
       eraEl.textContent = '◷ ' + def.year + ' · ' + def.label;
     }
-    // 使用者錨點放在容器 78% 高度（畫面下方）：中心 = 錨點往「上」偏 28% 容器高。
+    // 使用者錨點在容器 anchorRatio 高度（畫面下方）：中心 = 錨點上移 (ratio−0.5)·高。
     function setCenter(ll) {
       const z = walkMap._walkZoom;
-      const up = walkMap.getSize().y * 0.28;
+      const up = walkMap.getSize().y * (anchorRatio - 0.5);
       const c = walkMap.unproject(walkMap.project(ll, z).subtract([0, up]), z);
       walkMap.setView(c, z, { animate: false });
     }
@@ -10331,6 +10471,7 @@
       overlay.setAttribute('aria-hidden', 'false');
       ensureMap();
       requestAnimationFrame(() => {
+        sizeGround();
         walkMap.invalidateSize({ animate: false });
         pos = null;
         const ll = anchorLL();
