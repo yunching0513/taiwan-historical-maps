@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v74-2026-07-06'; // 新版 App icon（單行標題・新高山底圖重製）
+const CACHE_VERSION = 'v75-2026-07-06'; // icon 標題改明體（Noto Serif TC Black），字幅收至 84%
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
