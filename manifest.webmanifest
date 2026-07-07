@@ -10,7 +10,11 @@
   "orientation": "any",
   "theme_color": "#F1EFE9",
   "background_color": "#F1EFE9",
-  "categories": ["maps", "education", "travel"],
+  "categories": [
+    "maps",
+    "education",
+    "travel"
+  ],
   "icons": [
     {
       "src": "icons/icon.svg",
@@ -61,7 +65,7 @@
       "purpose": "any"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "icons/icon-512-maskable.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -72,25 +76,45 @@
       "name": "臺北",
       "short_name": "Taipei",
       "url": "./?city=taipei",
-      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "icons/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "臺中",
       "short_name": "Taichung",
       "url": "./?city=taichung",
-      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "icons/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "臺南",
       "short_name": "Tainan",
       "url": "./?city=tainan",
-      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "icons/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "高雄",
       "short_name": "Kaohsiung",
       "url": "./?city=kaohsiung",
-      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "icons/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
     }
   ]
 }
