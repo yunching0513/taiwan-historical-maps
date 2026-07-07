@@ -3879,9 +3879,15 @@
     background:linear-gradient(180deg,#c9c0ab 0%,#e2d7bd 70%,#EDE0C4 100%)}
   .walk-groundwrap{position:absolute;left:0;right:0;top:26%;bottom:0;overflow:hidden;
     background:#EDE0C4;perspective:640px;perspective-origin:50% 0}
-  #walk-tilt{position:absolute;inset:0;transform:rotateX(60deg);transform-origin:50% 0;transform-style:preserve-3d}
+  /* 不用 preserve-3d：子層(#walk-map)只做 2D rotateZ，沒有巢狀 3D。
+     preserve-3d 在 Android WebView 會建立昂貴且會 z 序錯亂的 3D 合成脈絡，
+     是 HUD 偶爾被地圖蓋掉（閃爍）的元兇。 */
+  #walk-tilt{position:absolute;inset:0;transform:rotateX(60deg);transform-origin:50% 0}
   #walk-map{position:absolute;left:-30%;top:-60%;width:160%;height:230%;background:#EDE0C4;
     transform-origin:50% 78%;backface-visibility:hidden}
+  /* HUD 一律提升成獨立合成層，地圖重繪時不會被捲進去一起重畫/搶繪 */
+  .walk-chip,.walk-close,.walk-compass,.walk-op,.walk-hint,.walk-feet,.walk-fog,.walk-sky{
+    will-change:transform;transform:translateZ(0)}
   .walk-fog{position:absolute;left:0;right:0;top:calc(26% - 44px);height:130px;pointer-events:none;z-index:4;
     background:linear-gradient(180deg,rgba(237,224,196,0),rgba(237,224,196,.97) 42%,rgba(237,224,196,0))}
   .walk-chip{position:absolute;font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:#E0A96D;
@@ -10470,18 +10476,20 @@
       const c = walkMap.unproject(walkMap.project(ll, z).subtract([0, up]), z);
       walkMap.setView(c, z, { animate: false });
     }
-    let lastAppliedHeading = null, lastAppliedCenter = null;
+    let lastAppliedHeading = null, lastCenterPx = null;
     function frame() {
       if (targetPos) {
         pos = pos
           ? { lat: pos.lat + (targetPos.lat - pos.lat) * 0.12,
               lng: pos.lng + (targetPos.lng - pos.lng) * 0.12 }
           : targetPos;
-        // 只有實際移動超過 ~0.4px（該縮放層級）才重設中心，避免 Android
-        // 每幀 setView 造成圖磚層抖動。
-        const key = pos.lat.toFixed(6) + ',' + pos.lng.toFixed(6);
-        if (key !== lastAppliedCenter) {
-          lastAppliedCenter = key;
+        // 像素級死區（關鍵）：只有平滑後的位置在螢幕上實際位移 ≥1.5px 才
+        // setView。之前用 toFixed(6)（~0.1m）等於每幀都重繪整個圖磚層——那正是
+        // Android 合成器抖動的來源。收斂後 px 幾乎不動 → 完全不 setView。
+        const z = walkMap._walkZoom;
+        const px = walkMap.project(L.latLng(pos.lat, pos.lng), z);
+        if (!lastCenterPx || Math.abs(px.x - lastCenterPx.x) + Math.abs(px.y - lastCenterPx.y) >= 1.5) {
+          lastCenterPx = px;
           setCenter(L.latLng(pos.lat, pos.lng));
         }
       }
@@ -10547,7 +10555,11 @@
       enableCompass();
       pollId = setInterval(() => {
         const ll = anchorLL();
-        targetPos = { lat: ll.lat, lng: ll.lng };
+        // GPS 抖動死區：手機 GPS 靜止時仍會每秒跳動數公尺。只有位移
+        // ≥ 4 公尺才更新目標點，否則地圖會被雜訊推得一直微幅漂移。
+        if (!targetPos || haversine(targetPos, { lat: ll.lat, lng: ll.lng }) >= 4) {
+          targetPos = { lat: ll.lat, lng: ll.lng };
+        }
         ensureMap(); // 圖層若在主地圖換了年代，跟著換
       }, 900);
     }

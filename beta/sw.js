@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'beta5-2026-07-07'; // 修 Android 漫遊閃爍（方位來源紀律＋紙色背景＋節流）
+const CACHE_VERSION = 'beta6-2026-07-07'; // Android walk-mode residual jitter fix
 const SHELL_CACHE = `tw-beta-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-beta-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-beta-tiles-${CACHE_VERSION}`;
