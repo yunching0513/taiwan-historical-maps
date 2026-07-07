@@ -2145,6 +2145,15 @@
     color: var(--ash);
     letter-spacing: 0.08em;
   }
+  .credits-row .credits-main { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  /* 詳細版權附註：授權依據 · 攝影者 · 原始出處（寫真帖/館藏） */
+  .credits-row .credits-meta {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    color: var(--ash);
+    letter-spacing: 0.04em;
+    overflow-wrap: anywhere;
+  }
   .credits-row a {
     color: var(--graphite);
     text-decoration: none;
@@ -4560,6 +4569,7 @@
       'pc.tag.new': 'Just Developed',
       'pc.tag.locked': 'Locked',
       'pc.source.pending': 'pending discovery',
+      'pc.source.by': '攝影',
       'pc.share': '分享',
       'pc.download': '下載',
       'pc.toast.collected': '🎴 沖洗了一張明信片：',
@@ -4596,7 +4606,7 @@
       'credits.sponsor.title': '☕ 喜歡這個 App？',
       'credits.sponsor.body': '老地圖的維護需要時間與費用。若這趟散策讓你愉快，歡迎掃碼用 LINE Pay 請我喝杯咖啡。',
       'credits.sponsor.btn': '打開贊助視窗',
-      'credits.intro': '本 App 所有明信片影像皆來自 Wikimedia Commons，經驗證為 PD-Japan 或 PD-Taiwan 公領域（著作權已屆期失效）。本 App 僅做匯整呈現與地理註記，不主張任何版權。如下表逐筆列出每張影像對應的原始檔案連結，點擊即可造訪 Wikimedia Commons 該檔案頁面查看高解析原圖、作者資訊與授權細節。',
+      'credits.intro': '本 App 所有明信片影像皆為公有領域（Public Domain），逐張查證授權後才收錄；本 App 僅做匯整呈現與地理註記，不主張任何版權。授權依據——【PD-Japan】依日本 1899 年舊著作權法，1946 年以前拍攝之照片著作權已消滅；【PD-Taiwan】依中華民國著作權法第 34 條，攝影著作於公開發表滿 50 年後屆期。下表逐筆列出每張影像的攝影者（可考者）、原始出處（寫真帖／館藏／出版品）與授權依據；點擊條目可造訪 Wikimedia Commons 原始檔案頁面查看高解析原圖與完整授權細節。',
       'credits.meta.historical': 'Historical maps',
       'credits.meta.basemaps': 'Base maps',
       'credits.meta.postcards': 'Postcards',
@@ -4801,6 +4811,7 @@
       'pc.tag.new': 'Just Developed',
       'pc.tag.locked': 'Locked',
       'pc.source.pending': 'pending discovery',
+      'pc.source.by': 'photo by',
       'pc.share': 'Share',
       'pc.download': 'Download',
       'pc.toast.collected': '🎴 New postcard developed: ',
@@ -4837,7 +4848,7 @@
       'credits.sponsor.title': '☕ Enjoying this app?',
       'credits.sponsor.body': 'Keeping the old maps alive takes time and effort. If you enjoyed the stroll, feel free to scan and buy me a coffee via LINE Pay.',
       'credits.sponsor.btn': 'Open support window',
-      'credits.intro': 'All postcard images in this app come from Wikimedia Commons, verified as PD-Japan or PD-Taiwan (public domain, copyright expired). This app provides only curation and geo-tagging — no copyright is claimed. The list below shows the original Wikimedia Commons file URL for every image; click to view the high-resolution original, author info, and license details.',
+      'credits.intro': 'Every postcard image is public domain, verified per file before inclusion; this app only curates and geo-tags them and claims no copyright. License basis — PD-Japan: photographs taken before 1947 are out of copyright under Japan\'s 1899 Copyright Act; PD-Taiwan: photographic works enter the public domain 50 years after publication under Taiwan\'s Copyright Act (Art. 34). The list below gives, for each image, the photographer (where known), the original publication or collection, and the license basis; click an entry for the full-resolution original and complete license details on Wikimedia Commons.',
       'credits.meta.historical': 'Historical maps',
       'credits.meta.basemaps': 'Base maps',
       'credits.meta.postcards': 'Postcards',
@@ -5042,6 +5053,7 @@
       'pc.tag.new': '現像中',
       'pc.tag.locked': '未発見',
       'pc.source.pending': '未発見',
+      'pc.source.by': '撮影',
       'pc.share': '共有',
       'pc.download': '保存',
       'pc.toast.collected': '🎴 新しい絵葉書が現像されました：',
@@ -5078,7 +5090,7 @@
       'credits.sponsor.title': '☕ このアプリを気に入りましたか？',
       'credits.sponsor.body': '古地図の維持には時間と費用がかかります。この散策が楽しかったら、LINE Pay でコーヒーを一杯おごっていただければ嬉しいです。',
       'credits.sponsor.btn': 'サポート画面を開く',
-      'credits.intro': 'このアプリの全ての絵葉書画像は Wikimedia Commons より、PD-Japan または PD-Taiwan（パブリックドメイン、著作権満了）として検証されたものです。本アプリは整理と地理タグ付けのみを行い、いかなる著作権も主張しません。下記リストには各画像の Wikimedia Commons 原典 URL を記載しており、クリックすると高解像度の原画像、作者情報、ライセンス詳細を閲覧できます。',
+      'credits.intro': '全ての絵葉書画像はパブリックドメインであり、一枚ずつライセンスを確認のうえ収録しています。本アプリは整理と地理タグ付けのみを行い、著作権を主張しません。根拠——【PD-Japan】旧著作権法（明治32年）により1946年以前撮影の写真は著作権消滅；【PD-Taiwan】台湾著作権法第34条により公表後50年で満了。下記リストには撮影者（判明分）・原典（写真帖／所蔵）・ライセンス根拠を記載。クリックで Wikimedia Commons の原典ページへ。',
       'credits.meta.historical': '歴史地図',
       'credits.meta.basemaps': 'ベースマップ',
       'credits.meta.postcards': '絵葉書',
@@ -7526,8 +7538,14 @@
     }
     // Source line — make it a hyperlink to the Wikimedia Commons file
     // page when we have a sourceUrl, fall back to plain text otherwise.
+    // 版權附註盡量完整：作者（攝影者）與原始出處（寫真帖/館藏）都列出來，
+    // 不只寫 Wikimedia Commons。資料來自 Commons extmetadata（見 data/postcards.js）。
     const srcEl = document.getElementById('pc-card-source');
-    const srcText = collected ? `Source · ${pc.source}` : `Source · ${t('pc.source.pending')}`;
+    let srcText = collected ? `Source · ${pc.source}` : `Source · ${t('pc.source.pending')}`;
+    if (collected) {
+      if (pc.author) srcText += ` · ${t('pc.source.by')} ${pc.author}`;
+      if (pc.credit) srcText += ` · ${pc.credit}`;
+    }
     srcEl.textContent = srcText;
     if (collected && pc.sourceUrl) {
       srcEl.setAttribute('href', pc.sourceUrl);
@@ -9447,10 +9465,17 @@
         html.push(`<div class="credits-city">${city.zh} · ${city.en}</div>`);
         cards.forEach(pc => {
           if (pc.sourceUrl) {
+            // 版權附註完整化：授權依據＋攝影者＋原始出處（寫真帖/館藏），
+            // 不只寫 Wikimedia Commons 一行。
+            const lic = (pc.source || '').replace('Wikimedia Commons · ', '');
+            const parts = [lic];
+            if (pc.author) parts.push(`${t('pc.source.by')} ${pc.author}`);
+            if (pc.credit) parts.push(pc.credit);
             html.push(
               `<div class="credits-row">` +
               `<span class="id">${pc.id.toUpperCase()}</span>` +
-              `<a href="${pc.sourceUrl}" target="_blank" rel="noopener">${pc.title} · ${pc.en} (${pc.year})</a>` +
+              `<span class="credits-main"><a href="${pc.sourceUrl}" target="_blank" rel="noopener">${pc.title} · ${pc.en} (${pc.year})</a>` +
+              `<span class="credits-meta">${parts.join(' · ')}</span></span>` +
               `</div>`
             );
           } else {
@@ -9918,7 +9943,10 @@
         `${(pc.en || '').toUpperCase()} · ${pc.year}` + (cityDef ? ` · ${currentLang === 'zh' ? cityDef.zh : cityDef.en}` : '');
       document.getElementById('wpc-desc').textContent = pc.desc || '';
       const srcEl = document.getElementById('wpc-source');
-      srcEl.textContent = `Source · ${pc.source}`;
+      let wsrc = `Source · ${pc.source}`;
+      if (pc.author) wsrc += ` · ${t('pc.source.by')} ${pc.author}`;
+      if (pc.credit) wsrc += ` · ${pc.credit}`;
+      srcEl.textContent = wsrc;
       if (pc.sourceUrl) srcEl.setAttribute('href', pc.sourceUrl);
       overlay.classList.add('show');
       overlay.setAttribute('aria-hidden', 'false');

@@ -12,22 +12,30 @@ historical map rendered as a perspective ground plane under your feet).
 
 Usage:  python3 tools/make-beta.py     (from repo root)
 """
-import re, os, json, pathlib
+import re, os, sys, json, pathlib
+
+# --native OUT ：輸出「原生打包用」變體 —— 含 β 功能（街景漫遊），但保留根目錄
+# 相對路徑（icons/、data/），不掛 β 識別。給 Capacitor（iOS/Android）內嵌用。
+NATIVE_OUT = None
+argv = sys.argv[1:]
+if '--native' in argv:
+    NATIVE_OUT = argv[argv.index('--native') + 1]
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 html = (ROOT / 'index.html').read_text(encoding='utf-8')
 
-# ── 1. shared-asset paths: beta/ page reaches root assets via ../ ──
-html = re.sub(r'(["\'`(])icons/', r'\1../icons/', html)
-html = html.replace('src="data/postcards.js"', 'src="../data/postcards.js"')
+if not NATIVE_OUT:
+    # ── 1. shared-asset paths: beta/ page reaches root assets via ../ ──
+    html = re.sub(r'(["\'`(])icons/', r'\1../icons/', html)
+    html = html.replace('src="data/postcards.js"', 'src="../data/postcards.js"')
 
-# ── 2. beta identity ──
-html = html.replace(
-    '<title>台灣舊地圖散策 — Taiwan Old-Map Stroll</title>',
-    '<title>台灣舊地圖散策 β — Beta Channel</title>\n<meta name="robots" content="noindex" />')
-html = html.replace(
-    '<h1 class="head-zh">舊地圖散策</h1>',
-    '<h1 class="head-zh">舊地圖散策 <span class="beta-tag">β</span></h1>')
+    # ── 2. beta identity ──
+    html = html.replace(
+        '<title>台灣舊地圖散策 — Taiwan Old-Map Stroll</title>',
+        '<title>台灣舊地圖散策 β — Beta Channel</title>\n<meta name="robots" content="noindex" />')
+    html = html.replace(
+        '<h1 class="head-zh">舊地圖散策</h1>',
+        '<h1 class="head-zh">舊地圖散策 <span class="beta-tag">β</span></h1>')
 
 # ── 3. walk-mode CSS (before the closing </style> of the main stylesheet) ──
 WALK_CSS = """
@@ -287,7 +295,12 @@ WALK_JS = r"""
 i = html.rindex('</script>')
 html = html[:i] + WALK_JS + html[i:]
 
-# ── 6. write beta files ──
+# ── 6. write output ──
+if NATIVE_OUT:
+    pathlib.Path(NATIVE_OUT).write_text(html, encoding='utf-8')
+    print('native variant (walk mode, root paths) →', NATIVE_OUT)
+    sys.exit(0)
+
 beta = ROOT / 'beta'
 beta.mkdir(exist_ok=True)
 (beta / 'index.html').write_text(html, encoding='utf-8')
