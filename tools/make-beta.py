@@ -42,16 +42,19 @@ WALK_CSS = """
   /* ── β 測試版標記 + 街景漫遊 walk mode ─────────────── */
   .beta-tag{display:inline-block;font-family:var(--mono);font-size:11px;color:#fff;
     background:var(--vermilion);border-radius:3px;padding:1px 6px;vertical-align:8px;letter-spacing:.05em}
-  .walk-overlay{position:fixed;inset:0;z-index:9600;display:none;background:#0b0a08;overflow:hidden}
+  /* 背景一律用紙色：平面旋轉時若露出缺角，看起來是「霧」不是黑色破洞
+     （Android 實測：黑底 + 旋轉缺角 = 黑白交替閃爍感） */
+  .walk-overlay{position:fixed;inset:0;z-index:9600;display:none;background:#EDE0C4;overflow:hidden}
   .walk-overlay.show{display:block}
   .walk-sky{position:absolute;left:0;top:0;right:0;height:27%;
     background:linear-gradient(180deg,#c9c0ab 0%,#e2d7bd 70%,#EDE0C4 100%)}
   .walk-groundwrap{position:absolute;left:0;right:0;top:26%;bottom:0;overflow:hidden;
-    perspective:640px;perspective-origin:50% 0}
+    background:#EDE0C4;perspective:640px;perspective-origin:50% 0}
   #walk-tilt{position:absolute;inset:0;transform:rotateX(60deg);transform-origin:50% 0;transform-style:preserve-3d}
-  #walk-map{position:absolute;left:-30%;top:-60%;width:160%;height:230%;background:#EDE0C4;transform-origin:50% 78%}
-  .walk-fog{position:absolute;left:0;right:0;top:calc(26% - 34px);height:80px;pointer-events:none;z-index:4;
-    background:linear-gradient(180deg,rgba(237,224,196,0),rgba(237,224,196,.95) 46%,rgba(237,224,196,0))}
+  #walk-map{position:absolute;left:-30%;top:-60%;width:160%;height:230%;background:#EDE0C4;
+    transform-origin:50% 78%;backface-visibility:hidden}
+  .walk-fog{position:absolute;left:0;right:0;top:calc(26% - 44px);height:130px;pointer-events:none;z-index:4;
+    background:linear-gradient(180deg,rgba(237,224,196,0),rgba(237,224,196,.97) 42%,rgba(237,224,196,0))}
   .walk-chip{position:absolute;font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:#E0A96D;
     background:rgba(25,20,14,.62);border:1px solid rgba(224,169,109,.45);padding:6px 12px;border-radius:3px;z-index:5}
   .walk-era{left:14px;top:calc(env(safe-area-inset-top,0px) + 14px)}
@@ -147,15 +150,19 @@ WALK_JS = r"""
       const H = wrap.clientHeight || 1, W = wrap.clientWidth || 1;
       const s = Math.sin(TILT_DEG * Math.PI / 180), c = Math.cos(TILT_DEG * Math.PI / 180);
       const yFor = sy => sy * PERSP / (c * PERSP + sy * s); // 螢幕深度 → 平面局部 y
+      // 旋轉覆蓋：平面會繞使用者錨點轉（羅盤），寬度取「錨點到地平線角落」
+      // 的距離 ×2 再加餘裕，讓多數轉角下不露出缺角；露出的極端角落由紙色
+      // 背景＋霧帶吸收。上限 1600px 控制 GPU 紋理大小（Android 閃爍主因之二）。
       const overhang = 60;                                   // 地平線後方的緩衝（不可見）
       const hPx = Math.min(yFor(H) * 1.18, (PERSP / s) * 0.92) + overhang;
-      const wPx = Math.max(W * 1.7, 700);
+      const yAnchor = yFor(0.76 * H);
+      const wPx = Math.min(Math.max(W * 1.7, 2 * Math.hypot(yAnchor, W * 0.55) + 80), 1600);
       mapEl.style.width  = Math.round(wPx) + 'px';
       mapEl.style.height = Math.round(hPx) + 'px';
       mapEl.style.left   = Math.round((W - wPx) / 2) + 'px';
       mapEl.style.top    = (-overhang) + 'px';
       // 錨點（你站的位置）投影在畫面約 76% 高處，和 CSS 的腳印標記對齊
-      anchorRatio = (yFor(0.76 * H) + overhang) / hPx;
+      anchorRatio = (yAnchor + overhang) / hPx;
       mapEl.style.transformOrigin = '50% ' + (anchorRatio * 100).toFixed(2) + '%';
       if (walkMap) walkMap.invalidateSize({ animate: false });
     }
@@ -199,12 +206,13 @@ WALK_JS = r"""
       // 底層鋪現代街道（CARTO 淡色無標籤）——古地圖調透明時透出「今」。
       if (!walkBase) {
         walkBase = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
-          { maxZoom: 19 }).addTo(walkMap);
+          { maxZoom: 19, detectRetina: true }).addTo(walkMap);
       }
       if (walkLayerId !== def.id) {
         if (walkLayer) walkMap.removeLayer(walkLayer);
         walkLayer = L.tileLayer(def.url, {
           maxNativeZoom: def.maxNativeZoom, maxZoom: 19, opacity: walkOpacity,
+          updateWhenIdle: true,
         }).addTo(walkMap);
         walkLayerId = def.id;
       }
@@ -218,25 +226,51 @@ WALK_JS = r"""
       const c = walkMap.unproject(walkMap.project(ll, z).subtract([0, up]), z);
       walkMap.setView(c, z, { animate: false });
     }
+    let lastAppliedHeading = null, lastAppliedCenter = null;
     function frame() {
       if (targetPos) {
         pos = pos
           ? { lat: pos.lat + (targetPos.lat - pos.lat) * 0.12,
               lng: pos.lng + (targetPos.lng - pos.lng) * 0.12 }
           : targetPos;
-        setCenter(L.latLng(pos.lat, pos.lng));
+        // 只有實際移動超過 ~0.4px（該縮放層級）才重設中心，避免 Android
+        // 每幀 setView 造成圖磚層抖動。
+        const key = pos.lat.toFixed(6) + ',' + pos.lng.toFixed(6);
+        if (key !== lastAppliedCenter) {
+          lastAppliedCenter = key;
+          setCenter(L.latLng(pos.lat, pos.lng));
+        }
       }
       const dh = ((targetHeading - heading + 540) % 360) - 180;
-      heading = (heading + dh * 0.15 + 360) % 360;
-      mapEl.style.transform = 'rotateZ(' + (-heading).toFixed(2) + 'deg)';
-      if (needle) needle.setAttribute('transform', 'rotate(' + (-heading).toFixed(1) + ' 23 23)');
+      heading = (heading + dh * 0.12 + 360) % 360;
+      // 角度變化 <0.1° 就不重寫 transform——連續改寫大型 3D 圖層的
+      // transform 是 Android WebView 閃爍的主因之一。
+      if (lastAppliedHeading === null || Math.abs(((heading - lastAppliedHeading + 540) % 360) - 180) > 0.1) {
+        lastAppliedHeading = heading;
+        mapEl.style.transform = 'rotateZ(' + (-heading).toFixed(2) + 'deg)';
+        if (needle) needle.setAttribute('transform', 'rotate(' + (-heading).toFixed(1) + ' 23 23)');
+      }
       rafId = requestAnimationFrame(frame);
     }
+    // 方位來源紀律（Android 災情根因）：deviceorientation 在 Android 上是
+    // 「相對」方位（任意參考系），和 deviceorientationabsolute（真羅盤）的
+    // 角度完全不同。之前兩個事件都在覆寫 targetHeading，平面就在兩個角度
+    // 之間劇烈擺盪 → 畫面瘋狂旋轉閃爍。規則：一旦收過任何「絕對」讀值，
+    // 永遠忽略相對讀值；再加 1.5° 死區濾掉羅盤雜訊。
+    let haveAbsolute = false;
     function onOrient(e) {
       let h = null;
-      if (typeof e.webkitCompassHeading === 'number') h = e.webkitCompassHeading; // iOS
-      else if (typeof e.alpha === 'number') h = 360 - e.alpha;                    // Android
-      if (h != null && !Number.isNaN(h)) targetHeading = h;
+      if (typeof e.webkitCompassHeading === 'number') {            // iOS 真羅盤
+        h = e.webkitCompassHeading; haveAbsolute = true;
+      } else if (e.type === 'deviceorientationabsolute' || e.absolute === true) {
+        if (typeof e.alpha === 'number') { h = 360 - e.alpha; haveAbsolute = true; }
+      } else if (!haveAbsolute && typeof e.alpha === 'number') {
+        h = 360 - e.alpha;                                         // 沒絕對來源時的退路
+      }
+      if (h == null || Number.isNaN(h)) return;
+      const dh = ((h - targetHeading + 540) % 360) - 180;
+      if (Math.abs(dh) < 1.5) return;                              // 雜訊死區
+      targetHeading = h;
     }
     async function enableCompass() {
       try {
@@ -318,7 +352,7 @@ sw = sw.replace(
     "          .filter(k => k.startsWith('tw-beta-'))")
 # beta has its own version line so channels rev independently
 sw = re.sub(r"const CACHE_VERSION = '[^']+'; //.*",
-            "const CACHE_VERSION = 'beta3-2026-07-04'; // 修 iOS Safari 漫遊黑洞（平面動態尺寸）＋手機操作體檢",
+            "const CACHE_VERSION = 'beta5-2026-07-07'; // 修 Android 漫遊閃爍（方位來源紀律＋紙色背景＋節流）",
             sw, count=1)
 sw = sw.replace("""const SHELL_URLS = [
   './',
