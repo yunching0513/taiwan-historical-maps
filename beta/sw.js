@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'beta7-2026-07-08'; // walk-mode tile coverage fix
+const CACHE_VERSION = 'beta8-2026-07-08'; // walk mode: locate + route recording controls
 const SHELL_CACHE = `tw-beta-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-beta-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-beta-tiles-${CACHE_VERSION}`;

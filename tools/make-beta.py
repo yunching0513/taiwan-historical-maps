@@ -94,6 +94,24 @@ WALK_CSS = """
   .walk-op input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
     background:var(--vermilion);border:2px solid #fff;cursor:pointer}
   .walk-op .wo-val{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:#E0A96D;min-width:34px;text-align:right}
+  /* 漫遊頁內的「定位 / 記錄」控制（重用主程式的定位與路徑記錄） */
+  .walk-ctrl{position:absolute;left:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 52px);z-index:6;
+    display:flex;gap:8px;will-change:transform;transform:translateZ(0)}
+  .walk-btn{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:52px;
+    background:rgba(25,20,14,.62);border:1px solid rgba(224,169,109,.45);border-radius:6px;padding:7px 10px;
+    color:#E0A96D;font-family:var(--zh-sans);cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .walk-btn .wb-ic{font-size:15px;line-height:1}
+  .walk-btn .wb-t{font-size:11px;letter-spacing:.1em}
+  .walk-btn.on{background:rgba(193,95,60,.9);border-color:#E0A96D;color:#fff}
+  .walk-btn:disabled{opacity:.4}
+  .walk-rec-btn.on{background:rgba(214,73,47,.95)}
+  .walk-rec-readout{position:absolute;left:50%;top:calc(env(safe-area-inset-top,0px) + 66px);transform:translateX(-50%) translateZ(0);
+    z-index:6;display:flex;align-items:center;gap:8px;background:rgba(25,20,14,.7);border:1px solid rgba(224,169,109,.4);
+    border-radius:20px;padding:6px 15px;font-family:var(--mono);font-size:13px;letter-spacing:.1em;color:#EDE0C4;will-change:transform}
+  .walk-rec-readout .wr-dot{width:9px;height:9px;border-radius:50%;background:#e0492f;animation:walk-recblink 1.2s steps(2) infinite}
+  @keyframes walk-recblink{0%,49%{opacity:1}50%,100%{opacity:.25}}
+  /* 定位/背景定位同意卡必須浮在漫遊(9600)之上，否則按定位時看不到提示 */
+  #geo-overlay.show,#bgloc-overlay.show{z-index:9700}
 """
 i = html.rindex('</style>')
 html = html[:i] + WALK_CSS + html[i:]
@@ -113,6 +131,11 @@ WALK_HTML = """
     <text x="23" y="14" text-anchor="middle" fill="#E0A96D" font-size="8" font-family="monospace">N</text>
   </svg></div>
   <div class="walk-feet"><div class="ring"></div><div class="dot"></div></div>
+  <div class="walk-rec-readout" id="walk-rec-readout" hidden><span class="wr-dot"></span><span id="walk-rec-dist">0 m</span> · <span id="walk-rec-time">0:00</span></div>
+  <div class="walk-ctrl" id="walk-ctrl">
+    <button type="button" class="walk-btn" id="walk-locate"><span class="wb-ic">◎</span><span class="wb-t">定位</span></button>
+    <button type="button" class="walk-btn walk-rec-btn" id="walk-record" disabled><span class="wb-ic">●</span><span class="wb-t">記錄</span></button>
+  </div>
   <div class="walk-op"><span class="wo-ic">◐</span><input type="range" id="walk-opacity" min="20" max="100" step="5" value="85" aria-label="古地圖透明度" /><span class="wo-val" id="walk-op-val">85%</span></div>
   <div class="walk-hint" id="walk-hint">—</div>
 </div>
@@ -314,10 +337,8 @@ WALK_JS = r"""
         setCenter(ll);
         if (!rafId) frame();
       });
-      hintEl.textContent = lastUserLatLng
-        ? '腳下就是古地圖 · 走動時跟著你捲動'
-        : '尚未定位 — 目前顯示地圖中心。回地圖按「定位」，漫遊會跟著你走。';
       enableCompass();
+      syncControls();
       pollId = setInterval(() => {
         const ll = anchorLL();
         // GPS 抖動死區：手機 GPS 靜止時仍會每秒跳動數公尺。只有位移
@@ -326,8 +347,42 @@ WALK_JS = r"""
           targetPos = { lat: ll.lat, lng: ll.lng };
         }
         ensureMap(); // 圖層若在主地圖換了年代，跟著換
+        syncControls(); // 同步定位/記錄按鈕與讀數
       }, 900);
     }
+
+    // ── 定位 / 記錄：重用主程式的 requestLocate / startRecording ──────
+    // 記錄是全域狀態：在漫遊裡開始，離開漫遊仍持續（路徑畫在主地圖上）。
+    const locBtn = document.getElementById('walk-locate');
+    const recBtn = document.getElementById('walk-record');
+    const recReadout = document.getElementById('walk-rec-readout');
+    function syncControls() {
+      if (locBtn) locBtn.classList.toggle('on', isLocating);
+      if (recBtn) {
+        recBtn.disabled = !isLocating;
+        recBtn.classList.toggle('on', isRecording);
+        const t = recBtn.querySelector('.wb-t'); if (t) t.textContent = isRecording ? '停止' : '記錄';
+      }
+      if (recReadout) {
+        recReadout.hidden = !isRecording;
+        if (isRecording) {
+          const d = document.getElementById('rec-dist'), tm = document.getElementById('rec-time');
+          if (d) document.getElementById('walk-rec-dist').textContent = d.textContent;
+          if (tm) document.getElementById('walk-rec-time').textContent = tm.textContent;
+        }
+      }
+      hintEl.textContent = isRecording ? '記錄中 · 走動時路徑會沿路記下'
+        : lastUserLatLng ? '腳下就是古地圖 · 走動時跟著你捲動'
+        : '按「定位」開始，漫遊就會跟著你走。';
+    }
+    if (locBtn) locBtn.addEventListener('click', async () => {
+      try { await requestLocate(); } catch {}
+      syncControls(); setTimeout(syncControls, 400);
+    });
+    if (recBtn) recBtn.addEventListener('click', () => {
+      if (isRecording) stopRecording(); else startRecording();
+      syncControls();
+    });
     function close() {
       active = false;
       overlay.classList.remove('show');
@@ -373,7 +428,7 @@ sw = sw.replace(
     "          .filter(k => k.startsWith('tw-beta-'))")
 # beta has its own version line so channels rev independently
 sw = re.sub(r"const CACHE_VERSION = '[^']+'; //.*",
-            "const CACHE_VERSION = 'beta7-2026-07-08'; // walk-mode tile coverage fix",
+            "const CACHE_VERSION = 'beta8-2026-07-08'; // walk mode: locate + route recording controls",
             sw, count=1)
 sw = sw.replace("""const SHELL_URLS = [
   './',
