@@ -7799,14 +7799,18 @@
 
   // 下載整張明信片卡（老照片＋說明＋來源，與分享同一張合成圖）
   async function downloadPostcardCard(pc) {
+    // 直接下載明信片「原卡」（800×1100 的完整版面：框、標題、照片、編號、
+    // 年份）——就是畫面上看到的這張。使用者回饋喜歡這個排版；重新合成的
+    // 分享卡只留給「分享」按鈕用。
     let blob = null;
-    try { blob = await generateShareCard(pc); }
-    catch (err) { console.warn('share-card gen failed, fallback to raw jpg', err); }
+    try {
+      const res = await fetch(`icons/postcards/${pc.id}.jpg`, { cache: 'force-cache' });
+      if (res.ok) blob = await res.blob();
+    } catch {}
     if (!blob) {
-      try {
-        const res = await fetch(`icons/postcards/${pc.id}.jpg`, { cache: 'force-cache' });
-        blob = await res.blob();
-      } catch (err) { alert(t('alert.image_fail')); return; }
+      // 極端情況（快取遺失且離線）才退回合成卡
+      try { blob = await generateShareCard(pc); }
+      catch (err) { alert(t('alert.image_fail')); return; }
     }
     const name = `散策明信片-${(currentLang === 'en' && pc.en) ? pc.en : pc.title}-${pc.year}.jpg`;
     const url = URL.createObjectURL(blob);
