@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v76-2026-07-09'; // 下載明信片＝原卡完整版面（框＋標題＋照片＋編號）
+const CACHE_VERSION = 'v77-2026-07-09'; // 贊助連結改 Ko-fi 為主（ko-fi.com/yunching0513），LINE Pay QR 備選
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;

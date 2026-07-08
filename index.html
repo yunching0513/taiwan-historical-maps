@@ -2645,6 +2645,22 @@
     letter-spacing: 0.06em;
     margin: 0 0 16px;
   }
+  .donate-kofi {
+    display: block;
+    margin: 14px auto 16px;
+    max-width: 260px;
+    text-align: center;
+    background: var(--vermilion);
+    color: #fff;
+    text-decoration: none;
+    font-family: var(--zh-sans);
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    padding: 12px 18px;
+    border-radius: 8px;
+    box-shadow: 0 4px 14px -6px rgba(193, 95, 60, 0.6);
+  }
+  .donate-kofi:hover { opacity: 0.92; }
   .donate-qr {
     display: block;
     width: 100%;
@@ -4337,8 +4353,9 @@
     <button type="button" class="donate-card-close" id="donate-close" aria-label="關閉">✕</button>
     <h3 class="donate-card-title" id="donate-title" data-i18n="donate.title">Buy me a coffee</h3>
     <p class="donate-card-sub" data-i18n="donate.sub">☕ 請作者喝杯咖啡</p>
+    <a class="donate-kofi" href="https://ko-fi.com/yunching0513" target="_blank" rel="noopener" data-i18n="donate.kofi">☕ 到 Ko-fi 請我喝咖啡</a>
     <img class="donate-qr" src="icons/donate-qr.jpg" alt="收款碼 QR Code" loading="lazy" />
-    <p class="donate-scan" data-i18n="donate.scan">用 LINE Pay 掃碼，就能請我喝杯咖啡</p>
+    <p class="donate-scan" data-i18n="donate.scan">或在台灣用 LINE Pay 掃碼</p>
     <p class="donate-thanks">
       <span data-i18n="donate.thanks">謝謝你支持這個 App 的維護與更新</span>
       <em data-i18n="donate.thanks.sub">Thank you for keeping the old maps alive.</em>
@@ -4596,7 +4613,8 @@
       'era.picker.cell': '格',
       'donate.title': 'Buy me a coffee',
       'donate.sub': '☕ 請作者喝杯咖啡',
-      'donate.scan': '用 LINE Pay 掃碼，就能請我喝杯咖啡',
+      'donate.kofi': '☕ 到 Ko-fi 請我喝咖啡',
+      'donate.scan': '或在台灣用 LINE Pay 掃碼',
       'donate.thanks': '謝謝你支持這個 App 的維護與更新',
       'donate.thanks.sub': 'Thank you for keeping the old maps alive.',
       'tip.coffee.title': '喜歡這趟散策嗎？☕ 請作者喝杯咖啡，讓老地圖繼續走下去',
@@ -4604,7 +4622,7 @@
       'tip.coffee.later': '下次吧',
       'credits.title': '資料來源與致謝',
       'credits.sponsor.title': '☕ 喜歡這個 App？',
-      'credits.sponsor.body': '老地圖的維護需要時間與費用。若這趟散策讓你愉快，歡迎掃碼用 LINE Pay 請我喝杯咖啡。',
+      'credits.sponsor.body': '老地圖的維護需要時間與費用。若這趟散策讓你愉快，歡迎到 Ko-fi（或用 LINE Pay 掃碼）請我喝杯咖啡。',
       'credits.sponsor.btn': '打開贊助視窗',
       'credits.intro': '本 App 所有明信片影像皆為公有領域（Public Domain），逐張查證授權後才收錄；本 App 僅做匯整呈現與地理註記，不主張任何版權。授權依據——【PD-Japan】依日本 1899 年舊著作權法，1946 年以前拍攝之照片著作權已消滅；【PD-Taiwan】依中華民國著作權法第 34 條，攝影著作於公開發表滿 50 年後屆期。下表逐筆列出每張影像的攝影者（可考者）、原始出處（寫真帖／館藏／出版品）與授權依據；點擊條目可造訪 Wikimedia Commons 原始檔案頁面查看高解析原圖與完整授權細節。',
       'credits.meta.historical': 'Historical maps',
@@ -4838,7 +4856,8 @@
       'era.picker.cell': 'Cell',
       'donate.title': 'Buy me a coffee',
       'donate.sub': '☕ Support this project',
-      'donate.scan': 'Scan with LINE Pay to buy me a coffee',
+      'donate.kofi': '☕ Buy me a coffee on Ko-fi',
+      'donate.scan': 'Or scan with LINE Pay (Taiwan)',
       'donate.thanks': 'Thanks for keeping this app alive',
       'donate.thanks.sub': 'Thank you for keeping the old maps alive.',
       'tip.coffee.title': 'Enjoying the stroll? ☕ Buy the author a coffee to keep the old maps walking.',
@@ -4846,7 +4865,7 @@
       'tip.coffee.later': 'Maybe later',
       'credits.title': 'Sources & Credits',
       'credits.sponsor.title': '☕ Enjoying this app?',
-      'credits.sponsor.body': 'Keeping the old maps alive takes time and effort. If you enjoyed the stroll, feel free to scan and buy me a coffee via LINE Pay.',
+      'credits.sponsor.body': 'Keeping the old maps alive takes time and effort. If you enjoyed the stroll, buy me a coffee on Ko-fi (or scan with LINE Pay).',
       'credits.sponsor.btn': 'Open support window',
       'credits.intro': 'Every postcard image is public domain, verified per file before inclusion; this app only curates and geo-tags them and claims no copyright. License basis — PD-Japan: photographs taken before 1947 are out of copyright under Japan\'s 1899 Copyright Act; PD-Taiwan: photographic works enter the public domain 50 years after publication under Taiwan\'s Copyright Act (Art. 34). The list below gives, for each image, the photographer (where known), the original publication or collection, and the license basis; click an entry for the full-resolution original and complete license details on Wikimedia Commons.',
       'credits.meta.historical': 'Historical maps',
@@ -5080,7 +5099,8 @@
       'era.picker.cell': 'セル',
       'donate.title': 'コーヒーをご馳走',
       'donate.sub': '☕ このプロジェクトを応援',
-      'donate.scan': 'LINE Pay で読み取って、コーヒーを一杯',
+      'donate.kofi': '☕ Ko-fi でコーヒーをおごる',
+      'donate.scan': 'または台湾の LINE Pay でスキャン',
       'donate.thanks': 'このアプリの維持と更新を支援していただきありがとうございます',
       'donate.thanks.sub': 'Thank you for keeping the old maps alive.',
       'tip.coffee.title': '散策は楽しめましたか？☕ 作者にコーヒーを一杯、古地図を歩き続けるために。',
@@ -5088,7 +5108,7 @@
       'tip.coffee.later': '今度ね',
       'credits.title': '出典と謝辞',
       'credits.sponsor.title': '☕ このアプリを気に入りましたか？',
-      'credits.sponsor.body': '古地図の維持には時間と費用がかかります。この散策が楽しかったら、LINE Pay でコーヒーを一杯おごっていただければ嬉しいです。',
+      'credits.sponsor.body': '古地図の維持には時間と費用がかかります。この散策が楽しかったら、Ko-fi（または LINE Pay）でコーヒーを一杯おごっていただければ嬉しいです。',
       'credits.sponsor.btn': 'サポート画面を開く',
       'credits.intro': '全ての絵葉書画像はパブリックドメインであり、一枚ずつライセンスを確認のうえ収録しています。本アプリは整理と地理タグ付けのみを行い、著作権を主張しません。根拠——【PD-Japan】旧著作権法（明治32年）により1946年以前撮影の写真は著作権消滅；【PD-Taiwan】台湾著作権法第34条により公表後50年で満了。下記リストには撮影者（判明分）・原典（写真帖／所蔵）・ライセンス根拠を記載。クリックで Wikimedia Commons の原典ページへ。',
       'credits.meta.historical': '歴史地図',
