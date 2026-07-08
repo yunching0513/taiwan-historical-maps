@@ -3937,6 +3937,7 @@
   .walk-rec-readout{position:absolute;left:50%;top:calc(env(safe-area-inset-top,0px) + 66px);transform:translateX(-50%) translateZ(0);
     z-index:6;display:flex;align-items:center;gap:8px;background:rgba(25,20,14,.7);border:1px solid rgba(224,169,109,.4);
     border-radius:20px;padding:6px 15px;font-family:var(--mono);font-size:13px;letter-spacing:.1em;color:#EDE0C4;will-change:transform}
+  .walk-rec-readout[hidden]{display:none} /* 明確 display 會蓋過 hidden 屬性，需補這條 */
   .walk-rec-readout .wr-dot{width:9px;height:9px;border-radius:50%;background:#e0492f;animation:walk-recblink 1.2s steps(2) infinite}
   @keyframes walk-recblink{0%,49%{opacity:1}50%,100%{opacity:.25}}
   /* 定位/背景定位同意卡必須浮在漫遊(9600)之上，否則按定位時看不到提示 */
@@ -4490,7 +4491,7 @@
 <!-- β 街景漫遊：把古地圖鋪成腳下的透視地面（Google 街景式的「走在古地圖上」） -->
 <div class="walk-overlay" id="walk-overlay" aria-hidden="true">
   <div class="walk-sky"></div>
-  <div class="walk-groundwrap"><div id="walk-tilt"><div id="walk-map"></div></div></div>
+  <div class="walk-groundwrap"><div id="walk-tilt"><canvas id="walk-map"></canvas></div></div>
   <div class="walk-fog"></div>
   <div class="walk-chip walk-era" id="walk-era">◷ —</div>
   <button type="button" class="walk-close" id="walk-close">✕ 離開</button>
@@ -10409,10 +10410,83 @@
     const eraEl = document.getElementById('walk-era');
     const hintEl = document.getElementById('walk-hint');
     const needle = document.getElementById('walk-needle');
-    let walkMap = null, walkBase = null, walkLayer = null, walkLayerId = null;
     let active = false, rafId = null, pollId = null;
     let heading = 0, targetHeading = 0, pos = null, targetPos = null;
     let anchorRatio = 0.78; // 使用者錨點在地面容器內的高度比例（sizeGround 動態算）
+
+    // ── Canvas 圖磚渲染器 ─────────────────────────────
+    // 地面不再用 Leaflet：把兩層圖磚（現代底圖＋古地圖）直接畫進單一
+    // canvas，3D 傾斜與旋轉只作用在這一張畫布上。架構性優點：
+    //  · 單一合成層 → 不再有上百個圖磚 <img> 的 Android 重繪抖動
+    //  · 覆蓋自己算 → 永遠滿版，沒有遠方空白 / 旋轉缺角
+    //  · 靜止時零重繪；位移超過門檻才重畫一次（約 30 次 drawImage）
+    const TILE = 256, WZ_MAX = 16, DPR = Math.min(window.devicePixelRatio || 1, 2);
+    let ctx = null, walkDef = null, needsRedraw = false;
+    let cw = 0, chh = 0; // canvas CSS 尺寸
+    const tileCache = new Map(); // key → {img, ok, fail}
+    let tileHolder = null; // 隱藏的 DOM 容器：SW 控制的頁面上，未掛 DOM 的 Image
+                           // 不會啟動載入（實測），掛上去就跟 Leaflet 圖磚同路。
+    function cacheGet(key, url) {
+      let e = tileCache.get(key);
+      if (e) return e;
+      if (!tileHolder) {
+        tileHolder = document.createElement('div');
+        tileHolder.style.display = 'none';
+        overlay.appendChild(tileHolder);
+      }
+      e = { img: new Image(), ok: false, fail: false };
+      e.img.decoding = 'async';
+      e.img.onload = () => { e.ok = true; needsRedraw = true; };
+      e.img.onerror = () => { e.fail = true; }; // 中研院缺磚回 HTML → onerror，不重試
+      e.img.src = url;
+      tileHolder.appendChild(e.img);
+      tileCache.set(key, e);
+      if (tileCache.size > 360) { // 簡單 FIFO 淘汰，控記憶體
+        const it = tileCache.keys();
+        for (let i = 0; i < 60; i++) {
+          const k = it.next().value;
+          if (!k) break;
+          const old = tileCache.get(k);
+          if (old && old.img) old.img.remove();
+          tileCache.delete(k);
+        }
+      }
+      return e;
+    }
+    const lngToPx = (lng, z) => (lng + 180) / 360 * TILE * Math.pow(2, z);
+    const latToPx = (lat, z) => { const r = lat * Math.PI / 180;
+      return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * TILE * Math.pow(2, z); };
+    const walkZoom = () => Math.min((walkDef && walkDef.maxNativeZoom) || 15, WZ_MAX);
+    function baseURL(z, x, y) {
+      const s = 'abcd'[(x + y) % 4], r = DPR > 1 ? '@2x' : '';
+      return 'https://' + s + '.basemaps.cartocdn.com/light_nolabels/' + z + '/' + x + '/' + y + r + '.png';
+    }
+    function histURL(z, x, y) {
+      return walkDef.url.replace('{z}', z).replace('{x}', x).replace('{y}', y);
+    }
+    function drawLayer(z, originX, originY, keyPfx, urlFn, alpha) {
+      const tx0 = Math.floor(originX / TILE), ty0 = Math.floor(originY / TILE);
+      const tx1 = Math.floor((originX + cw) / TILE), ty1 = Math.floor((originY + chh) / TILE);
+      const max = Math.pow(2, z);
+      ctx.globalAlpha = alpha;
+      for (let tx = tx0; tx <= tx1; tx++) for (let ty = ty0; ty <= ty1; ty++) {
+        if (ty < 0 || ty >= max) continue;
+        const wx = ((tx % max) + max) % max;
+        const e = cacheGet(keyPfx + z + '/' + wx + '/' + ty, urlFn(z, wx, ty));
+        if (e.ok) ctx.drawImage(e.img, tx * TILE - originX, ty * TILE - originY, TILE, TILE);
+      }
+      ctx.globalAlpha = 1;
+    }
+    function drawGround() {
+      if (!ctx || !pos || !walkDef) return;
+      const z = walkZoom();
+      const originX = lngToPx(pos.lng, z) - cw / 2;
+      const originY = latToPx(pos.lat, z) - chh * anchorRatio; // 錨點=你站的位置
+      ctx.fillStyle = '#EDE0C4'; ctx.fillRect(0, 0, cw, chh);
+      drawLayer(z, originX, originY, 'b/', baseURL, 1);
+      drawLayer(z, originX, originY, 'h' + walkDef.id + '/', histURL, walkOpacity);
+      needsRedraw = false;
+    }
 
     // ── Safari 關鍵修正：平面尺寸依螢幕動態計算 ────────────
     // rotateX(60°)+perspective(640px) 下，平面上局部 y 超過 d/sin60 ≈ 739px
@@ -10432,16 +10506,21 @@
       const hPx = Math.min(yFor(H) * 1.18, (PERSP / s) * 0.92) + overhang;
       const yAnchor = yFor(0.76 * H);
       const wPx = Math.min(Math.max(W * 1.7, 2 * Math.hypot(yAnchor, W * 0.55) + 80), 1600);
-      mapEl.style.width  = Math.round(wPx) + 'px';
-      mapEl.style.height = Math.round(hPx) + 'px';
+      cw = Math.round(wPx); chh = Math.round(hPx);
+      mapEl.style.width  = cw + 'px';
+      mapEl.style.height = chh + 'px';
       mapEl.style.left   = Math.round((W - wPx) / 2) + 'px';
       mapEl.style.top    = (-overhang) + 'px';
+      // canvas 背景儲存以 DPR 倍率配置，高 DPI 手機上圖磚才銳利
+      mapEl.width = Math.round(cw * DPR); mapEl.height = Math.round(chh * DPR);
+      if (!ctx) ctx = mapEl.getContext('2d');
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
       // 錨點（你站的位置）投影在畫面約 76% 高處，和 CSS 的腳印標記對齊
       anchorRatio = (yAnchor + overhang) / hPx;
       mapEl.style.transformOrigin = '50% ' + (anchorRatio * 100).toFixed(2) + '%';
-      if (walkMap) walkMap.invalidateSize({ animate: false });
+      needsRedraw = true;
     }
-    window.addEventListener('resize', () => { if (active) { sizeGround(); if (pos) setCenter(L.latLng(pos.lat, pos.lng)); } });
+    window.addEventListener('resize', () => { if (active) { sizeGround(); drawGround(); } });
 
     // 漫遊中的古地圖透明度：獨立於主地圖記憶（拉低=現代街道透出）。
     const WALK_OP_KEY = 'taiwanOldMaps.walkOpacity';
@@ -10454,7 +10533,7 @@
     const opVal = document.getElementById('walk-op-val');
     function applyWalkOpacity(v) {
       walkOpacity = v;
-      if (walkLayer) walkLayer.setOpacity(v);
+      needsRedraw = true; // 下一幀以新透明度重畫古地圖層
       if (opVal) opVal.textContent = Math.round(v * 100) + '%';
       try { localStorage.setItem(WALK_OP_KEY, String(v)); } catch {}
     }
@@ -10470,43 +10549,9 @@
     }
     function ensureMap() {
       const def = currentDef();
-      if (!walkMap) {
-        walkMap = L.map(mapEl, {
-          zoomControl: false, attributionControl: false,
-          dragging: false, touchZoom: false, doubleClickZoom: false,
-          scrollWheelZoom: false, boxZoom: false, keyboard: false,
-          fadeAnimation: false, zoomAnimation: false, inertia: false,
-        });
-      }
-      // 圖磚覆蓋是漫遊的成敗關鍵。傾斜＋旋轉後，遠方與轉角需要遠比一般
-      // 視窗更多的圖磚。共用選項：
-      //  · keepBuffer:6 —— 在視窗外多載 6 排圖磚，蓋住旋轉與近—遠。
-      //  · updateWhenIdle:false / updateWhenZooming:true —— 走動、轉身時
-      //    也持續載圖（原本歷史層是 idle 才載，移動中整片不更新 → 空白）。
-      const TOPT = { keepBuffer: 6, updateWhenIdle: false, updateWhenZooming: true };
-      // 底層鋪現代街道（CARTO 淡色無標籤）——古地圖調透明時透出「今」。
-      if (!walkBase) {
-        walkBase = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
-          Object.assign({ maxZoom: 19 }, TOPT)).addTo(walkMap);
-      }
-      if (walkLayerId !== def.id) {
-        if (walkLayer) walkMap.removeLayer(walkLayer);
-        walkLayer = L.tileLayer(def.url, Object.assign({
-          maxNativeZoom: def.maxNativeZoom, maxZoom: 19, opacity: walkOpacity,
-        }, TOPT)).addTo(walkMap);
-        walkLayerId = def.id;
-      }
-      // 縮放降一級（上限 16）：每片圖磚涵蓋 2–4 倍地面，讓後退的平面用可控的
-      // 圖磚數就填得滿；近景稍微放大變糊，但由「有界近景＋霧」的設計吸收。
-      walkMap._walkZoom = Math.min(def.maxNativeZoom || 15, 16);
+      if (!ctx) ctx = mapEl.getContext('2d');
+      if (!walkDef || walkDef.id !== def.id) { walkDef = def; needsRedraw = true; }
       eraEl.textContent = '◷ ' + def.year + ' · ' + def.label;
-    }
-    // 使用者錨點在容器 anchorRatio 高度（畫面下方）：中心 = 錨點上移 (ratio−0.5)·高。
-    function setCenter(ll) {
-      const z = walkMap._walkZoom;
-      const up = walkMap.getSize().y * (anchorRatio - 0.5);
-      const c = walkMap.unproject(walkMap.project(ll, z).subtract([0, up]), z);
-      walkMap.setView(c, z, { animate: false });
     }
     let lastAppliedHeading = null, lastCenterPx = null;
     function frame() {
@@ -10515,16 +10560,16 @@
           ? { lat: pos.lat + (targetPos.lat - pos.lat) * 0.12,
               lng: pos.lng + (targetPos.lng - pos.lng) * 0.12 }
           : targetPos;
-        // 像素級死區（關鍵）：只有平滑後的位置在螢幕上實際位移 ≥1.5px 才
-        // setView。之前用 toFixed(6)（~0.1m）等於每幀都重繪整個圖磚層——那正是
-        // Android 合成器抖動的來源。收斂後 px 幾乎不動 → 完全不 setView。
-        const z = walkMap._walkZoom;
-        const px = walkMap.project(L.latLng(pos.lat, pos.lng), z);
+        // 像素級死區：平滑後的位置實際位移 ≥1.5px 才標記重畫。
+        // 收斂後完全不重畫 —— canvas 靜止時是一張死圖，先天無抖動。
+        const z = walkZoom();
+        const px = { x: lngToPx(pos.lng, z), y: latToPx(pos.lat, z) };
         if (!lastCenterPx || Math.abs(px.x - lastCenterPx.x) + Math.abs(px.y - lastCenterPx.y) >= 1.5) {
           lastCenterPx = px;
-          setCenter(L.latLng(pos.lat, pos.lng));
+          needsRedraw = true;
         }
       }
+      if (needsRedraw) drawGround(); // 位置變了 / 圖磚到貨 / 透明度變了 → 重畫一次
       const dh = ((targetHeading - heading + 540) % 360) - 180;
       heading = (heading + dh * 0.12 + 360) % 360;
       // 角度變化 <0.1° 就不重寫 transform——連續改寫大型 3D 圖層的
@@ -10574,11 +10619,11 @@
       ensureMap();
       requestAnimationFrame(() => {
         sizeGround();
-        walkMap.invalidateSize({ animate: false });
-        pos = null;
         const ll = anchorLL();
         targetPos = { lat: ll.lat, lng: ll.lng };
-        setCenter(ll);
+        pos = { lat: ll.lat, lng: ll.lng }; // 開場直接落點，不用等平滑收斂
+        lastCenterPx = null;
+        drawGround();
         if (!rafId) frame();
       });
       enableCompass();
