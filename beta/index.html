@@ -3888,8 +3888,10 @@
   /* HUD 一律提升成獨立合成層，地圖重繪時不會被捲進去一起重畫/搶繪 */
   .walk-chip,.walk-close,.walk-compass,.walk-op,.walk-hint,.walk-feet,.walk-fog,.walk-sky{
     will-change:transform;transform:translateZ(0)}
-  .walk-fog{position:absolute;left:0;right:0;top:calc(26% - 44px);height:130px;pointer-events:none;z-index:4;
-    background:linear-gradient(180deg,rgba(237,224,196,0),rgba(237,224,196,.97) 42%,rgba(237,224,196,0))}
+  /* 霧帶：從地平線往下鋪一大片，把覆蓋最差、最模糊的遠方地面藏進霧裡，
+     只留下圖磚扎實的近—中景。這是「有界近景」設計的視覺收尾。 */
+  .walk-fog{position:absolute;left:0;right:0;top:calc(26% - 70px);height:230px;pointer-events:none;z-index:4;
+    background:linear-gradient(180deg,rgba(237,224,196,1) 0%,rgba(237,224,196,1) 26%,rgba(237,224,196,.85) 52%,rgba(237,224,196,0) 100%)}
   .walk-chip{position:absolute;font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:#E0A96D;
     background:rgba(25,20,14,.62);border:1px solid rgba(224,169,109,.45);padding:6px 12px;border-radius:3px;z-index:5}
   .walk-era{left:14px;top:calc(env(safe-area-inset-top,0px) + 14px)}
@@ -10453,20 +10455,27 @@
           fadeAnimation: false, zoomAnimation: false, inertia: false,
         });
       }
+      // 圖磚覆蓋是漫遊的成敗關鍵。傾斜＋旋轉後，遠方與轉角需要遠比一般
+      // 視窗更多的圖磚。共用選項：
+      //  · keepBuffer:6 —— 在視窗外多載 6 排圖磚，蓋住旋轉與近—遠。
+      //  · updateWhenIdle:false / updateWhenZooming:true —— 走動、轉身時
+      //    也持續載圖（原本歷史層是 idle 才載，移動中整片不更新 → 空白）。
+      const TOPT = { keepBuffer: 6, updateWhenIdle: false, updateWhenZooming: true };
       // 底層鋪現代街道（CARTO 淡色無標籤）——古地圖調透明時透出「今」。
       if (!walkBase) {
         walkBase = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
-          { maxZoom: 19, detectRetina: true }).addTo(walkMap);
+          Object.assign({ maxZoom: 19 }, TOPT)).addTo(walkMap);
       }
       if (walkLayerId !== def.id) {
         if (walkLayer) walkMap.removeLayer(walkLayer);
-        walkLayer = L.tileLayer(def.url, {
+        walkLayer = L.tileLayer(def.url, Object.assign({
           maxNativeZoom: def.maxNativeZoom, maxZoom: 19, opacity: walkOpacity,
-          updateWhenIdle: true,
-        }).addTo(walkMap);
+        }, TOPT)).addTo(walkMap);
         walkLayerId = def.id;
       }
-      walkMap._walkZoom = Math.min(def.maxNativeZoom || 16, 17);
+      // 縮放降一級（上限 16）：每片圖磚涵蓋 2–4 倍地面，讓後退的平面用可控的
+      // 圖磚數就填得滿；近景稍微放大變糊，但由「有界近景＋霧」的設計吸收。
+      walkMap._walkZoom = Math.min(def.maxNativeZoom || 15, 16);
       eraEl.textContent = '◷ ' + def.year + ' · ' + def.label;
     }
     // 使用者錨點在容器 anchorRatio 高度（畫面下方）：中心 = 錨點上移 (ratio−0.5)·高。
