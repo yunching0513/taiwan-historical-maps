@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v77-2026-07-09'; // 贊助連結改 Ko-fi 為主（ko-fi.com/yunching0513），LINE Pay QR 備選
+const CACHE_VERSION = 'v78-2026-07-10'; // UX 體檢：頂欄溢出修復＋面板蓋浮球＋明信片數 232
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;

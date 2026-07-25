@@ -3486,6 +3486,8 @@
   }
   .search-pin {
     flex-shrink: 0;
+    white-space: nowrap;
+    flex-shrink: 0;
     height: 38px;
     display: flex;
     align-items: center;
@@ -3649,6 +3651,8 @@
       transform: none;
       width: auto;
     }
+    /* 面板展開時要蓋過左下的 ?/漫遊浮球，避免誤觸（收合時 transform 移出畫面，不擋點擊） */
+    .panel { z-index: 1200; }
     .mobile-tag { display: none; }
 
     /* Panel as bottom sheet */
@@ -3968,6 +3972,7 @@
   <span class="search-icon" aria-hidden="true">⌕</span>
   <input
     type="text"
+    class="search-input"
     id="search-input"
     autocomplete="off"
     autocapitalize="off"
@@ -4194,7 +4199,7 @@
       <span data-i18n="foot.historical_maps">歷史圖資</span> · <a href="https://gis.sinica.edu.tw" target="_blank" rel="noopener">中央研究院 GIS</a><br>
       <span data-i18n="foot.base_maps">現代底圖</span> · <a href="https://carto.com/" target="_blank" rel="noopener">CARTO</a> ·
       <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a><br>
-      <span data-i18n="foot.postcards">明信片</span> · <a href="#" id="link-credits"><span data-i18n="foot.credits_link">資料來源與致謝</span> (217)</a>
+      <span data-i18n="foot.postcards">明信片</span> · <a href="#" id="link-credits"><span data-i18n="foot.credits_link">資料來源與致謝</span> (232)</a>
 
       <span class="mono" data-i18n="foot.built_by">Built by</span>
       <a href="https://github.com/yunching0513" target="_blank" rel="noopener">吳昀慶 · Yunching Wu</a>
@@ -4383,7 +4388,7 @@
     <div class="ob-step" data-step="2">
       <div class="ob-kicker">03 / 04 · Postcards</div>
       <h2 class="ob-title" data-i18n="ob.s3.title">沖洗老明信片</h2>
-      <p class="ob-body" data-i18n="ob.s3.body">全臺 217 個歷史現場藏著日治時期的老明信片。散步時讓 App 開著、按下「定位」，走到地點 50 公尺內，明信片就會自動「顯影」收進圖鑑。</p>
+      <p class="ob-body" data-i18n="ob.s3.body">全臺 232 個歷史現場藏著日治時期的老明信片。散步時讓 App 開著、按下「定位」，走到地點 50 公尺內，明信片就會自動「顯影」收進圖鑑。</p>
     </div>
 
     <div class="ob-step" data-step="3">
@@ -4793,7 +4798,7 @@
       'ob.s2.title': '拉開今昔',
       'ob.s2.body': '「對照拉條」讓你左右滑動比對：與現代街道對照，或和上一個年代的古地圖兩相比對；「四代對照」一次並排四個年代，看城市如何長成今天的樣子。',
       'ob.s3.title': '沖洗老明信片',
-      'ob.s3.body': '全臺 217 個歷史現場藏著日治時期的老明信片。散步時讓 App 開著、按下「定位」，走到地點 50 公尺內，明信片就會自動「顯影」收進圖鑑。',
+      'ob.s3.body': '全臺 232 個歷史現場藏著日治時期的老明信片。散步時讓 App 開著、按下「定位」，走到地點 50 公尺內，明信片就會自動「顯影」收進圖鑑。',
       'ob.s4.title': '出發吧',
       'ob.s4.body': '開啟 GPS 記錄你的散策路線、沿途拍照，收集 22 縣市印章。歷史不在課本裡，就在你走的這條路上。',
       'ob.s4.pick': '選擇你的城市，從那裡開始：',
@@ -5036,7 +5041,7 @@
       'ob.s2.title': 'Slide between eras',
       'ob.s2.body': 'Swipe Compare lets you drag to compare — against today\'s streets, or one old map against the previous era. Four Eras shows the same spot across four periods, side by side.',
       'ob.s3.title': 'Develop vintage postcards',
-      'ob.s3.body': 'Keep the app open and tap Locate as you stroll — walk within 50 m of any of 217 historic sites and its Japanese-era postcard "develops" into your collection.',
+      'ob.s3.body': 'Keep the app open and tap Locate as you stroll — walk within 50 m of any of 232 historic sites and its Japanese-era postcard "develops" into your collection.',
       'ob.s4.title': 'Set off',
       'ob.s4.body': 'Record your stroll with GPS, snap photos along the way, and collect seals from all 22 cities and counties. History isn\'t in a textbook — it\'s on the street you\'re walking.',
       'ob.s4.pick': 'Pick your city to start there:',
@@ -5279,7 +5284,7 @@
       'ob.s2.title': '今と昔をスライド比較',
       'ob.s2.body': '「比較スライダー」で左右に見比べ——現代の街並みと、または一つ前の時代の古地図同士で。「四代対照」では同じ場所の四つの時代を並べて眺められます。',
       'ob.s3.title': '古い絵葉書を現像',
-      'ob.s3.body': '散策中はアプリを開いて「現在地」をタップ。全台217か所の歴史スポットの50m以内に近づくと、日本統治時代の絵葉書が自動的に「現像」されコレクションに加わります。',
+      'ob.s3.body': '散策中はアプリを開いて「現在地」をタップ。全台232か所の歴史スポットの50m以内に近づくと、日本統治時代の絵葉書が自動的に「現像」されコレクションに加わります。',
       'ob.s4.title': 'さあ、出発',
       'ob.s4.body': 'GPSで散策ルートを記録し、写真を撮り、22県市の印章を集めましょう。歴史は教科書の中ではなく、いま歩いているこの道にあります。',
       'ob.s4.pick': 'あなたの街を選んで、そこから始めましょう：',
