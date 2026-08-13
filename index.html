@@ -3886,6 +3886,29 @@
     background: var(--paper) !important;
     color: var(--indigo) !important;
   }
+
+  /* ── 歷史事件與地點(台灣歷史地圖 · 邱璽民)─────────── */
+  .hs-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .hs-chip{display:flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid var(--stone);
+    background:var(--paper-2,#fff);font-family:var(--zh-sans);font-size:13px;letter-spacing:.06em;
+    color:var(--graphite);cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent}
+  .hs-chip .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;opacity:.55}
+  .hs-chip .n{font-family:var(--mono);font-size:11px;color:var(--silver)}
+  .hs-chip.on{border-color:currentColor;color:var(--ink);background:rgba(193,95,60,.06)}
+  .hs-chip.on .dot{opacity:1}
+  .hs-note{margin-top:10px;font-size:11.5px;line-height:1.7;color:var(--silver);letter-spacing:.03em}
+  .hs-note a{color:var(--vermilion);text-decoration:none}
+  .hs-popup .leaflet-popup-content-wrapper{background:#F7F3E8;border:1px solid #c9bda3;border-radius:4px;
+    box-shadow:0 10px 30px -12px rgba(31,29,25,.5)}
+  .hs-popup .leaflet-popup-content{margin:14px 16px;width:min(78vw,300px)!important}
+  .hs-pop-era{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;
+    padding:2px 8px;border-radius:2px;color:#fff;margin-bottom:7px}
+  .hs-pop-name{font-family:var(--zh-serif,serif);font-size:16.5px;font-weight:700;color:var(--ink);
+    letter-spacing:.04em;line-height:1.4;margin-bottom:8px}
+  .hs-pop-desc{font-size:13px;line-height:1.85;color:var(--graphite);max-height:38vh;overflow-y:auto;
+    white-space:pre-wrap;letter-spacing:.02em;padding-right:4px}
+  .hs-pop-src{margin-top:9px;padding-top:7px;border-top:1px dotted #c9bda3;font-family:var(--mono);
+    font-size:10px;color:var(--silver);letter-spacing:.06em}
 </style>
 </head>
 <body>
@@ -4118,12 +4141,26 @@
     </div>
     </details>
 
+
+    <section class="panel-sec" id="hs-sec">
+      <div class="sec-head"><span class="sec-no">04 — 歷史事件</span><span class="sec-en">historic events</span></div>
+      <div class="hs-chips" id="hs-chips">
+        <button type="button" class="hs-chip" data-era="史前"><span class="dot" style="background:#8a7a5c"></span>史前<span class="n">23</span></button>
+        <button type="button" class="hs-chip" data-era="平埔族群舊址"><span class="dot" style="background:#4a7c59"></span>平埔族群<span class="n">206</span></button>
+        <button type="button" class="hs-chip" data-era="荷蘭西班牙時代"><span class="dot" style="background:#c97b2d"></span>荷西<span class="n">53</span></button>
+        <button type="button" class="hs-chip" data-era="鄭氏清領時期"><span class="dot" style="background:#4a6b8a"></span>鄭氏清領<span class="n">205</span></button>
+        <button type="button" class="hs-chip" data-era="日本時代"><span class="dot" style="background:#C15F3C"></span>日本時代<span class="n">313</span></button>
+        <button type="button" class="hs-chip" data-era="國民政府來台後"><span class="dot" style="background:#6b5b73"></span>戰後<span class="n">218</span></button>
+      </div>
+      <p class="hs-note">1,018 個歷史地點 · 資料:<a href="https://www.google.com/maps/d/viewer?mid=1775dzoAWEHAPBCbHip7cRDVQsjpxSDVW" target="_blank" rel="noopener">台灣歷史地圖</a>(邱璽民 輯)· 點地圖上的圓點看事件</p>
+    </section>
     <footer class="panel-foot">
       <span class="mono" data-i18n="foot.sources">Sources</span>
       <span data-i18n="foot.historical_maps">歷史圖資</span> · <a href="https://gis.sinica.edu.tw" target="_blank" rel="noopener">中央研究院 GIS</a><br>
       <span data-i18n="foot.base_maps">現代底圖</span> · <a href="https://carto.com/" target="_blank" rel="noopener">CARTO</a> ·
       <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a><br>
-      <span data-i18n="foot.postcards">明信片</span> · <a href="#" id="link-credits"><span data-i18n="foot.credits_link">資料來源與致謝</span> (232)</a>
+      <span data-i18n="foot.postcards">明信片</span> · <a href="#" id="link-credits"><span data-i18n="foot.credits_link">資料來源與致謝</span> (232)</a><br>
+      <span data-i18n="foot.histsites">歷史事件</span> · <a href="https://www.google.com/maps/d/viewer?mid=1775dzoAWEHAPBCbHip7cRDVQsjpxSDVW" target="_blank" rel="noopener">台灣歷史地圖</a> · 邱璽民 輯 (1,018)
 
       <span class="mono" data-i18n="foot.built_by">Built by</span>
       <a href="https://github.com/yunching0513" target="_blank" rel="noopener">吳昀慶 · Yunching Wu</a>
@@ -10324,6 +10361,69 @@
 
   // ── Init ─────────────────────────────────────────
   updateCityUI();
+
+  // ── 歷史事件與地點:六時代圓點圖層(資料 lazy-load)──────
+  (function setupHistSites() {
+    const chipsEl = document.getElementById('hs-chips');
+    if (!chipsEl) return;
+    const ERA_COLOR = { '史前':'#8a7a5c','平埔族群舊址':'#4a7c59','荷蘭西班牙時代':'#c97b2d',
+                        '鄭氏清領時期':'#4a6b8a','日本時代':'#C15F3C','國民政府來台後':'#6b5b73' };
+    const ERA_SHORT = { '平埔族群舊址':'平埔族群','荷蘭西班牙時代':'荷西','鄭氏清領時期':'鄭氏清領','國民政府來台後':'戰後' };
+    // 1000+ 點用 canvas renderer 才順
+    const hsRenderer = L.canvas({ padding: 0.4 });
+    const groups = {};           // era → LayerGroup
+    let loading = false;
+    const popup = L.popup({ className: 'hs-popup', maxWidth: 320, autoPanPadding: [30, 60] });
+    function esc(t){ const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+    function showPopup(era, row) {
+      const [name, lat, lng, desc] = row;
+      popup.setLatLng([lat, lng]).setContent(
+        '<span class="hs-pop-era" style="background:' + ERA_COLOR[era] + '">' + esc(ERA_SHORT[era] || era) + '</span>' +
+        '<div class="hs-pop-name">' + esc(name) + '</div>' +
+        '<div class="hs-pop-desc">' + esc(desc || '(尚無描述)') + '</div>' +
+        '<div class="hs-pop-src">資料 · 台灣歷史地圖(邱璽民 輯)</div>'
+      ).openOn(map);
+    }
+    function buildGroup(era) {
+      const g = L.layerGroup();
+      (window.HIST_SITES[era] || []).forEach(row => {
+        L.circleMarker([row[1], row[2]], {
+          renderer: hsRenderer, radius: 5.5, weight: 1.5, color: '#fff',
+          fillColor: ERA_COLOR[era], fillOpacity: 0.88,
+        }).on('click', () => showPopup(era, row)).addTo(g);
+      });
+      return g;
+    }
+    function ensureData(cb) {
+      if (window.HIST_SITES) return cb();
+      if (loading) return;
+      loading = true;
+      const sc = document.createElement('script');
+      // 依 postcards.js 的實際位置推路徑,root(data/)與 beta(../data/)皆可用
+      const pcs = document.querySelector('script[src$="postcards.js"]');
+      sc.src = pcs ? pcs.getAttribute('src').replace('postcards.js', 'histsites.js') : 'data/histsites.js';
+      sc.onload = () => { loading = false; cb(); };
+      sc.onerror = () => { loading = false; };
+      document.body.appendChild(sc);
+    }
+    chipsEl.addEventListener('click', e => {
+      const chip = e.target.closest('.hs-chip');
+      if (!chip) return;
+      const era = chip.dataset.era;
+      if (chip.classList.contains('on')) {
+        chip.classList.remove('on');
+        if (groups[era]) map.removeLayer(groups[era]);
+        return;
+      }
+      chip.classList.add('on');
+      ensureData(() => {
+        if (!chip.classList.contains('on')) return; // 載入期間被取消
+        if (!groups[era]) groups[era] = buildGroup(era);
+        groups[era].addTo(map);
+        if (typeof sfx !== 'undefined' && sfx.tick) try { sfx.tick(); } catch {}
+      });
+    });
+  })();
 </script>
 </body>
 </html>
