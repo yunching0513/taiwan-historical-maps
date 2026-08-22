@@ -6062,6 +6062,7 @@
   let lastUserLatLng = null; // 最後已知位置，供標記刷新時保留 near 脈動狀態
 
   let isRecording = false;
+  let firstFixWatchdog = null;
   let currentTrace = null;
   let recordPolyline = null;
   let recTimerId = null;
@@ -6340,6 +6341,16 @@
     geoHintShown = false;
     updateButtons();
     armLocateIdle(); // 啟動閒置自動關閉計時（記錄路線時會在 startRecording 取消）
+    // 首次定位看門狗：iOS 原生殼若缺 Info.plist 定位說明，系統會「靜默拒絕」——
+    // 兩個 callback 都永遠不來，畫面就無限轉圈（App Store 使用者回報的災情）。
+    // 25 秒拿不到第一個定位就主動收手，把原因與解法說清楚。
+    if (firstFixWatchdog) clearTimeout(firstFixWatchdog);
+    firstFixWatchdog = setTimeout(() => {
+      if (isLocating && !hasFirstFix) {
+        stopLocate();
+        showGeoHelper('denied');
+      }
+    }, 25000);
 
     if (BG) {
       // Native path: keeps firing in background once the user grants
@@ -6418,6 +6429,7 @@
       watchId = null;
     }
     isLocating = false;
+    if (firstFixWatchdog) { clearTimeout(firstFixWatchdog); firstFixWatchdog = null; }
     clearLocateIdle();
     if (userMarker) { map.removeLayer(userMarker); userMarker = null; }
     if (accuracyCircle) { map.removeLayer(accuracyCircle); accuracyCircle = null; }
