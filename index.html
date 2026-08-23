@@ -5963,6 +5963,7 @@
 
   let isRecording = false;
   let firstFixWatchdog = null;
+  let nativeGeoWatchId = null;
   let currentTrace = null;
   let recordPolyline = null;
   let recTimerId = null;
@@ -6308,6 +6309,24 @@
       () => {}, // ignore — the watch below keeps trying
       { enableHighAccuracy: false, timeout: 12000, maximumAge: 60000 }
     );
+    // 原生殼優先走 Capacitor Geolocation 原生通道:WKWebView 的網頁定位
+    // API 在 capacitor:// 來源上即使有權限也可能靜默失敗(iOS 實測)。
+    const CapG = (window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function'
+                  && window.Capacitor.isNativePlatform())
+                 ? (window.Capacitor.Plugins && window.Capacitor.Plugins.Geolocation) : null;
+    if (CapG && CapG.watchPosition) {
+      try {
+        const id = await CapG.watchPosition(
+          { enableHighAccuracy: true, timeout: 30000 },
+          (pos, err) => {
+            if (err) { onPositionError(err); return; }
+            if (pos && pos.coords) onPosition(pos);
+          });
+        if (!isLocating) { try { await CapG.clearWatch({ id }); } catch {} return; }
+        nativeGeoWatchId = id;
+        return;
+      } catch (err) { /* 外掛失敗就退回網頁 API */ }
+    }
     watchId = navigator.geolocation.watchPosition(
       onPosition,
       onPositionError,
@@ -6323,6 +6342,11 @@
         try { await BG.removeWatcher({ id: nativeBgWatcherId }); } catch {}
       }
       nativeBgWatcherId = null;
+    }
+    if (nativeGeoWatchId !== null) {
+      const CapG = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Geolocation;
+      if (CapG) { try { CapG.clearWatch({ id: nativeGeoWatchId }); } catch {} }
+      nativeGeoWatchId = null;
     }
     if (watchId !== null) {
       navigator.geolocation.clearWatch(watchId);

@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v80-2026-07-11'; // 定位看門狗：首次定位 25 秒未取得即引導，不再無限轉圈
+const CACHE_VERSION = 'v81-2026-07-11'; // 原生殼定位改走 Capacitor 原生通道（WKWebView 網頁定位不可靠）
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
