@@ -2354,6 +2354,81 @@
     background: var(--indigo);
   }
 
+  /* ── 地圖標註 Annotations ────────────────────────── */
+  /* 菱形（旋轉 45° 的方塊）與「沿途拍照」的正方形標記區隔開來。 */
+  .note-marker-icon { background: transparent; border: none; }
+  .note-marker {
+    width: 13px;
+    height: 13px;
+    background: var(--paper);
+    border: 2px solid var(--indigo);
+    box-shadow: 0 2px 6px rgba(31, 29, 25, 0.35);
+    transform: rotate(45deg);
+    cursor: pointer;
+    position: relative;
+  }
+  /* 有照片的標註填實，純文字的留白 */
+  .note-marker.has-photo::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    background: var(--indigo);
+  }
+  .note-marker.sel {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 4px var(--indigo-l), 0 2px 6px rgba(31, 29, 25, 0.35);
+  }
+  .note-add-btn {
+    appearance: none; -webkit-appearance: none;
+    width: 100%;
+    border: 1px dashed var(--vermilion);
+    background: var(--paper);
+    color: var(--vermilion);
+    padding: 10px;
+    border-radius: 8px;
+    font-family: var(--zh-serif);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    margin-bottom: 6px;
+  }
+  .note-add-btn:hover { background: var(--indigo-l); }
+  .note-hint {
+    font-family: var(--zh-sans);
+    font-size: 10.5px;
+    line-height: 1.5;
+    color: var(--silver);
+    margin: 0 0 6px;
+  }
+  /* 已投稿的標註在列表左側加一枚朱色小點 */
+  .note-sent {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--vermilion);
+    letter-spacing: 0.04em;
+  }
+  .note-modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .note-btn-secondary {
+    appearance: none; -webkit-appearance: none;
+    border: 1px solid var(--mist);
+    background: var(--paper);
+    color: var(--graphite);
+    padding: 11px;
+    border-radius: 24px;
+    font-family: var(--zh-serif);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+  }
+  .note-btn-secondary:hover { background: var(--paper-2); color: var(--ink); }
+  .note-btn-secondary.danger { color: var(--vermilion); border-color: var(--vermilion); }
+  .note-btn-secondary:disabled { opacity: 0.45; cursor: default; }
+
   /* ── Photo lightbox ─────────────────────────────── */
   .photo-lightbox[hidden] { display: none; }
   .photo-lightbox {
@@ -4141,6 +4216,21 @@
     </div>
     </details>
 
+    <!-- ▾ 08 — Notes ─────────────────────────────────── -->
+    <details class="panel-section" id="sec-08">
+    <summary class="section-label">
+      <span class="num">08 — Notes</span>
+      <span class="en" data-i18n="sec.notes.sub" data-i18n-hide-empty="1">map annotations</span>
+    </summary>
+
+    <button type="button" class="note-add-btn" id="note-add" data-i18n="note.add_center">＋ 在地圖中心新增標註</button>
+    <p class="note-hint" data-i18n="note.hint">也可以長按（電腦是右鍵點擊）地圖上任一點來新增。標註只存在這台裝置上。</p>
+
+    <div class="trace-list" id="note-list">
+      <div class="trace-empty"><span data-i18n="notes.empty">尚無標註</span> · <span data-i18n="notes.empty.sub" data-i18n-hide-empty="1">No annotations</span></div>
+    </div>
+    </details>
+
 
     <section class="panel-sec" id="hs-sec">
       <div class="sec-head"><span class="sec-no">04 — 歷史事件</span><span class="sec-en">historic events</span></div>
@@ -4164,6 +4254,8 @@
 
       <span class="mono" data-i18n="foot.built_by">Built by</span>
       <a href="https://github.com/yunching0513" target="_blank" rel="noopener">吳昀慶 · Yunching Wu</a>
+      ·
+      <a href="https://github.com/ytchang1988" target="_blank" rel="noopener">張芸翠 · Yun-Tsui Chang</a>
 
       <br>
       <button type="button" class="coffee-link" id="btn-donate" data-i18n="foot.coffee">
@@ -4517,6 +4609,36 @@
   </div>
 </div>
 
+<!-- Map annotation modal — title / text / optional photo, stored on-device -->
+<div class="report-overlay" id="note-overlay" aria-hidden="true">
+  <div class="report-card" role="dialog" aria-labelledby="note-modal-title">
+    <button type="button" class="report-close" id="note-close" aria-label="關閉">✕</button>
+    <div class="report-eyebrow" data-i18n="note.eyebrow">Annotation</div>
+    <h3 class="report-title" id="note-modal-title" data-i18n="note.title_new">新增標註</h3>
+    <div class="report-coord-readout" id="note-coord"></div>
+
+    <input type="text" id="note-title" class="report-input" maxlength="80"
+           data-i18n="note.field.title" data-i18n-attr="placeholder"
+           placeholder="標題（例如：這裡以前是糖鐵平交道）" />
+    <textarea id="note-text" class="report-textarea" rows="4" maxlength="2000"
+              data-i18n="note.field.note" data-i18n-attr="placeholder"
+              placeholder="說明（選填）：你看到什麼、聽誰說的、和哪個年代的地圖對得起來…"></textarea>
+
+    <button type="button" class="report-file-btn" id="note-photo-pick" data-i18n="note.photo.pick">加一張照片（選填）</button>
+    <input type="file" id="note-photo-file" accept="image/*" hidden />
+    <img class="report-photo-preview" id="note-photo-preview" alt="" hidden />
+    <button type="button" class="note-btn-secondary danger" id="note-photo-remove" data-i18n="note.photo.remove" hidden>移除照片</button>
+
+    <button type="button" class="report-submit" id="note-save" data-i18n="note.save">儲存到這台裝置</button>
+    <div class="note-modal-actions">
+      <button type="button" class="note-btn-secondary" id="note-submit" data-i18n="note.submit">投稿給維護者</button>
+      <button type="button" class="note-btn-secondary danger" id="note-delete" data-i18n="note.delete">刪除</button>
+    </div>
+    <div class="report-status" id="note-status"></div>
+    <div class="report-privacy" data-i18n="note.privacy">標註預設只留在這台裝置，不會上傳。按「投稿」才會把內容送給維護者作為考證參考；請勿填寫他人隱私資訊。</div>
+  </div>
+</div>
+
 <!-- Credits / attribution modal — lists every postcard with its Commons URL -->
 <div class="credits-overlay" id="credits-overlay" aria-hidden="true">
   <div class="credits-card" role="dialog" aria-labelledby="credits-title">
@@ -4800,6 +4922,39 @@
       'report.need_photo': '請先選擇一張照片。',
       'report.disabled': '回報功能尚未啟用。',
       'report.center_captured': '已擷取座標：',
+      'sec.notes.sub': 'map annotations',
+      'notes.empty': '尚無標註',
+      'notes.empty.sub': 'No annotations',
+      'note.add_center': '＋ 在地圖中心新增標註',
+      'note.hint': '也可以長按（電腦是右鍵點擊）地圖上任一點來新增。標註只存在這台裝置上。',
+      'note.eyebrow': 'Annotation',
+      'note.title_new': '新增標註',
+      'note.title_edit': '編輯標註',
+      'note.field.title': '標題（例如：這裡以前是糖鐵平交道）',
+      'note.field.note': '說明（選填）：你看到什麼、聽誰說的、和哪個年代的地圖對得起來…',
+      'note.photo.pick': '加一張照片（選填）',
+      'note.photo.change': '換一張照片',
+      'note.photo.remove': '移除照片',
+      'note.save': '儲存到這台裝置',
+      'note.submit': '投稿給維護者',
+      'note.delete': '刪除',
+      'note.privacy': '標註預設只留在這台裝置，不會上傳。按「投稿」才會把內容送給維護者作為考證參考；請勿填寫他人隱私資訊。',
+      'note.need_title': '請至少填一個標題。',
+      'note.saved': '✓ 已儲存標註',
+      'note.deleted': '✓ 標註已刪除',
+      'note.delete_confirm': '確定要刪除這則標註？此動作無法復原。',
+      'note.saving': '儲存中…',
+      'note.sending': '投稿中…',
+      'note.submit_ok': '✓ 感謝投稿！維護者會人工審核。',
+      'note.submit_queued': '✓ 已先存在本機，連上網路後會自動補送。',
+      'note.submit_first': '請先儲存標註，再投稿。',
+      'note.submit_disabled': '投稿功能尚未啟用。',
+      'note.sent_badge': '已投稿',
+      'note.untitled': '（未命名標註）',
+      'note.action.edit': '編輯',
+      'note.action.delete': '刪除',
+      'note.photo_fail': '照片處理失敗，請換一張試試。',
+      'note.save_fail': '儲存失敗：',
     },
     en: {
       'app.tagline': 'Taiwan · Old-Map Stroll',
@@ -5043,6 +5198,39 @@
       'report.need_photo': 'Please choose a photo first.',
       'report.disabled': 'Reporting is not enabled yet.',
       'report.center_captured': 'Coordinates captured: ',
+      'sec.notes.sub': 'map annotations',
+      'notes.empty': 'No annotations yet',
+      'notes.empty.sub': '',
+      'note.add_center': '＋ Add a note at map center',
+      'note.hint': 'You can also long-press (right-click on desktop) anywhere on the map. Notes stay on this device.',
+      'note.eyebrow': 'Annotation',
+      'note.title_new': 'New annotation',
+      'note.title_edit': 'Edit annotation',
+      'note.field.title': 'Title (e.g. a sugar-railway crossing once stood here)',
+      'note.field.note': 'Notes (optional): what you saw, who told you, which era it matches…',
+      'note.photo.pick': 'Add a photo (optional)',
+      'note.photo.change': 'Replace photo',
+      'note.photo.remove': 'Remove photo',
+      'note.save': 'Save to this device',
+      'note.submit': 'Send to maintainer',
+      'note.delete': 'Delete',
+      'note.privacy': 'Notes stay on this device by default. Only "Send to maintainer" uploads them, for manual review. Please do not include other people\u2019s private information.',
+      'note.need_title': 'Please enter at least a title.',
+      'note.saved': '✓ Annotation saved',
+      'note.deleted': '✓ Annotation deleted',
+      'note.delete_confirm': 'Delete this annotation? This cannot be undone.',
+      'note.saving': 'Saving…',
+      'note.sending': 'Sending…',
+      'note.submit_ok': '✓ Thank you! The maintainer will review it.',
+      'note.submit_queued': '✓ Saved locally; it will be sent once you are back online.',
+      'note.submit_first': 'Please save the annotation before sending it.',
+      'note.submit_disabled': 'Sending is not enabled yet.',
+      'note.sent_badge': 'sent',
+      'note.untitled': '(untitled note)',
+      'note.action.edit': 'Edit',
+      'note.action.delete': 'Delete',
+      'note.photo_fail': 'Could not process that photo — please try another one.',
+      'note.save_fail': 'Save failed: ',
     },
     ja: {
       'app.tagline': '台灣 · 旧地図散策',
@@ -5286,6 +5474,39 @@
       'report.need_photo': 'まず写真を選択してください。',
       'report.disabled': '報告機能はまだ有効になっていません。',
       'report.center_captured': '座標を取得：',
+      'sec.notes.sub': 'map annotations',
+      'notes.empty': 'メモはまだありません',
+      'notes.empty.sub': '',
+      'note.add_center': '＋ 地図の中心にメモを追加',
+      'note.hint': '地図を長押し（PC は右クリック）しても追加できます。メモはこの端末にのみ保存されます。',
+      'note.eyebrow': 'Annotation',
+      'note.title_new': 'メモを追加',
+      'note.title_edit': 'メモを編集',
+      'note.field.title': 'タイトル（例：ここにかつて製糖鉄道の踏切があった）',
+      'note.field.note': '説明（任意）：見たもの、聞いた話、どの年代の地図と一致するか…',
+      'note.photo.pick': '写真を追加（任意）',
+      'note.photo.change': '写真を変更',
+      'note.photo.remove': '写真を削除',
+      'note.save': 'この端末に保存',
+      'note.submit': '管理者に投稿',
+      'note.delete': '削除',
+      'note.privacy': 'メモは既定ではこの端末にのみ保存され、送信されません。「投稿」を押した場合のみ、考証の参考として管理者に送信されます。他人の個人情報は記入しないでください。',
+      'note.need_title': 'タイトルを入力してください。',
+      'note.saved': '✓ メモを保存しました',
+      'note.deleted': '✓ メモを削除しました',
+      'note.delete_confirm': 'このメモを削除しますか？元に戻せません。',
+      'note.saving': '保存中…',
+      'note.sending': '送信中…',
+      'note.submit_ok': '✓ ご投稿ありがとうございます！管理者が確認します。',
+      'note.submit_queued': '✓ 端末に保存しました。オンライン時に自動送信されます。',
+      'note.submit_first': '先にメモを保存してください。',
+      'note.submit_disabled': '投稿機能はまだ有効になっていません。',
+      'note.sent_badge': '投稿済',
+      'note.untitled': '（無題のメモ）',
+      'note.action.edit': '編集',
+      'note.action.delete': '削除',
+      'note.photo_fail': '写真を処理できませんでした。別の写真をお試しください。',
+      'note.save_fail': '保存に失敗しました：',
     },
   };
 
@@ -5342,6 +5563,7 @@
     applyI18n();
     // Re-render dynamic widgets that bake t() into their output.
     try { typeof renderTraceList === 'function' && renderTraceList(); } catch {}
+    try { typeof renderNoteList === 'function' && renderNoteList(); } catch {}
     try { typeof renderPackList === 'function' && renderPackList(); } catch {}
     try { typeof renderPostcardGrid === 'function' && renderPostcardGrid(); } catch {}
     try { typeof refreshPcDrawBtn === 'function' && refreshPcDrawBtn(); } catch {}
@@ -8333,17 +8555,36 @@
   const photoMarkers = new Map();           // id → L.marker on map
 
   const PHOTO_DB = 'taiwanOldMaps';
-  const PHOTO_DB_VER = 1;
+  // v2：新增 by_kind 索引，讓「沿途拍照」(kind:'photo') 與「地圖標註」
+  // (kind:'note') 共用同一個 store 又能各自查詢。
+  const PHOTO_DB_VER = 2;
   const PHOTO_STORE = 'photos';
 
   function openPhotoDB() {
     return new Promise((resolve, reject) => {
       const req = indexedDB.open(PHOTO_DB, PHOTO_DB_VER);
-      req.onupgradeneeded = () => {
+      req.onupgradeneeded = (ev) => {
         const db = req.result;
+        let store;
         if (!db.objectStoreNames.contains(PHOTO_STORE)) {
-          const store = db.createObjectStore(PHOTO_STORE, { keyPath: 'id' });
+          store = db.createObjectStore(PHOTO_STORE, { keyPath: 'id' });
           store.createIndex('by_traceId', 'traceId', { unique: false });
+        } else {
+          store = req.transaction.objectStore(PHOTO_STORE);
+        }
+        if (ev.oldVersion < 2) {
+          if (!store.indexNames.contains('by_kind')) {
+            store.createIndex('by_kind', 'kind', { unique: false });
+          }
+          // v1 的照片沒有 kind 欄位，索引只在寫入時建立，所以一定要在同一個
+          // versionchange transaction 裡逐筆回填，否則舊照片會落在索引之外。
+          store.openCursor().onsuccess = (e) => {
+            const cur = e.target.result;
+            if (!cur) return;
+            const rec = cur.value;
+            if (!rec.kind) { rec.kind = 'photo'; cur.update(rec); }
+            cur.continue();
+          };
         }
       };
       req.onsuccess = () => resolve(req.result);
@@ -10459,6 +10700,425 @@
         if (typeof sfx !== 'undefined' && sfx.tick) try { sfx.tick(); } catch {}
       });
     });
+  })();
+
+  // ── 地圖標註 Annotations ──────────────────────────
+  // 使用者可在地圖任一點放一則標註：標題 ＋ 說明 ＋ 選填照片。
+  //
+  // 儲存：沿用「沿途拍照」那份 IndexedDB（PHOTO_STORE），以 kind:'note'
+  // 區分。刻意不寫入 traceId —— IndexedDB 的索引會略過缺少該欄位的紀錄，
+  // 所以既有的 getPhotosByTrace() 撈不到標註，兩個功能互不干擾。也因為
+  // 共用同一個 store，setupBackup 的備份／還原自動涵蓋標註（含照片）。
+  //
+  // 上傳：預設完全不上傳，標註只留在這台裝置。使用者可逐筆按「投稿」送到
+  // REPORT_ENDPOINT（type:'annotation'）由維護者人工審核；離線時塞進既有的
+  // reportQueue，由 setupReport 的 flushQueue() 在恢復連線後一併補送。
+  let renderNoteList = null;   // 由 setupAnnotations 指派；語言切換時重繪列表
+  (function setupAnnotations() {
+    const overlay = document.getElementById('note-overlay');
+    const listEl  = document.getElementById('note-list');
+    if (!overlay || !listEl) return;
+
+    const NOTE_KIND = 'note';
+    const MAX_DIM   = 1600;    // 與公民科學回報用同一組壓縮參數
+    const JPEG_Q    = 0.82;
+    const QUEUE_KEY = 'taiwanOldMaps.reportQueue';
+
+    const noteLayer = L.layerGroup().addTo(map);
+    const markers   = new Map();   // id → L.marker
+
+    let notes             = [];    // 記憶體快取，新 → 舊
+    let editingId         = null;  // null = 新增中
+    let draftLatLng       = null;
+    let draftPhotoDataUrl = null;  // 目前表單裡的照片（已縮圖）；null = 無
+
+    const titleEl  = document.getElementById('note-modal-title');
+    const inTitle  = document.getElementById('note-title');
+    const inNote   = document.getElementById('note-text');
+    const coordEl  = document.getElementById('note-coord');
+    const pickBtn  = document.getElementById('note-photo-pick');
+    const fileEl   = document.getElementById('note-photo-file');
+    const prevEl   = document.getElementById('note-photo-preview');
+    const dropBtn  = document.getElementById('note-photo-remove');
+    const saveBtn  = document.getElementById('note-save');
+    const delBtn   = document.getElementById('note-delete');
+    const subBtn   = document.getElementById('note-submit');
+    const statusEl = document.getElementById('note-status');
+    const addBtn   = document.getElementById('note-add');
+
+    // 沒有設定回報端點時，「投稿」整個藏起來（與回報功能同樣的處理）。
+    if (!REPORT_ENDPOINT) subBtn.hidden = true;
+
+    // ── 小工具 ────────────────────────────────────
+    function esc(s) {
+      const d = document.createElement('div');
+      d.textContent = s == null ? '' : String(s);
+      return d.innerHTML;
+    }
+    function localeTag() {
+      return currentLang === 'ja' ? 'ja-JP' : currentLang === 'en' ? 'en-US' : 'zh-TW';
+    }
+    function fmtWhen(ts) {
+      try { return new Date(ts).toLocaleString(localeTag()); } catch { return ''; }
+    }
+    function blobToDataURL(blob) {
+      return new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = rej;
+        r.readAsDataURL(blob);
+      });
+    }
+    async function dataURLToBlob(d) { return (await fetch(d)).blob(); }
+
+    // 手機原圖動輒數 MB，直接塞進 IndexedDB 很快就會爆掉；一律先縮到
+    // 長邊 1600px 再存，投稿時也用同一份。
+    function downscaleToDataURL(file, maxDim, quality) {
+      return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+          let { width: w, height: h } = img;
+          if (w > maxDim || h > maxDim) {
+            const s = Math.min(maxDim / w, maxDim / h);
+            w = Math.round(w * s); h = Math.round(h * s);
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('decode failed')); };
+        img.src = url;
+      });
+    }
+
+    // ── IndexedDB（共用 openPhotoDB / savePhoto）────
+    async function allNotes() {
+      const db = await openPhotoDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(PHOTO_STORE, 'readonly');
+        const req = tx.objectStore(PHOTO_STORE).index('by_kind').getAll(IDBKeyRange.only(NOTE_KIND));
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
+    async function removeNote(id) {
+      const db = await openPhotoDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(PHOTO_STORE, 'readwrite');
+        tx.objectStore(PHOTO_STORE).delete(id);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    // ── 地圖標記 ──────────────────────────────────
+    function makeNoteMarker(n) {
+      const icon = L.divIcon({
+        className: 'note-marker-icon',
+        html: '<div class="note-marker' + (n.blob ? ' has-photo' : '') + '"></div>',
+        iconSize: [13, 13],
+        iconAnchor: [7, 7],
+      });
+      const m = L.marker([n.lat, n.lng], {
+        icon,
+        keyboard: false,
+        title: n.title || t('note.untitled'),
+      });
+      m.on('click', () => openModal(n.id));
+      return m;
+    }
+    function syncMarkers() {
+      markers.forEach(m => noteLayer.removeLayer(m));
+      markers.clear();
+      notes.forEach(n => {
+        const m = makeNoteMarker(n).addTo(noteLayer);
+        markers.set(n.id, m);
+      });
+    }
+    function highlight(id) {
+      markers.forEach((m, mid) => {
+        const el = m.getElement();
+        const dot = el && el.querySelector('.note-marker');
+        if (dot) dot.classList.toggle('sel', mid === id);
+      });
+    }
+
+    // ── 列表 ──────────────────────────────────────
+    function renderList() {
+      if (!notes.length) {
+        listEl.innerHTML =
+          '<div class="trace-empty">' + esc(t('notes.empty')) +
+          '<span class="en">' + esc(t('notes.empty.sub')) + '</span></div>';
+        return;
+      }
+      listEl.innerHTML = notes.map(n => {
+        const sent = n.sentAt
+          ? ' · <span class="note-sent">' + esc(t('note.sent_badge')) + '</span>'
+          : '';
+        const id = esc(n.id);
+        return '' +
+          '<div class="trace-row" data-id="' + id + '">' +
+            '<div class="trace-info">' +
+              '<div class="trace-date">' + esc(fmtWhen(n.updatedAt || n.timestamp)) + '</div>' +
+              '<div class="trace-name">' + esc(n.title || t('note.untitled')) + '</div>' +
+              '<div class="trace-meta">N ' + n.lat.toFixed(4) + ' · E ' + n.lng.toFixed(4) +
+                (n.blob ? ' · 📷' : '') + sent + '</div>' +
+            '</div>' +
+            '<div class="trace-actions">' +
+              '<button data-act="edit" data-id="' + id + '">' + esc(t('note.action.edit')) + '</button>' +
+              '<button data-act="delete" data-id="' + id + '" class="danger">' + esc(t('note.action.delete')) + '</button>' +
+            '</div>' +
+          '</div>';
+      }).join('');
+    }
+    renderNoteList = renderList;
+
+    async function refresh() {
+      try {
+        notes = (await allNotes()).sort((a, b) =>
+          (b.updatedAt || b.timestamp || 0) - (a.updatedAt || a.timestamp || 0));
+      } catch (err) {
+        console.warn('load annotations failed', err);
+        notes = [];
+      }
+      renderList();
+      syncMarkers();
+    }
+
+    // ── 表單 ──────────────────────────────────────
+    function setStatus(msg, isErr) {
+      statusEl.textContent = msg || '';
+      statusEl.classList.toggle('error', !!isErr);
+    }
+    function showPhoto(dataUrl) {
+      draftPhotoDataUrl = dataUrl || null;
+      if (draftPhotoDataUrl) {
+        prevEl.src = draftPhotoDataUrl;
+        prevEl.hidden = false;
+        dropBtn.hidden = false;
+        pickBtn.textContent = t('note.photo.change');
+      } else {
+        prevEl.hidden = true;
+        prevEl.removeAttribute('src');
+        dropBtn.hidden = true;
+        pickBtn.textContent = t('note.photo.pick');
+      }
+    }
+
+    async function openModal(id, latlng) {
+      const n = id ? notes.find(x => x.id === id) : null;
+      editingId = n ? n.id : null;
+      draftLatLng = n ? { lat: n.lat, lng: n.lng } : latlng;
+      if (!draftLatLng) return;
+
+      titleEl.textContent = n ? t('note.title_edit') : t('note.title_new');
+      inTitle.value = n ? (n.title || '') : '';
+      inNote.value  = n ? (n.note  || '') : '';
+      coordEl.textContent =
+        'N ' + draftLatLng.lat.toFixed(5) + ' · E ' + draftLatLng.lng.toFixed(5);
+      setStatus('');
+      saveBtn.disabled = false;
+      delBtn.disabled = !n;
+      showPhoto(null);
+      // 編輯既有標註時把原本的照片讀回表單，這樣「不動照片就儲存」不會弄丟它。
+      // 解碼是非同步的，期間使用者可能已經關掉或改開另一則，所以回填前先確認
+      // 目前編輯的仍是同一筆。
+      if (n && n.blob) {
+        const forId = n.id;
+        try {
+          const url = await blobToDataURL(n.blob);
+          if (editingId === forId) showPhoto(url);
+        } catch (err) { console.warn('annotation photo decode failed', err); }
+      }
+      highlight(editingId);
+      overlay.classList.add('show');
+      overlay.setAttribute('aria-hidden', 'false');
+      setTimeout(() => { try { inTitle.focus(); } catch {} }, 60);
+    }
+    function close() {
+      overlay.classList.remove('show');
+      overlay.setAttribute('aria-hidden', 'true');
+      highlight(null);
+    }
+
+    saveBtn.addEventListener('click', async () => {
+      const title = inTitle.value.trim();
+      const body  = inNote.value.trim();
+      if (!title) { setStatus(t('note.need_title'), true); return; }
+      if (!draftLatLng) return;
+      saveBtn.disabled = true;
+      setStatus(t('note.saving'));
+      try {
+        const prev = editingId ? notes.find(x => x.id === editingId) : null;
+        const rec = {
+          id: prev ? prev.id : 'an-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+          kind: NOTE_KIND,
+          lat: draftLatLng.lat,
+          lng: draftLatLng.lng,
+          title: title,
+          note: body,
+          blob: draftPhotoDataUrl ? await dataURLToBlob(draftPhotoDataUrl) : null,
+          timestamp: prev ? prev.timestamp : Date.now(),
+          updatedAt: Date.now(),
+          // 標註當下看的是哪張歷史圖 —— 這個 context 本身就是考證線索。
+          activeLayerId: prev ? prev.activeLayerId : (activeId || null),
+          sentAt: prev ? (prev.sentAt || null) : null,
+        };
+        await savePhoto(rec);
+        await refresh();
+        close();
+        showPostcardToast(t('note.saved'));
+      } catch (err) {
+        console.error('annotation save failed', err);
+        setStatus(t('note.save_fail') + (err.message || err), true);
+      } finally {
+        saveBtn.disabled = false;
+      }
+    });
+
+    delBtn.addEventListener('click', async () => {
+      if (!editingId) return;
+      if (!confirm(t('note.delete_confirm'))) return;
+      try {
+        await removeNote(editingId);
+        await refresh();
+        close();
+        showPostcardToast(t('note.deleted'));
+      } catch (err) {
+        console.error('annotation delete failed', err);
+        setStatus(t('note.save_fail') + (err.message || err), true);
+      }
+    });
+
+    // 沿用回報功能的離線佇列：同一個端點、同樣的 JSON 形狀，
+    // setupReport 的 flushQueue() 恢復連線後會一併送出。
+    function queueLocally(payload) {
+      try {
+        const q = JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]');
+        q.push(payload);
+        while (q.length > 30) q.shift();
+        localStorage.setItem(QUEUE_KEY, JSON.stringify(q));
+      } catch {}
+    }
+
+    subBtn.addEventListener('click', async () => {
+      if (!REPORT_ENDPOINT) { setStatus(t('note.submit_disabled'), true); return; }
+      if (!editingId) { setStatus(t('note.submit_first'), true); return; }
+      const n = notes.find(x => x.id === editingId);
+      if (!n) return;
+      subBtn.disabled = true;
+      setStatus(t('note.sending'));
+
+      const payload = {
+        ts: new Date(n.updatedAt || n.timestamp).toISOString(),
+        type: 'annotation',
+        title: n.title || '',
+        note: n.note || '',
+        pinLat: +n.lat.toFixed(6),
+        pinLng: +n.lng.toFixed(6),
+        layer: lookupLayerLabel(n.activeLayerId),
+        lang: currentLang,
+        ua: navigator.userAgent,
+      };
+      if (n.blob) {
+        try { payload.photoDataUrl = await blobToDataURL(n.blob); }
+        catch (err) { console.warn('annotation photo encode failed', err); }
+      }
+
+      // CORS-simple POST，回應讀不到，所以「網路收下了」就當成功；
+      // 真正的失敗（離線）會 reject，落到本機佇列。
+      let ok = false;
+      try {
+        await fetch(REPORT_ENDPOINT, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload),
+        });
+        ok = true;
+      } catch (err) {
+        console.warn('annotation submit failed', err);
+      }
+      if (!ok) queueLocally(payload);
+
+      // 記下已投稿，列表上標示出來，避免重複送。
+      try {
+        await savePhoto(Object.assign({}, n, { sentAt: Date.now() }));
+        await refresh();
+      } catch (err) {
+        console.warn('annotation sent-flag failed', err);
+      }
+      subBtn.disabled = false;
+      close();
+      showPostcardToast(ok ? t('note.submit_ok') : t('note.submit_queued'));
+    });
+
+    pickBtn.addEventListener('click', () => fileEl.click());
+    fileEl.addEventListener('change', async () => {
+      const file = fileEl.files && fileEl.files[0];
+      fileEl.value = '';
+      if (!file) return;
+      try {
+        showPhoto(await downscaleToDataURL(file, MAX_DIM, JPEG_Q));
+        setStatus('');
+      } catch (err) {
+        console.warn('annotation photo failed', err);
+        setStatus(t('note.photo_fail'), true);
+      }
+    });
+    dropBtn.addEventListener('click', () => showPhoto(null));
+
+    document.getElementById('note-close').addEventListener('click', close);
+    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && overlay.classList.contains('show')) close();
+    });
+
+    // ── 列表互動 ──────────────────────────────────
+    listEl.addEventListener('click', e => {
+      const btn = e.target.closest('button[data-act]');
+      if (btn) {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        if (btn.dataset.act === 'edit') openModal(id);
+        else if (btn.dataset.act === 'delete') quickDelete(id);
+        return;
+      }
+      const row = e.target.closest('.trace-row');
+      if (row) flyToNote(row.dataset.id);
+    });
+    function flyToNote(id) {
+      const n = notes.find(x => x.id === id);
+      if (!n) return;
+      map.flyTo([n.lat, n.lng], Math.max(map.getZoom(), 16), { duration: 0.6 });
+      highlight(id);
+    }
+    async function quickDelete(id) {
+      if (!confirm(t('note.delete_confirm'))) return;
+      try {
+        await removeNote(id);
+        await refresh();
+        showPostcardToast(t('note.deleted'));
+      } catch (err) {
+        console.error('annotation delete failed', err);
+      }
+    }
+
+    // ── 新增入口 ──────────────────────────────────
+    addBtn.addEventListener('click', () => openModal(null, map.getCenter()));
+    // Leaflet 在觸控裝置上長按會送出 contextmenu，桌機則是右鍵，一次涵蓋兩者。
+    // 但 marker 上的 contextmenu 會冒泡到 map，長按明信片／標註圖釘時不該
+    // 跳出「新增標註」，所以來源在 marker 上就略過。
+    map.on('contextmenu', e => {
+      const target = e.originalEvent && e.originalEvent.target;
+      if (target && target.closest && target.closest('.leaflet-marker-icon')) return;
+      openModal(null, e.latlng);
+    });
+
+    refresh();
   })();
 </script>
 </body>
