@@ -2,7 +2,7 @@
  * 台灣舊地圖散策 — 公民科學回報後端 (Google Apps Script Web App)
  * Citizen-science report backend.
  *
- * 收到 App 送來的「位置更正」或「老照片貢獻」後：
+ * 收到 App 送來的「位置更正」、「老照片貢獻」或「地圖標註」後：
  *   · 在試算表 (Google Sheet) 新增一列
  *   · 若有照片，存進指定的 Drive 資料夾，並把連結寫進該列
  *
@@ -23,10 +23,14 @@ var SHEET_NAME = '回報';        // 分頁名稱（不存在會自動建立）
 var PHOTO_FOLDER_ID = '';
 var PHOTO_FOLDER_NAME = '散策回報照片';
 
+// 注意：新欄位一律加在最右邊，既有列的欄位對應才不會位移。
+// 若試算表已經有資料，getSheet_() 不會補寫標題列，請手動在最右邊
+// 補上「標題」「疊圖圖層」兩欄。
 var HEADERS = [
   '時間', '類型', '明信片ID', '明信片名稱',
   '說明', '建議緯度', '建議經度', '原緯度', '原經度',
   '貢獻者署名', '聯絡方式', '照片連結', '語言', 'UserAgent', '狀態',
+  '標題', '疊圖圖層',
 ];
 
 function doPost(e) {
@@ -37,8 +41,10 @@ function doPost(e) {
     }
     var sheet = getSheet_();
 
+    // 只要帶了照片就存 —— 涵蓋 type 為 'photo'（貢獻老照片）與
+    // 'annotation'（App 內的地圖標註投稿）兩種來源。
     var photoUrl = '';
-    if (data.type === 'photo' && data.photoDataUrl) {
+    if (data.photoDataUrl) {
       photoUrl = savePhoto_(data);
     }
 
@@ -58,6 +64,8 @@ function doPost(e) {
       data.lang || '',
       data.ua || '',
       '待審核',
+      data.title || '',
+      data.layer || '',
     ]);
 
     return json_({ ok: true });
@@ -104,7 +112,7 @@ function savePhoto_(data) {
   var bytes = Utilities.base64Decode(m[2]);
   var ext = contentType.split('/')[1].replace('jpeg', 'jpg');
   var stamp = (data.ts || new Date().toISOString()).replace(/[:.]/g, '-');
-  var name = (data.postcardId || 'photo') + '_' + stamp + '.' + ext;
+  var name = (data.postcardId || data.type || 'photo') + '_' + stamp + '.' + ext;
   var blob = Utilities.newBlob(bytes, contentType, name);
   var file = getPhotoFolder_().createFile(blob);
   // 讓你（擁有者）能直接點開；如需公開可改 ANYONE_WITH_LINK。
