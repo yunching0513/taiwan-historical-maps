@@ -5566,9 +5566,9 @@
   // Google Maps tiles are NOT used because direct XYZ access violates their Terms of Service.
   const BASE_MAPS = {
     plain: [
-      { url: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+      { url: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png?key=cb1_4jrf_1_df9bfe1a958ad80bf43708e6',
         opts: { subdomains: 'abcd', maxNativeZoom: 19, attribution: '&copy; OSM &copy; CARTO' } },
-      { url: 'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',
+      { url: 'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png?key=cb1_4jrf_1_df9bfe1a958ad80bf43708e6',
         opts: { subdomains: 'abcd', maxNativeZoom: 19, pane: 'shadowPane' } },
     ],
     satellite: [
@@ -5576,7 +5576,7 @@
       { url: 'https://wmts.nlsc.gov.tw/wmts/PHOTO2/default/GoogleMapsCompatible/{z}/{y}/{x}',
         opts: { maxNativeZoom: 19, attribution: '正射影像 &copy; <a href="https://maps.nlsc.gov.tw/" target="_blank" rel="noopener">國土測繪中心</a>' } },
       // White labels on top for legibility over dark imagery
-      { url: 'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',
+      { url: 'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png?key=cb1_4jrf_1_df9bfe1a958ad80bf43708e6',
         opts: { subdomains: 'abcd', maxNativeZoom: 19, opacity: 0.85, pane: 'shadowPane' } },
     ],
   };
@@ -10624,7 +10624,7 @@
     const walkZoom = () => Math.min((walkDef && walkDef.maxNativeZoom) || 15, WZ_MAX);
     function baseURL(z, x, y) {
       const s = 'abcd'[(x + y) % 4], r = DPR > 1 ? '@2x' : '';
-      return 'https://' + s + '.basemaps.cartocdn.com/light_nolabels/' + z + '/' + x + '/' + y + r + '.png';
+      return 'https://' + s + '.basemaps.cartocdn.com/light_nolabels/' + z + '/' + x + '/' + y + r + '.png?key=cb1_4jrf_1_df9bfe1a958ad80bf43708e6';
     }
     function histURL(z, x, y) {
       return walkDef.url.replace('{z}', z).replace('{x}', x).replace('{y}', y);

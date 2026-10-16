@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v81-2026-07-11'; // 原生殼定位改走 Capacitor 原生通道（WKWebView 網頁定位不可靠）
+const CACHE_VERSION = 'v82-2026-10-16'; // CARTO 底圖加上 API key（免費底圖新政策），換新圖磚快取汰換浮水印
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;

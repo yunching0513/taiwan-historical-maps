@@ -215,7 +215,7 @@ WALK_JS = r"""
     const walkZoom = () => Math.min((walkDef && walkDef.maxNativeZoom) || 15, WZ_MAX);
     function baseURL(z, x, y) {
       const s = 'abcd'[(x + y) % 4], r = DPR > 1 ? '@2x' : '';
-      return 'https://' + s + '.basemaps.cartocdn.com/light_nolabels/' + z + '/' + x + '/' + y + r + '.png';
+      return 'https://' + s + '.basemaps.cartocdn.com/light_nolabels/' + z + '/' + x + '/' + y + r + '.png?key=cb1_4jrf_1_df9bfe1a958ad80bf43708e6';
     }
     function histURL(z, x, y) {
       return walkDef.url.replace('{z}', z).replace('{x}', x).replace('{y}', y);
