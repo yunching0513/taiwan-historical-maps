@@ -473,7 +473,7 @@ sw = sw.replace(
     "          .filter(k => k.startsWith('tw-beta-'))")
 # beta has its own version line so channels rev independently
 sw = re.sub(r"const CACHE_VERSION = '[^']+'; //.*",
-            "const CACHE_VERSION = 'beta9-2026-07-09'; // walk mode: canvas tile renderer (single-layer, rock stable)",
+            "const CACHE_VERSION = 'beta10-2026-10-16'; // CARTO key + purge watermark tile cache",
             sw, count=1)
 sw = sw.replace("""const SHELL_URLS = [
   './',

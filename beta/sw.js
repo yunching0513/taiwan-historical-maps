@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'beta9-2026-07-09'; // walk mode: canvas tile renderer (single-layer, rock stable)
+const CACHE_VERSION = 'beta10-2026-10-16'; // CARTO key + purge watermark tile cache
 const SHELL_CACHE = `tw-beta-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-beta-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-beta-tiles-${CACHE_VERSION}`;
