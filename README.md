@@ -257,3 +257,11 @@ Google Maps 的圖磚 URL（`mt0.google.com/vt/...`）雖然技術上可達，�
 - 地圖引擎：[Leaflet](https://leafletjs.com/)
 - 結構靈感：[xinyi-water-map](https://github.com/yunching0513/xinyi-water-map)
 - 視覺風格：《昀慶手拙 · 個人設計風格指導書》
+
+
+---
+
+## 著作權 Copyright
+
+© 2026　吳昀慶 Yun-Ching Wu
+授權條款見 [`LICENSE`](LICENSE) 與 [`LICENSE-CONTENT`](LICENSE-CONTENT)　詳細聲明見 [`COPYRIGHT.md`](COPYRIGHT.md)
