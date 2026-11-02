@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v64-2026-06-19'; // 附近的時光：開場推薦鄰近現場的可滑動故事卡堆
+const CACHE_VERSION = 'v82-2026-10-16'; // CARTO 底圖加上 API key（免費底圖新政策），換新圖磚快取汰換浮水印
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
@@ -31,6 +31,7 @@ const TILE_CACHE_TRIM_TARGET = 900; // trim down to this after eviction
 const SHELL_URLS = [
   './',
   './index.html',
+  './data/postcards.js',
   './manifest.webmanifest',
   './icons/icon.svg',
   './icons/icon-192.png',
@@ -62,6 +63,8 @@ self.addEventListener('activate', event => {
     caches.keys()
       .then(keys => Promise.all(
         keys
+          // 同源的 β 測試頻道（/beta/）有自己的 tw-beta-* 快取——不是我們的，別動。
+          .filter(k => !k.startsWith('tw-beta-'))
           .filter(k => k !== SHELL_CACHE && k !== RUNTIME_CACHE && k !== TILE_CACHE && k !== PINNED_CACHE)
           .map(k => caches.delete(k))
       ))
