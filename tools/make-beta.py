@@ -63,7 +63,7 @@ sw = sw.replace(
     "          .filter(k => k.startsWith('tw-beta-'))")
 # beta has its own version line so channels rev independently
 sw = re.sub(r"const CACHE_VERSION = '[^']+'; //.*",
-            "const CACHE_VERSION = 'beta12-2026-11-19'; // walk mode graduated to root",
+            "const CACHE_VERSION = 'beta13-2026-11-19'; // walk mode localized",
             sw, count=1)
 sw = sw.replace("""const SHELL_URLS = [
   './',

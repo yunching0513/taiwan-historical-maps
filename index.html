@@ -4022,8 +4022,9 @@
   @keyframes walk-breathe{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.09)}}
   .walk-hint{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);transform:translateX(-50%);
     z-index:5;font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.14em;color:#cfc4ab;
-    background:rgba(25,20,14,.5);padding:5px 12px;border-radius:3px;white-space:nowrap;max-width:92vw;
-    overflow:hidden;text-overflow:ellipsis}
+    background:rgba(25,20,14,.5);padding:5px 12px;border-radius:3px;
+    width:max-content;max-width:calc(100vw - 32px);text-align:center;line-height:1.5}
+  html[lang="en"] .walk-hint{letter-spacing:.04em}
   /* 漫遊中的古地圖透明度滑桿：拉低即見現代街道透出（古今疊合的地面） */
   .walk-op{position:absolute;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 52px);z-index:6;
     display:flex;align-items:center;gap:8px;background:rgba(25,20,14,.62);
@@ -4442,7 +4443,7 @@
     <span class="tpc-emoji">🎴</span><span class="tpc-text" data-i18n="tpc.tab">今日明信片</span>
     <span class="tpc-dot" aria-hidden="true"></span>
   </button>
-  <button type="button" class="help-fab" id="walk-fab" aria-label="街景漫遊"><span style="font-size:17px;font-style:normal">👣</span><span class="help-fab-label">漫遊</span></button>
+  <button type="button" class="help-fab" id="walk-fab" aria-label="街景漫遊" data-i18n="walk.fab.aria" data-i18n-attr="aria-label"><span style="font-size:17px;font-style:normal">👣</span><span class="help-fab-label" data-i18n="walk.fab">漫遊</span></button>
   <button type="button" class="help-fab" id="btn-help" aria-label="操作說明" data-i18n="ob.help.aria" data-i18n-attr="aria-label">?<span class="help-fab-label">說明</span></button>
 </div>
 
@@ -4642,7 +4643,7 @@
   <div class="walk-groundwrap"><div id="walk-tilt"><canvas id="walk-map"></canvas></div></div>
   <div class="walk-fog"></div>
   <div class="walk-chip walk-era" id="walk-era">◷ —</div>
-  <button type="button" class="walk-close" id="walk-close">✕ 離開</button>
+  <button type="button" class="walk-close" id="walk-close" data-i18n="walk.close">✕ 離開</button>
   <div class="walk-compass"><svg viewBox="0 0 46 46">
     <circle cx="23" cy="23" r="21" fill="rgba(25,20,14,.62)" stroke="rgba(224,169,109,.45)"/>
     <g id="walk-needle"><polygon points="23,7 27,25 23,22 19,25" fill="#C15F3C"/><polygon points="23,39 27,25 23,28 19,25" fill="#ddd2bd"/></g>
@@ -4651,10 +4652,10 @@
   <div class="walk-feet"><div class="ring"></div><div class="dot"></div></div>
   <div class="walk-rec-readout" id="walk-rec-readout" hidden><span class="wr-dot"></span><span id="walk-rec-dist">0 m</span> · <span id="walk-rec-time">0:00</span></div>
   <div class="walk-ctrl" id="walk-ctrl">
-    <button type="button" class="walk-btn" id="walk-locate"><span class="wb-ic">◎</span><span class="wb-t">定位</span></button>
+    <button type="button" class="walk-btn" id="walk-locate"><span class="wb-ic">◎</span><span class="wb-t" data-i18n="search.locate">定位</span></button>
     <button type="button" class="walk-btn walk-rec-btn" id="walk-record" disabled><span class="wb-ic">●</span><span class="wb-t">記錄</span></button>
   </div>
-  <div class="walk-op"><span class="wo-ic">◐</span><input type="range" id="walk-opacity" min="20" max="100" step="5" value="85" aria-label="古地圖透明度" /><span class="wo-val" id="walk-op-val">85%</span></div>
+  <div class="walk-op"><span class="wo-ic">◐</span><input type="range" id="walk-opacity" min="20" max="100" step="5" value="85" aria-label="古地圖透明度" data-i18n="walk.opacity" data-i18n-attr="aria-label" /><span class="wo-val" id="walk-op-val">85%</span></div>
   <div class="walk-hint" id="walk-hint">—</div>
 </div>
 
@@ -4816,6 +4817,13 @@
       'foot.histsites': '歷史事件',
       'sec.events.sub': '歷史事件',
       'layerchip.off': '關閉古地圖',
+      'walk.close': '✕ 離開',
+      'walk.opacity': '古地圖透明度',
+      'walk.fab': '漫遊',
+      'walk.fab.aria': '街景漫遊：走在古地圖上',
+      'walk.hint.rec': '記錄中 · 走動時路徑會沿路記下',
+      'walk.hint.on': '腳下就是古地圖 · 走動時跟著你捲動',
+      'walk.hint.idle': '按「定位」開始，漫遊就會跟著你走。',
       'pc.legend.far': '還沒收集',
       'pc.legend.drawn': '今日抽到',
       'pc.legend.collected': '已收集',
@@ -5081,6 +5089,13 @@
       'foot.histsites': 'Historic events',
       'sec.events.sub': 'historic events',
       'layerchip.off': 'Hide old map',
+      'walk.close': '✕ Exit',
+      'walk.opacity': 'Old map opacity',
+      'walk.fab': 'Walk',
+      'walk.fab.aria': 'Street-level walk on the old map',
+      'walk.hint.rec': 'Recording · tracing your path',
+      'walk.hint.on': 'Old map underfoot · it moves as you walk',
+      'walk.hint.idle': 'Tap “Locate” to start walking.',
       'pc.legend.far': 'Not yet collected',
       'pc.legend.drawn': "Today's draw",
       'pc.legend.collected': 'Collected',
@@ -5346,6 +5361,13 @@
       'foot.histsites': '歴史の出来事',
       'sec.events.sub': '歴史の出来事',
       'layerchip.off': '古地図を閉じる',
+      'walk.close': '✕ 終了',
+      'walk.opacity': '古地図の透明度',
+      'walk.fab': '散歩',
+      'walk.fab.aria': '古地図の上を歩く',
+      'walk.hint.rec': '記録中 · 歩いた道のりを記録しています',
+      'walk.hint.on': '足元は古地図 · 歩くと地図がついてきます',
+      'walk.hint.idle': '「位置」を押すと、地図があなたと一緒に歩きます。',
       'pc.legend.far': '未収集',
       'pc.legend.drawn': '今日の一枚',
       'pc.legend.collected': '収集済み',
@@ -10932,7 +10954,7 @@
       const def = currentDef();
       if (!ctx) ctx = mapEl.getContext('2d');
       if (!walkDef || walkDef.id !== def.id) { walkDef = def; needsRedraw = true; }
-      eraEl.textContent = '◷ ' + def.year + ' · ' + def.label;
+      eraEl.textContent = '◷ ' + def.year + ' · ' + (currentLang === 'en' ? def.en : def.label);
     }
     let lastAppliedHeading = null, lastCenterPx = null;
     function frame() {
@@ -11031,7 +11053,7 @@
       if (recBtn) {
         recBtn.disabled = !isLocating;
         recBtn.classList.toggle('on', isRecording);
-        const t = recBtn.querySelector('.wb-t'); if (t) t.textContent = isRecording ? '停止' : '記錄';
+        const lbl = recBtn.querySelector('.wb-t'); if (lbl) lbl.textContent = isRecording ? t('search.stop') : t('search.record');
       }
       if (recReadout) {
         recReadout.hidden = !isRecording;
@@ -11041,9 +11063,7 @@
           if (tm) document.getElementById('walk-rec-time').textContent = tm.textContent;
         }
       }
-      hintEl.textContent = isRecording ? '記錄中 · 走動時路徑會沿路記下'
-        : lastUserLatLng ? '腳下就是古地圖 · 走動時跟著你捲動'
-        : '按「定位」開始，漫遊就會跟著你走。';
+      hintEl.textContent = t(isRecording ? 'walk.hint.rec' : lastUserLatLng ? 'walk.hint.on' : 'walk.hint.idle');
     }
     if (locBtn) locBtn.addEventListener('click', async () => {
       try { await requestLocate(); } catch {}

@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v84-2026-11-19'; // 街景漫遊升上正式站；圖磚失敗提示、焦點外框、明信片圖例、圓角與字級 token
+const CACHE_VERSION = 'v85-2026-11-19'; // 街景漫遊文字三語化（中／英／日）
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
