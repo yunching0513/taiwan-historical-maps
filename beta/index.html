@@ -82,7 +82,7 @@
     --mist:     #D6D3CB;
     --stone:    #BBB8AE;
     --silver:   #A6A399;
-    --ash:      #807C73;
+    --ash:      #6B675E;   /* WCAG AA：米色底上 ≥4.5:1 */
     --graphite: #565347;
     --ink:      #1F1D19;
     --sumi:     #0E0D0B;
@@ -276,7 +276,7 @@
   .help-fab-label {
     font-family: var(--zh-serif);
     font-style: normal;
-    font-size: 8px;
+    font-size: 10px;
     letter-spacing: 0.05em;
     opacity: 0.75;
     line-height: 1;
@@ -547,7 +547,7 @@
     font-family: var(--en-serif);
     font-style: italic;
     font-size: 12px;
-    color: var(--silver);
+    color: var(--ash);
     letter-spacing: 0.01em;
   }
 
@@ -1361,7 +1361,7 @@
     font-family: var(--en-serif);
     font-style: italic;
     font-size: 11px;
-    color: var(--silver);
+    color: var(--ash);
     margin-top: 2px;
   }
 
@@ -1812,7 +1812,7 @@
     display: block;
     font-family: var(--mono);
     font-size: 9px;
-    color: var(--silver);
+    color: var(--ash);
     margin-top: 14px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -2038,7 +2038,7 @@
     font-family: var(--zh-sans);
     font-size: 10.5px;
     line-height: 1.5;
-    color: var(--silver);
+    color: var(--ash);
     text-align: center;
     margin-top: 10px;
   }
@@ -2099,7 +2099,7 @@
     line-height: 1.75;
     color: var(--graphite);
     margin: 0 0 14px;
-    text-align: justify;
+    text-align: start;
   }
   .credits-meta {
     font-family: var(--zh-sans);
@@ -2794,7 +2794,7 @@
     font-family: var(--en-serif);
     font-style: italic;
     font-size: 10px;
-    color: var(--silver);
+    color: var(--ash);
     margin-top: 2px;
     letter-spacing: 0.04em;
   }
@@ -2802,7 +2802,7 @@
     font-family: var(--mono);
     font-size: 9px;
     letter-spacing: 0.22em;
-    color: var(--silver);
+    color: var(--ash);
     text-transform: uppercase;
     display: block;
     margin-bottom: 6px;
@@ -2851,7 +2851,7 @@
     top: 12px; right: 14px;
     border: none;
     background: transparent;
-    color: var(--silver);
+    color: var(--ash);
     font-family: var(--mono);
     font-size: 10px;
     letter-spacing: 0.18em;
@@ -2897,7 +2897,7 @@
     font-family: var(--mono);
     font-size: 10px;
     letter-spacing: 0.14em;
-    color: var(--silver);
+    color: var(--ash);
   }
   .ob-years .y { color: var(--graphite); }
   .ob-years .line {
@@ -2935,7 +2935,7 @@
     font-family: var(--mono);
     font-size: 10px;
     letter-spacing: 0.16em;
-    color: var(--silver);
+    color: var(--ash);
     text-transform: uppercase;
   }
   .ob-city-grid {
@@ -2943,7 +2943,7 @@
     flex-wrap: wrap;
     gap: 6px;
     margin-top: 8px;
-    max-height: 168px;
+    max-height: min(240px, 34vh);
     overflow-y: auto;
     padding-bottom: 2px;
   }
@@ -3076,7 +3076,7 @@
     font-family: var(--mono);
     font-size: 10px;
     letter-spacing: 0.16em;
-    color: var(--silver);
+    color: var(--ash);
     text-transform: uppercase;
     margin-bottom: 8px;
   }
@@ -3095,7 +3095,7 @@
     font-family: var(--mono);
     font-size: 9px;
     letter-spacing: 0.08em;
-    color: var(--silver);
+    color: var(--ash);
     text-decoration: none;
     margin-bottom: 10px;
   }
@@ -3240,7 +3240,7 @@
     font-family: var(--mono);
     font-size: 10px;
     letter-spacing: 0.14em;
-    color: var(--silver);
+    color: var(--ash);
     text-transform: uppercase;
     margin-bottom: 8px;
   }
@@ -3452,7 +3452,7 @@
     border-radius: 0;
   }
   .search-input::placeholder {
-    color: var(--silver);
+    color: var(--ash);
     font-family: var(--en-serif);
     font-style: italic;
     letter-spacing: 0.01em;
@@ -3645,7 +3645,7 @@
   @media (max-width: 768px) {
     /* Search box: full-width across the top so it doesn't fight the panel */
     .search-box {
-      top: calc(env(safe-area-inset-top, 0px) - 14px);
+      top: max(10px, calc(env(safe-area-inset-top, 0px) - 14px));
       left: 12px;
       right: 12px;
       transform: none;
@@ -3894,10 +3894,10 @@
     background:var(--paper-2,#fff);font-family:var(--zh-sans);font-size:13px;letter-spacing:.06em;
     color:var(--graphite);cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent}
   .hs-chip .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;opacity:.55}
-  .hs-chip .n{font-family:var(--mono);font-size:11px;color:var(--silver)}
+  .hs-chip .n{font-family:var(--mono);font-size:11px;color: var(--ash)}
   .hs-chip.on{border-color:currentColor;color:var(--ink);background:rgba(193,95,60,.06)}
   .hs-chip.on .dot{opacity:1}
-  .hs-note{margin-top:10px;font-size:11.5px;line-height:1.7;color:var(--silver);letter-spacing:.03em}
+  .hs-note{margin-top:10px;font-size:11.5px;line-height:1.7;color: var(--ash);letter-spacing:.03em}
   .hs-note a{color:var(--vermilion);text-decoration:none}
   .hs-popup .leaflet-popup-content-wrapper{background:#F7F3E8;border:1px solid #c9bda3;border-radius:4px;
     box-shadow:0 10px 30px -12px rgba(31,29,25,.5)}
@@ -3909,7 +3909,53 @@
   .hs-pop-desc{font-size:13px;line-height:1.85;color:var(--graphite);max-height:38vh;overflow-y:auto;
     white-space:pre-wrap;letter-spacing:.02em;padding-right:4px}
   .hs-pop-src{margin-top:9px;padding-top:7px;border-top:1px dotted #c9bda3;font-family:var(--mono);
-    font-size:10px;color:var(--silver);letter-spacing:.06em}
+    font-size:10px;color: var(--ash);letter-spacing:.06em}
+
+  /* hidden 屬性一律生效：元件自己的 display 規則不能蓋過它 */
+  [hidden] { display: none !important; }
+
+  /* ── 觸控目標 ≥44px(WCAG 2.5.5):外觀不變，只撐大可點範圍 ── */
+  #wpc-close::after, #donate-close::after, #pc-card-close::after, #report-close::after,
+  #credits-close::after, #geo-close::after, #nearby-close::after, #ob-skip::after {
+    content: ''; position: absolute; inset: -10px;
+  }
+  .nb-step, .lang-pill { position: relative; }
+  .nb-step::after { content: ''; position: absolute; inset: -10px -12px; }
+  .lang-pill::after { content: ''; position: absolute; inset: -10px -3px; }
+  .hs-chip { min-height: 44px; }
+
+  /* ── 系統設定「減少動態效果」時，關掉轉場與動畫 ── */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important; scroll-behavior: auto !important;
+    }
+  }
+
+  /* ── 地圖上「目前疊的是哪張古地圖」 ── */
+  .layer-chip {
+    position: absolute; z-index: 1005; left: 50%; transform: translateX(-50%);
+    top: 74px; display: flex; align-items: stretch;
+    background: var(--paper); border: 1px solid var(--stone);
+    box-shadow: 0 4px 14px -6px rgba(31, 29, 25, 0.3);
+    font-family: var(--zh-sans); max-width: calc(100vw - 32px);
+  }
+  .layer-chip[hidden] { display: none; }
+  .layer-chip button {
+    background: none; border: 0; cursor: pointer; color: var(--ink);
+    font: inherit; min-height: 44px; -webkit-tap-highlight-color: transparent;
+  }
+  .layer-chip-label {
+    padding: 0 12px 0 14px; font-size: 13px; letter-spacing: 0.06em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .layer-chip-label .yr { font-family: var(--mono); color: var(--vermilion); margin-right: 8px; letter-spacing: 0.08em; }
+  .layer-chip-off { padding: 0 14px; font-size: 13px; color: var(--ash); border-left: 1px solid var(--mist) !important; }
+  @media (max-width: 768px) {
+    .layer-chip { top: calc(max(10px, calc(env(safe-area-inset-top, 0px) - 14px)) + 52px); }
+  }
+
+  .pc-card-go { background: var(--vermilion); color: #fff; border-color: var(--vermilion); }
 
   /* ── β 測試版標記 + 街景漫遊 walk mode ─────────────── */
   .beta-tag{display:inline-block;font-family:var(--mono);font-size:11px;color:#fff;
@@ -4011,6 +4057,11 @@
   <div class="search-sep" aria-hidden="true"></div>
   <button type="button" class="search-pin search-rec" id="search-rec" aria-label="記錄路線" disabled><span class="pin-ring rec-ring"></span><span class="search-pin-label" data-i18n="search.record">記錄</span></button>
   <div class="search-results" id="search-results" hidden role="listbox"></div>
+</div>
+
+<div class="layer-chip" id="layer-chip" hidden>
+  <button type="button" class="layer-chip-label" id="layer-chip-label"></button>
+  <button type="button" class="layer-chip-off" id="layer-chip-off" aria-label="關閉古地圖" data-i18n="layerchip.off" data-i18n-attr="aria-label">✕</button>
 </div>
 
 <div class="tile-spinner" id="tile-spinner" aria-hidden="true">Loading</div>
@@ -4144,10 +4195,27 @@
     <div id="historical-layers"></div>
     </details>
 
-    <!-- ▾ 04 — Offline ──────────────────────────────── -->
+    <!-- ▾ 04 — Events ──────────────────────────────── -->
+    <details class="panel-section" id="sec-events" open>
+    <summary class="section-label">
+      <span class="num">04 — Events</span>
+      <span class="en" data-i18n="sec.events.sub" data-i18n-hide-empty="1">歷史事件</span>
+    </summary>
+      <div class="hs-chips" id="hs-chips">
+        <button type="button" class="hs-chip" data-era="史前"><span class="dot" style="background:#8a7a5c"></span><span data-i18n="hs.era.prehistory">史前</span><span class="n">23</span></button>
+        <button type="button" class="hs-chip" data-era="平埔族群舊址"><span class="dot" style="background:#4a7c59"></span><span data-i18n="hs.era.pingpu">平埔族群</span><span class="n">206</span></button>
+        <button type="button" class="hs-chip" data-era="荷蘭西班牙時代"><span class="dot" style="background:#c97b2d"></span><span data-i18n="hs.era.dutch">荷西</span><span class="n">53</span></button>
+        <button type="button" class="hs-chip" data-era="鄭氏清領時期"><span class="dot" style="background:#4a6b8a"></span><span data-i18n="hs.era.qing">鄭氏清領</span><span class="n">205</span></button>
+        <button type="button" class="hs-chip" data-era="日本時代"><span class="dot" style="background:#C15F3C"></span><span data-i18n="hs.era.japan">日本時代</span><span class="n">313</span></button>
+        <button type="button" class="hs-chip" data-era="國民政府來台後"><span class="dot" style="background:#6b5b73"></span><span data-i18n="hs.era.postwar">戰後</span><span class="n">218</span></button>
+      </div>
+      <p class="hs-note"><span data-i18n="hs.note.count">1,018 個歷史地點，點開時代、再點地圖上的圓點看故事。</span> <span data-i18n="hs.note.src">資料：</span><a href="https://www.google.com/maps/d/viewer?mid=1775dzoAWEHAPBCbHip7cRDVQsjpxSDVW" target="_blank" rel="noopener" data-i18n="hs.note.map">台灣歷史地圖</a><span data-i18n="hs.note.by">（邱璽民 輯）</span></p>
+    </details>
+
+    <!-- ▾ 05 — Offline ──────────────────────────────── -->
     <details class="panel-section" id="sec-04">
     <summary class="section-label">
-      <span class="num">04 — Offline</span>
+      <span class="num">05 — Offline</span>
       <span class="en" data-i18n="sec.offline.sub" data-i18n-hide-empty="1">offline packs</span>
     </summary>
 
@@ -4162,11 +4230,11 @@
     </div>
     </details>
 
-    <!-- ▾ 05 — Postcards ────────────────────────────── -->
+    <!-- ▾ 06 — Postcards ────────────────────────────── -->
     <details class="panel-section" id="sec-05">
     <summary class="section-label section-label--row">
       <span>
-        <span class="num">05 — Postcards</span>
+        <span class="num">06 — Postcards</span>
         <span class="en" data-i18n="sec.postcards.sub">明信片散策</span>
       </span>
       <label class="pc-toggle" for="postcards-toggle" title="是否在地圖上顯示明信片地點">
@@ -4187,10 +4255,10 @@
     </div>
     </details>
 
-    <!-- ▾ 06 — Calendar ─────────────────────────────── -->
+    <!-- ▾ 07 — Calendar ─────────────────────────────── -->
     <details class="panel-section" id="sec-06">
     <summary class="section-label">
-      <span class="num">06 — Calendar</span>
+      <span class="num">07 — Calendar</span>
       <span class="en" data-i18n="sec.calendar.sub">月曆</span>
     </summary>
 
@@ -4204,10 +4272,10 @@
     <div class="cal-summary" id="cal-summary"></div>
     </details>
 
-    <!-- ▾ 07 — Seals ───────────────────────────────── -->
+    <!-- ▾ 08 — Seals ───────────────────────────────── -->
     <details class="panel-section" id="sec-07">
     <summary class="section-label">
-      <span class="num">07 — Seals</span>
+      <span class="num">08 — Seals</span>
       <span class="en" data-i18n="sec.seals.sub">縣市印章</span>
     </summary>
 
@@ -4218,18 +4286,6 @@
     </details>
 
 
-    <section class="panel-sec" id="hs-sec">
-      <div class="sec-head"><span class="sec-no">04 — 歷史事件</span><span class="sec-en">historic events</span></div>
-      <div class="hs-chips" id="hs-chips">
-        <button type="button" class="hs-chip" data-era="史前"><span class="dot" style="background:#8a7a5c"></span>史前<span class="n">23</span></button>
-        <button type="button" class="hs-chip" data-era="平埔族群舊址"><span class="dot" style="background:#4a7c59"></span>平埔族群<span class="n">206</span></button>
-        <button type="button" class="hs-chip" data-era="荷蘭西班牙時代"><span class="dot" style="background:#c97b2d"></span>荷西<span class="n">53</span></button>
-        <button type="button" class="hs-chip" data-era="鄭氏清領時期"><span class="dot" style="background:#4a6b8a"></span>鄭氏清領<span class="n">205</span></button>
-        <button type="button" class="hs-chip" data-era="日本時代"><span class="dot" style="background:#C15F3C"></span>日本時代<span class="n">313</span></button>
-        <button type="button" class="hs-chip" data-era="國民政府來台後"><span class="dot" style="background:#6b5b73"></span>戰後<span class="n">218</span></button>
-      </div>
-      <p class="hs-note">1,018 個歷史地點 · 資料:<a href="https://www.google.com/maps/d/viewer?mid=1775dzoAWEHAPBCbHip7cRDVQsjpxSDVW" target="_blank" rel="noopener">台灣歷史地圖</a>(邱璽民 輯)· 點地圖上的圓點看事件</p>
-    </section>
     <footer class="panel-foot">
       <span class="mono" data-i18n="foot.sources">Sources</span>
       <span data-i18n="foot.historical_maps">歷史圖資</span> · <a href="https://gis.sinica.edu.tw" target="_blank" rel="noopener">中央研究院 GIS</a><br>
@@ -4316,7 +4372,7 @@
 
 <!-- 時光快轉：年代勾選面板 -->
 <div class="tl-chooser" id="tl-chooser" hidden>
-  <div class="tl-chooser-card" role="dialog" aria-labelledby="tl-chooser-title">
+  <div class="tl-chooser-card" role="dialog" aria-modal="true" aria-labelledby="tl-chooser-title">
     <div class="tl-chooser-title" id="tl-chooser-title" data-i18n="tl.choose.title">時光快轉 · 選擇年代</div>
     <div class="tl-chooser-hint" data-i18n="tl.choose.hint">勾選要播放的歷史圖。標「偏糊」者在目前縮放畫質較低，已預設不選。</div>
     <div class="tl-speed" id="tl-speed" role="group" aria-label="速度">
@@ -4362,7 +4418,7 @@
 
 <!-- Welcome postcard — a random vintage postcard greets each app open -->
 <div class="wpc-overlay" id="wpc-overlay" aria-hidden="true">
-  <div class="wpc-card" role="dialog" aria-labelledby="wpc-title">
+  <div class="wpc-card" role="dialog" aria-modal="true" aria-labelledby="wpc-title">
     <button type="button" class="donate-card-close" id="wpc-close" aria-label="關閉" data-i18n="lb.aria.close" data-i18n-attr="aria-label">✕</button>
     <div class="wpc-tag" data-i18n="wpc.tag">今日的時光明信片</div>
     <img class="wpc-img" id="wpc-img" alt="" />
@@ -4382,7 +4438,7 @@
 
 <!-- 附近的時光 — 開場推薦鄰近現場的可滑動故事卡堆 -->
 <div class="nearby-overlay" id="nearby-overlay" aria-hidden="true">
-  <div class="nearby-shell" role="dialog" aria-labelledby="nearby-title">
+  <div class="nearby-shell" role="dialog" aria-modal="true" aria-labelledby="nearby-title">
     <button type="button" class="nearby-close" id="nearby-close" data-i18n="nearby.close">關閉 ✕</button>
     <div class="nearby-kicker">
       <span class="nb-zh" id="nearby-title" data-i18n="nearby.title">附近的時光</span>
@@ -4401,7 +4457,7 @@
 
 <!-- First-run onboarding tour -->
 <div class="ob-overlay" id="ob-overlay" aria-hidden="true">
-  <div class="ob-card" role="dialog" aria-labelledby="ob-title-1">
+  <div class="ob-card" role="dialog" aria-modal="true" aria-labelledby="ob-title-1">
     <button type="button" class="ob-skip" id="ob-skip" data-i18n="ob.skip">略過</button>
 
     <div class="ob-step active" data-step="0">
@@ -4468,13 +4524,13 @@
 
 <!-- Donation modal -->
 <div class="donate-overlay" id="donate-overlay" aria-hidden="true">
-  <div class="donate-card" role="dialog" aria-labelledby="donate-title">
+  <div class="donate-card" role="dialog" aria-modal="true" aria-labelledby="donate-title">
     <button type="button" class="donate-card-close" id="donate-close" aria-label="關閉">✕</button>
     <h3 class="donate-card-title" id="donate-title" data-i18n="donate.title">Buy me a coffee</h3>
     <p class="donate-card-sub" data-i18n="donate.sub">☕ 請作者喝杯咖啡</p>
     <a class="donate-kofi" href="https://ko-fi.com/yunching0513" target="_blank" rel="noopener" data-i18n="donate.kofi">☕ 到 Ko-fi 請我喝咖啡</a>
-    <img class="donate-qr" src="../icons/donate-qr.jpg" alt="收款碼 QR Code" loading="lazy" />
-    <p class="donate-scan" data-i18n="donate.scan">或在台灣用 LINE Pay 掃碼</p>
+    <img class="donate-qr" src="../icons/donate-qr.jpg" alt="收款碼 QR Code" loading="lazy" hidden />
+    <p class="donate-scan" data-i18n="donate.scan" hidden>或在台灣用 LINE Pay 掃碼</p>
     <p class="donate-thanks">
       <span data-i18n="donate.thanks">謝謝你支持這個 App 的維護與更新</span>
       <em data-i18n="donate.thanks.sub">Thank you for keeping the old maps alive.</em>
@@ -4493,7 +4549,7 @@
 
 <!-- Location permission helper: priming (prompt) + recovery (denied) -->
 <div class="ob-overlay" id="geo-overlay" aria-hidden="true">
-  <div class="ob-card" role="dialog" aria-labelledby="geo-title">
+  <div class="ob-card" role="dialog" aria-modal="true" aria-labelledby="geo-title">
     <button type="button" class="ob-skip" id="geo-close" data-i18n="geo.later">稍後</button>
     <div class="ob-kicker" id="geo-kicker">📍 Location</div>
     <h2 class="ob-title" id="geo-title">開啟定位</h2>
@@ -4509,7 +4565,7 @@
 
 <!-- 背景定位「醒目告知與同意」視窗（Google Play 政策要求，須先於系統權限） -->
 <div class="ob-overlay" id="bgloc-overlay" aria-hidden="true">
-  <div class="ob-card" role="dialog" aria-labelledby="bgloc-title">
+  <div class="ob-card" role="dialog" aria-modal="true" aria-labelledby="bgloc-title">
     <div class="ob-kicker">📍 Location</div>
     <h2 class="ob-title" id="bgloc-title" data-i18n="bgloc.title">關於背景定位</h2>
     <p class="ob-body" data-i18n="bgloc.body" style="min-height:0">散策會在你記錄路線時，於背景持續使用你的位置資訊來描繪行徑軌跡——即使你切換到其他 App 或關閉螢幕。記錄期間，通知列會持續顯示一則通知提醒你。這會增加耗電量。你的位置只儲存在這支手機，不會上傳。</p>
@@ -4522,7 +4578,7 @@
 
 <!-- Postcard collection / detail modal -->
 <div class="pc-overlay" id="pc-overlay" aria-hidden="true">
-  <div class="pc-card" role="dialog" aria-labelledby="pc-modal-title">
+  <div class="pc-card" role="dialog" aria-modal="true" aria-labelledby="pc-modal-title">
     <button type="button" class="pc-card-close" id="pc-card-close" aria-label="關閉">✕</button>
     <img class="pc-card-img" id="pc-card-img" alt="" />
     <div class="pc-card-meta">
@@ -4533,6 +4589,9 @@
       <p class="pc-card-desc" id="pc-card-desc">—</p>
       <a class="pc-card-source" id="pc-card-source" href="#" target="_blank" rel="noopener">—</a>
       <div class="pc-card-actions" id="pc-card-actions" hidden>
+        <button type="button" class="pc-card-share pc-card-go" id="pc-card-go" hidden>
+          <span aria-hidden="true">➜</span> <span data-i18n="nearby.go">帶我去這裡</span>
+        </button>
         <button type="button" class="pc-card-share" id="pc-card-share">
           <span aria-hidden="true">↗</span> <span data-i18n="pc.share">分享</span>
         </button>
@@ -4577,7 +4636,7 @@
      POST to a Google Apps Script Web App (REPORT_ENDPOINT) which writes
      a row to a Sheet and saves photos to a Drive folder. -->
 <div class="report-overlay" id="report-overlay" aria-hidden="true">
-  <div class="report-card" role="dialog" aria-labelledby="report-title">
+  <div class="report-card" role="dialog" aria-modal="true" aria-labelledby="report-title">
     <button type="button" class="report-close" id="report-close" aria-label="關閉">✕</button>
     <div class="report-eyebrow" data-i18n="report.eyebrow">Citizen Science</div>
     <h3 class="report-title" id="report-title" data-i18n="report.title">幫忙補正這張明信片</h3>
@@ -4619,12 +4678,12 @@
 
 <!-- Credits / attribution modal — lists every postcard with its Commons URL -->
 <div class="credits-overlay" id="credits-overlay" aria-hidden="true">
-  <div class="credits-card" role="dialog" aria-labelledby="credits-title">
+  <div class="credits-card" role="dialog" aria-modal="true" aria-labelledby="credits-title">
     <button type="button" class="credits-close" id="credits-close" aria-label="關閉">✕</button>
     <h2 class="credits-title" id="credits-title" data-i18n="credits.title">資料來源與致謝</h2>
     <!-- 贊助小區塊：顯示在致謝視窗最上方 -->
     <div class="credits-sponsor">
-      <img class="credits-sponsor-qr" src="../icons/donate-qr.jpg" alt="LINE Pay 收款碼" loading="lazy" />
+      <img class="credits-sponsor-qr" src="../icons/donate-qr.jpg" alt="LINE Pay 收款碼" loading="lazy" hidden />
       <div class="credits-sponsor-text">
         <strong data-i18n="credits.sponsor.title">☕ 喜歡這個 App？</strong>
         <p data-i18n="credits.sponsor.body">老地圖的維護需要時間與費用。若這趟散策讓你愉快，歡迎掃碼用 LINE Pay 請我喝杯咖啡。</p>
@@ -4723,10 +4782,25 @@
       'pc.count.suffix': '收進卡夾 · 開著 App 按定位、走近現場自動沖洗',
       'pc.locked.title': '未發掘',
       'pc.locked.subtitle': '走到附近 50 公尺內自動沖洗',
-      'pc.locked.desc': '走到地點附近 50 公尺內，明信片才會顯影',
+      'pc.locked.desc': '按「帶我去這裡」，地圖會飛到它所在的位置。',
+      'foot.histsites': '歷史事件',
+      'sec.events.sub': '歷史事件',
+      'layerchip.off': '關閉古地圖',
+      'hs.era.prehistory': '史前',
+      'hs.era.pingpu': '平埔族群',
+      'hs.era.dutch': '荷西',
+      'hs.era.qing': '鄭氏清領',
+      'hs.era.japan': '日本時代',
+      'hs.era.postwar': '戰後',
+      'hs.note.count': '1,018 個歷史地點，點開時代、再點地圖上的圓點看故事。',
+      'hs.note.src': '資料：',
+      'hs.note.map': '台灣歷史地圖',
+      'hs.note.by': '（邱璽民 輯）',
+      'hs.pop.src': '資料 · 台灣歷史地圖（邱璽民 輯）',
+      'hs.pop.nodesc': '（尚無描述）',
       'pc.tag.collected': 'Discovered',
       'pc.tag.new': 'Just Developed',
-      'pc.tag.locked': 'Locked',
+      'pc.tag.locked': '未沖洗',
       'pc.source.pending': 'pending discovery',
       'pc.source.by': '攝影',
       'pc.share': '分享',
@@ -4764,7 +4838,7 @@
       'tip.coffee.later': '下次吧',
       'credits.title': '資料來源與致謝',
       'credits.sponsor.title': '☕ 喜歡這個 App？',
-      'credits.sponsor.body': '老地圖的維護需要時間與費用。若這趟散策讓你愉快，歡迎到 Ko-fi（或用 LINE Pay 掃碼）請我喝杯咖啡。',
+      'credits.sponsor.body': '老地圖的維護需要時間與費用。若這趟散策讓你愉快，歡迎到 Ko-fi 請我喝杯咖啡。',
       'credits.sponsor.btn': '打開贊助視窗',
       'credits.intro': '本 App 所有明信片影像皆為公有領域（Public Domain），逐張查證授權後才收錄；本 App 僅做匯整呈現與地理註記，不主張任何版權。授權依據——【PD-Japan】依日本 1899 年舊著作權法，1946 年以前拍攝之照片著作權已消滅；【PD-Taiwan】依中華民國著作權法第 34 條，攝影著作於公開發表滿 50 年後屆期。下表逐筆列出每張影像的攝影者（可考者）、原始出處（寫真帖／館藏／出版品）與授權依據；點擊條目可造訪 Wikimedia Commons 原始檔案頁面查看高解析原圖與完整授權細節。',
       'credits.meta.historical': 'Historical maps',
@@ -4966,7 +5040,22 @@
       'pc.count.suffix': 'in binder · keep app open, tap Locate, walk near a site',
       'pc.locked.title': 'Undeveloped',
       'pc.locked.subtitle': 'Walk within 50 m to develop',
-      'pc.locked.desc': 'Walk within 50 m of the site to reveal this postcard.',
+      'pc.locked.desc': 'Tap “Take me there” and the map will fly to where it is.',
+      'foot.histsites': 'Historic events',
+      'sec.events.sub': 'historic events',
+      'layerchip.off': 'Hide old map',
+      'hs.era.prehistory': 'Prehistory',
+      'hs.era.pingpu': 'Pingpu',
+      'hs.era.dutch': 'Dutch & Spanish',
+      'hs.era.qing': 'Zheng & Qing',
+      'hs.era.japan': 'Japanese era',
+      'hs.era.postwar': 'Post-war',
+      'hs.note.count': '1,018 historic sites. Pick an era, then tap a dot on the map for its story (in Chinese).',
+      'hs.note.src': 'Data: ',
+      'hs.note.map': 'Taiwan Historical Map',
+      'hs.note.by': ' (compiled by Chiu Hsi-min)',
+      'hs.pop.src': 'Data · Taiwan Historical Map (Chiu Hsi-min)',
+      'hs.pop.nodesc': '(No description yet)',
       'pc.tag.collected': 'Discovered',
       'pc.tag.new': 'Just Developed',
       'pc.tag.locked': 'Locked',
@@ -5007,7 +5096,7 @@
       'tip.coffee.later': 'Maybe later',
       'credits.title': 'Sources & Credits',
       'credits.sponsor.title': '☕ Enjoying this app?',
-      'credits.sponsor.body': 'Keeping the old maps alive takes time and effort. If you enjoyed the stroll, buy me a coffee on Ko-fi (or scan with LINE Pay).',
+      'credits.sponsor.body': 'Keeping the old maps alive takes time and effort. If you enjoyed the stroll, buy me a coffee on Ko-fi.',
       'credits.sponsor.btn': 'Open support window',
       'credits.intro': 'Every postcard image is public domain, verified per file before inclusion; this app only curates and geo-tags them and claims no copyright. License basis — PD-Japan: photographs taken before 1947 are out of copyright under Japan\'s 1899 Copyright Act; PD-Taiwan: photographic works enter the public domain 50 years after publication under Taiwan\'s Copyright Act (Art. 34). The list below gives, for each image, the photographer (where known), the original publication or collection, and the license basis; click an entry for the full-resolution original and complete license details on Wikimedia Commons.',
       'credits.meta.historical': 'Historical maps',
@@ -5209,7 +5298,22 @@
       'pc.count.suffix': '収集済 · アプリを開き現在地をオン、近づくと現像',
       'pc.locked.title': '未現像',
       'pc.locked.subtitle': '50 メートル以内に近づくと自動現像',
-      'pc.locked.desc': '50 メートル以内に近づくと絵葉書が現像されます。',
+      'pc.locked.desc': '「ここに連れて行って」を押すと、地図がその場所へ移動します。',
+      'foot.histsites': '歴史の出来事',
+      'sec.events.sub': '歴史の出来事',
+      'layerchip.off': '古地図を閉じる',
+      'hs.era.prehistory': '先史',
+      'hs.era.pingpu': '平埔族',
+      'hs.era.dutch': 'オランダ・スペイン',
+      'hs.era.qing': '鄭氏・清',
+      'hs.era.japan': '日本統治時代',
+      'hs.era.postwar': '戦後',
+      'hs.note.count': '1,018 の歴史スポット。時代を選び、地図上の点をタップすると解説が出ます（中国語）。',
+      'hs.note.src': 'データ：',
+      'hs.note.map': '台湾歴史地図',
+      'hs.note.by': '（邱璽民 編）',
+      'hs.pop.src': 'データ · 台湾歴史地図（邱璽民 編）',
+      'hs.pop.nodesc': '（説明なし）',
       'pc.tag.collected': '発見済',
       'pc.tag.new': '現像中',
       'pc.tag.locked': '未発見',
@@ -5250,7 +5354,7 @@
       'tip.coffee.later': '今度ね',
       'credits.title': '出典と謝辞',
       'credits.sponsor.title': '☕ このアプリを気に入りましたか？',
-      'credits.sponsor.body': '古地図の維持には時間と費用がかかります。この散策が楽しかったら、Ko-fi（または LINE Pay）でコーヒーを一杯おごっていただければ嬉しいです。',
+      'credits.sponsor.body': '古地図の維持には時間と費用がかかります。この散策が楽しかったら、Ko-fi でコーヒーを一杯おごっていただければ嬉しいです。',
       'credits.sponsor.btn': 'サポート画面を開く',
       'credits.intro': '全ての絵葉書画像はパブリックドメインであり、一枚ずつライセンスを確認のうえ収録しています。本アプリは整理と地理タグ付けのみを行い、著作権を主張しません。根拠——【PD-Japan】旧著作権法（明治32年）により1946年以前撮影の写真は著作権消滅；【PD-Taiwan】台湾著作権法第34条により公表後50年で満了。下記リストには撮影者（判明分）・原典（写真帖／所蔵）・ライセンス根拠を記載。クリックで Wikimedia Commons の原典ページへ。',
       'credits.meta.historical': '歴史地図',
@@ -5433,6 +5537,7 @@
     document.querySelectorAll('.lang-pill').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.lang === currentLang);
     });
+    try { updateLayerChip(); } catch {}
   }
 
   function setLang(lang) {
@@ -5733,7 +5838,26 @@
     document.querySelectorAll('.layer-row').forEach(row => {
       row.classList.toggle('active', row.dataset.id === activeId);
     });
+    updateLayerChip();
   }
+
+  function updateLayerChip() {
+    const chip = document.getElementById('layer-chip');
+    if (!chip) return;
+    const def = activeId && HISTORICAL_MAPS.find(m => m.id === activeId);
+    chip.hidden = !def;
+    if (!def) return;
+    const name = currentLang === 'en' ? def.en : def.label;
+    const label = document.getElementById('layer-chip-label');
+    label.innerHTML = '';
+    const yr = document.createElement('span'); yr.className = 'yr'; yr.textContent = def.year;
+    label.append(yr, document.createTextNode(name));
+  }
+  document.getElementById('layer-chip-off')?.addEventListener('click', () => { if (activeId) setActive(activeId); });
+  document.getElementById('layer-chip-label')?.addEventListener('click', () => {
+    if (isMobile()) setPeek(false);
+    document.querySelector('.layer-row.active')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  });
 
   function setOpacity(id, val) {
     opacities[id] = val;
@@ -7222,10 +7346,10 @@
       setUI(false);
       if (prev && ended) {
         const last = defs[defs.length - 1];
-        activeId = last.id; layerCache[last.id] = prev; opacities[last.id] = prevTarget;
+        activeId = last.id; layerCache[last.id] = prev; opacities[last.id] = prevTarget; updateLayerChip();
         document.querySelectorAll('.layer-row').forEach(r => r.classList.toggle('active', r.dataset.id === activeId));
       } else if (prev) {
-        map.removeLayer(prev); activeId = null;
+        map.removeLayer(prev); activeId = null; updateLayerChip();
         document.querySelectorAll('.layer-row').forEach(r => r.classList.remove('active'));
       }
     }
@@ -7762,10 +7886,13 @@
     const dlBtn = document.getElementById('pc-card-download');
     const repBtn = document.getElementById('pc-card-report');
     const reportEnabled = !!REPORT_ENDPOINT;
+    const goBtn = document.getElementById('pc-card-go');
     if (shareBtn) shareBtn.hidden = !collected;
     if (dlBtn) dlBtn.hidden = !collected;
     if (repBtn) repBtn.hidden = !reportEnabled;
-    if (actions) actions.hidden = !(collected || reportEnabled);
+    if (goBtn) goBtn.hidden = collected;
+    if (actions) actions.hidden = false;
+    srcEl.hidden = !collected;
 
     if (mode === 'collect') {
       img.classList.add('revealing');
@@ -7786,6 +7913,14 @@
   }
   // Modal close wiring
   document.getElementById('pc-card-close').addEventListener('click', closePostcardModal);
+  document.getElementById('pc-card-go')?.addEventListener('click', () => {
+    const pc = POSTCARDS.find(p => p.id === document.getElementById('pc-overlay').dataset.pcId);
+    if (!pc) return;
+    closePostcardModal();
+    if (isMobile()) setPeek(true);
+    selectCity(pc.city, { instant: true });
+    map.flyTo([pc.lat, pc.lng], 17, { duration: 1.4 });
+  });
   document.getElementById('pc-overlay').addEventListener('click', e => {
     if (e.target.id === 'pc-overlay') closePostcardModal();
   });
@@ -10395,12 +10530,19 @@
       return ['ob-overlay', 'wpc-overlay', 'geo-overlay', 'bgloc-overlay']
         .some(id => { const el = document.getElementById(id); return el && el.classList.contains('show'); });
     }
+    // 同一次開啟已經看過導覽或今日明信片，就不再接著跳「附近的時光」
+    let introSeen = false;
+    const introWatch = setInterval(() => {
+      if (['ob-overlay', 'wpc-overlay'].some(id => document.getElementById(id)?.classList.contains('show'))) introSeen = true;
+    }, 250);
+    setTimeout(() => clearInterval(introWatch), 20000);
     if (!scripted) {
       setTimeout(() => {
         let tries = 0;
         const iv = setInterval(() => {
           if (shown || tries++ > 30) { clearInterval(iv); return; }
           if (blocked() || typeof map === 'undefined') return;
+          if (introSeen) { clearInterval(iv); return; }
           open();
           clearInterval(iv);
         }, 500);
@@ -10504,7 +10646,8 @@
     if (!chipsEl) return;
     const ERA_COLOR = { '史前':'#8a7a5c','平埔族群舊址':'#4a7c59','荷蘭西班牙時代':'#c97b2d',
                         '鄭氏清領時期':'#4a6b8a','日本時代':'#C15F3C','國民政府來台後':'#6b5b73' };
-    const ERA_SHORT = { '平埔族群舊址':'平埔族群','荷蘭西班牙時代':'荷西','鄭氏清領時期':'鄭氏清領','國民政府來台後':'戰後' };
+    const ERA_KEY = { '史前':'hs.era.prehistory','平埔族群舊址':'hs.era.pingpu','荷蘭西班牙時代':'hs.era.dutch',
+                      '鄭氏清領時期':'hs.era.qing','日本時代':'hs.era.japan','國民政府來台後':'hs.era.postwar' };
     // 1000+ 點用 canvas renderer 才順
     const hsRenderer = L.canvas({ padding: 0.4 });
     const groups = {};           // era → LayerGroup
@@ -10514,10 +10657,10 @@
     function showPopup(era, row) {
       const [name, lat, lng, desc] = row;
       popup.setLatLng([lat, lng]).setContent(
-        '<span class="hs-pop-era" style="background:' + ERA_COLOR[era] + '">' + esc(ERA_SHORT[era] || era) + '</span>' +
+        '<span class="hs-pop-era" style="background:' + ERA_COLOR[era] + '">' + esc(t(ERA_KEY[era]) || era) + '</span>' +
         '<div class="hs-pop-name">' + esc(name) + '</div>' +
-        '<div class="hs-pop-desc">' + esc(desc || '(尚無描述)') + '</div>' +
-        '<div class="hs-pop-src">資料 · 台灣歷史地圖(邱璽民 輯)</div>'
+        '<div class="hs-pop-desc">' + esc(desc || t('hs.pop.nodesc')) + '</div>' +
+        '<div class="hs-pop-src">' + esc(t('hs.pop.src')) + '</div>'
       ).openOn(map);
     }
     function buildGroup(era) {
