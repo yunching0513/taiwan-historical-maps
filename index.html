@@ -81,6 +81,10 @@
     --mist:     #D6D3CB;
     --stone:    #BBB8AE;
     --silver:   #A6A399;
+    --radius-card: 4px;     /* 所有卡片、對話框 */
+    --radius-pill: 999px;   /* 膠囊按鈕 */
+    --fs-2xs: 10px;  --fs-xs: 11px;  --fs-sm: 12px;  --fs-md: 13px;  --fs-lg: 14px;
+    --fs-xl: 16px;   --fs-2xl: 18px; --fs-3xl: 22px; --fs-4xl: 24px;
     --ash:      #6B675E;   /* WCAG AA：米色底上 ≥4.5:1 */
     --graphite: #565347;
     --ink:      #1F1D19;
@@ -193,14 +197,14 @@
   .head-en {
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 13px;
+    font-size: var(--fs-md);
     color: var(--indigo);
     letter-spacing: 0.02em;
     margin-bottom: 6px;
   }
   .head-zh {
     font-family: var(--zh-serif);
-    font-size: 24px;
+    font-size: var(--fs-4xl);
     font-weight: 600;
     letter-spacing: 0.18em;
     color: var(--ink);
@@ -209,7 +213,7 @@
   .head-meta {
     margin-top: 10px;
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.2em;
     color: var(--ash);
     text-transform: uppercase;
@@ -223,7 +227,7 @@
   }
   .section-label .num {
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.18em;
     color: var(--indigo);
     text-transform: uppercase;
@@ -231,7 +235,7 @@
   .section-label .en {
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--ash);
     margin-left: auto;
   }
@@ -275,7 +279,7 @@
   .help-fab-label {
     font-family: var(--zh-serif);
     font-style: normal;
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.05em;
     opacity: 0.75;
     line-height: 1;
@@ -295,7 +299,7 @@
   .city-current:hover .city-zh { color: var(--indigo-d); }
   .city-zh {
     font-family: var(--zh-serif);
-    font-size: 22px;
+    font-size: var(--fs-3xl);
     font-weight: 600;
     letter-spacing: 0.14em;
     color: var(--ink);
@@ -304,7 +308,7 @@
   .city-en {
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 13px;
+    font-size: var(--fs-md);
     color: var(--graphite);
     margin-top: 2px;
     letter-spacing: 0.02em;
@@ -356,7 +360,7 @@
   }
   .region-zh {
     font-family: var(--zh-serif);
-    font-size: 13px;
+    font-size: var(--fs-md);
     font-weight: 600;
     letter-spacing: 0.3em;
     color: var(--graphite);
@@ -364,7 +368,7 @@
   .region-en {
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--ash);
     letter-spacing: 0.04em;
   }
@@ -377,7 +381,7 @@
   }
   .city-pill {
     font-family: var(--zh-serif);
-    font-size: 13px;
+    font-size: var(--fs-md);
     font-weight: 400;
     color: var(--graphite);
     padding: 2px 8px;
@@ -420,7 +424,7 @@
     cursor: pointer;
     text-align: center;
     font-family: var(--zh-serif);
-    font-size: 14px;
+    font-size: var(--fs-lg);
     font-weight: 500;
     letter-spacing: 0.1em;
     color: var(--graphite);
@@ -433,7 +437,7 @@
     font-family: var(--en-serif);
     font-style: italic;
     font-weight: 400;
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     color: var(--ash);
     letter-spacing: 0.02em;
     margin-top: 2px;
@@ -461,7 +465,7 @@
   .layer-group-label:first-child { margin-top: 6px; }
   .layer-group-label .lg-zh {
     font-family: var(--zh-serif);
-    font-size: 13px;
+    font-size: var(--fs-md);
     font-weight: 600;
     letter-spacing: 0.28em;
     color: var(--graphite);
@@ -469,7 +473,7 @@
   .layer-group-label .lg-en {
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--ash);
     letter-spacing: 0.04em;
   }
@@ -479,7 +483,7 @@
     padding: 1px 6px;
     border: 1px solid var(--mist);
     font-family: var(--mono);
-    font-size: 8px;
+    font-size: var(--fs-2xs);
     font-weight: 500;
     letter-spacing: 0.16em;
     color: var(--ash);
@@ -519,14 +523,14 @@
   .row-n {
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 16px;
+    font-size: var(--fs-xl);
     font-weight: 500;
     color: var(--indigo);
     letter-spacing: 0.02em;
   }
   .row-zh {
     font-family: var(--zh-serif);
-    font-size: 17px;
+    font-size: var(--fs-2xl);
     font-weight: 500;
     color: var(--graphite);
     letter-spacing: 0.08em;
@@ -535,7 +539,7 @@
   }
   .row-year {
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.14em;
     color: var(--ash);
     align-self: center;
@@ -545,7 +549,7 @@
     margin-top: 4px;
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--ash);
     letter-spacing: 0.01em;
   }
@@ -612,7 +616,7 @@
   }
   .opa-val {
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     color: var(--graphite);
     letter-spacing: 0.08em;
     text-align: right;
@@ -636,7 +640,7 @@
     cursor: pointer;
     text-align: left;
     font-family: var(--zh-serif);
-    font-size: 14px;
+    font-size: var(--fs-lg);
     font-weight: 500;
     letter-spacing: 0.08em;
     transition: all 0.2s;
@@ -681,7 +685,7 @@
     border-left: 2px solid var(--indigo);
     background: var(--indigo-l);
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--graphite);
     letter-spacing: 0.05em;
     line-height: 1.7;
@@ -691,7 +695,7 @@
   .loc-status .label, .rec-status .label {
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--indigo);
     margin-bottom: 4px;
     letter-spacing: 0.02em;
@@ -705,7 +709,7 @@
   .rec-status .stats > div { min-width: 0; }
   .rec-status .stat-label {
     font-family: var(--mono);
-    font-size: 9px;
+    font-size: var(--fs-2xs);
     color: var(--ash);
     text-transform: uppercase;
     letter-spacing: 0.16em;
@@ -713,7 +717,7 @@
   }
   .rec-status .stat-val {
     font-family: var(--zh-serif);
-    font-size: 17px;
+    font-size: var(--fs-2xl);
     font-weight: 600;
     color: var(--ink);
     line-height: 1.1;
@@ -748,20 +752,20 @@
   .trace-date {
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--ash);
     letter-spacing: 0.02em;
   }
   .trace-name {
     font-family: var(--zh-serif);
-    font-size: 14px;
+    font-size: var(--fs-lg);
     color: var(--ink);
     margin-top: 1px;
     letter-spacing: 0.04em;
   }
   .trace-meta {
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     color: var(--graphite);
     letter-spacing: 0.06em;
     margin-top: 3px;
@@ -777,7 +781,7 @@
     background: transparent;
     border: 1px solid var(--mist);
     font-family: var(--mono);
-    font-size: 9px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.14em;
     padding: 4px 8px;
     cursor: pointer;
@@ -795,7 +799,7 @@
   }
   .trace-empty {
     font-family: var(--zh-sans);
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--ash);
     text-align: center;
     padding: 18px 0 6px;
@@ -837,7 +841,7 @@
     background: rgba(31, 29, 25, 0.78);
     color: var(--paper);
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.18em;
     padding: 5px 10px;
     pointer-events: none;
@@ -860,7 +864,7 @@
     background: var(--paper);
     border: 1px solid var(--stone);
     font-family: var(--zh-serif);
-    font-size: 13px;
+    font-size: var(--fs-md);
     color: var(--graphite);
     letter-spacing: 0.06em;
     cursor: pointer;
@@ -878,7 +882,7 @@
     display: block;
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     margin-top: 1px;
     opacity: 0.7;
   }
@@ -898,7 +902,7 @@
     background: rgba(26, 24, 21, 0.82);
     backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
     padding: 14px 30px 16px;
-    border-radius: 14px;
+    border-radius: var(--radius-card);
     box-shadow: 0 16px 48px -16px rgba(0,0,0,0.6);
     pointer-events: auto;
   }
@@ -915,7 +919,7 @@
   }
   .tl-label {
     font-family: var(--zh-serif);
-    font-size: 15px; color: var(--indigo); margin-top: 6px;
+    font-size: var(--fs-xl); color: var(--indigo); margin-top: 6px;
     letter-spacing: 0.1em;
     transition: opacity 0.4s ease;
   }
@@ -923,7 +927,7 @@
     margin-top: 12px;
     border: 1px solid rgba(241,239,233,0.4);
     background: transparent; color: #F1EFE9;
-    font-family: var(--zh-sans); font-size: 12px;
+    font-family: var(--zh-sans); font-size: var(--fs-sm);
     letter-spacing: 0.1em; padding: 5px 16px; border-radius: 16px;
     cursor: pointer; transition: all 0.15s;
   }
@@ -942,28 +946,29 @@
     width: 100%; max-width: 360px; max-height: calc(100vh - 48px);
     overflow-y: auto; padding: 22px 22px 16px; position: relative;
     box-shadow: 0 1px 0 var(--mist), 0 24px 60px -28px rgba(31,29,25,0.45);
+    border-radius: var(--radius-card);
   }
   .tl-chooser-card::before { content:''; position:absolute; top:0; left:22px; width:48px; height:3px; background:var(--vermilion); }
-  .tl-chooser-title { font-family: var(--zh-serif); font-weight:600; font-size:18px; letter-spacing:0.1em; color:var(--sumi); margin-bottom:6px; }
-  .tl-chooser-hint { font-size:11.5px; line-height:1.7; color:var(--ash); margin-bottom:12px; }
+  .tl-chooser-title { font-family: var(--zh-serif); font-weight:600; font-size:var(--fs-2xl); letter-spacing:0.1em; color:var(--sumi); margin-bottom:6px; }
+  .tl-chooser-hint { font-size:var(--fs-sm); line-height:1.7; color:var(--ash); margin-bottom:12px; }
   .tl-chooser-list { display:flex; flex-direction:column; gap:2px; }
   .tl-chooser-row { display:flex; align-items:center; gap:10px; padding:7px 6px; border-bottom:1px dotted var(--mist); cursor:pointer; }
   .tl-chooser-row:hover { background: var(--indigo-l); }
   .tl-chooser-row input { width:16px; height:16px; accent-color: var(--vermilion); flex-shrink:0; }
-  .tl-chooser-row .yr { font-family: var(--mono); font-size:12px; color:var(--graphite); width:42px; flex-shrink:0; }
-  .tl-chooser-row .lb { font-family: var(--zh-sans); font-size:13px; color:var(--ink); flex:1; }
-  .tl-chooser-row .blur { font-size:10px; color:#fff; background:var(--silver); border-radius:3px; padding:1px 6px; letter-spacing:0.04em; }
+  .tl-chooser-row .yr { font-family: var(--mono); font-size:var(--fs-sm); color:var(--graphite); width:42px; flex-shrink:0; }
+  .tl-chooser-row .lb { font-family: var(--zh-sans); font-size:var(--fs-md); color:var(--ink); flex:1; }
+  .tl-chooser-row .blur { font-size:var(--fs-2xs); color:#fff; background:var(--silver); border-radius:3px; padding:1px 6px; letter-spacing:0.04em; }
   .tl-chooser-foot { display:flex; align-items:center; gap:8px; margin-top:14px; padding-top:12px; border-top:1px solid var(--mist); }
-  .tl-chooser-btn { border:1px solid var(--stone); background:transparent; color:var(--graphite); font-family:var(--zh-sans); font-size:12px; letter-spacing:0.08em; padding:7px 14px; cursor:pointer; transition:all .15s; }
+  .tl-chooser-btn { border:1px solid var(--stone); background:transparent; color:var(--graphite); font-family:var(--zh-sans); font-size:var(--fs-sm); letter-spacing:0.08em; padding:7px 14px; cursor:pointer; transition:all .15s; }
   .tl-chooser-btn:hover { border-color:var(--graphite); color:var(--ink); }
   .tl-chooser-btn.primary { background:var(--vermilion); border-color:var(--vermilion); color:#fff; }
   .tl-chooser-btn.primary:hover { background:var(--indigo-d); border-color:var(--indigo-d); color:#fff; }
   .tl-speed { display:flex; align-items:center; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
-  .tl-speed-lb { font-size:11.5px; color:var(--ash); margin-right:2px; }
-  .tl-speed-btn { border:1px solid var(--stone); background:transparent; color:var(--graphite); font-family:var(--zh-sans); font-size:12px; padding:4px 12px; border-radius:4px; cursor:pointer; transition:all .15s; -webkit-tap-highlight-color:transparent; }
+  .tl-speed-lb { font-size:var(--fs-sm); color:var(--ash); margin-right:2px; }
+  .tl-speed-btn { border:1px solid var(--stone); background:transparent; color:var(--graphite); font-family:var(--zh-sans); font-size:var(--fs-sm); padding:4px 12px; border-radius:4px; cursor:pointer; transition:all .15s; -webkit-tap-highlight-color:transparent; }
   .tl-speed-btn:hover { border-color:var(--graphite); color:var(--ink); }
   .tl-speed-btn.sel { background:var(--vermilion); border-color:var(--vermilion); color:#fff; }
-  .tl-rec-tip { font-size:10.5px; line-height:1.6; color:var(--ash); margin:10px 0 0; padding-top:10px; border-top:1px dotted var(--mist); }
+  .tl-rec-tip { font-size:var(--fs-xs); line-height:1.6; color:var(--ash); margin:10px 0 0; padding-top:10px; border-top:1px dotted var(--mist); }
 
   /* ── Four-era collage modal (#7) ─────────────────── */
   .era-modal[hidden] { display: none; }
@@ -988,14 +993,14 @@
   .era-modal-head .ti {
     font-family: var(--zh-serif);
     font-weight: 600;
-    font-size: 17px;
+    font-size: var(--fs-2xl);
     letter-spacing: 0.14em;
   }
   .era-modal-head .ti em {
     display: block;
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--ash);
     letter-spacing: 0.04em;
     margin-top: 2px;
@@ -1007,7 +1012,7 @@
     color: var(--graphite);
     width: 36px;
     height: 36px;
-    font-size: 16px;
+    font-size: var(--fs-xl);
     cursor: pointer;
   }
   .era-modal-close:hover { border-color: var(--indigo); color: var(--indigo); }
@@ -1048,7 +1053,7 @@
   .era-label::after {
     content: '換圖層';
     font-family: var(--mono);
-    font-size: 9px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.14em;
     color: rgba(241,239,233,0.45);
     margin-top: 3px;
@@ -1066,7 +1071,7 @@
     flex-direction: column;
     transform: translateY(100%);
     transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
-    border-radius: 14px 14px 0 0;
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
     box-shadow: 0 -4px 24px rgba(31,29,25,0.12);
   }
   .era-picker.open { transform: translateY(0); }
@@ -1081,14 +1086,14 @@
   }
   .era-picker-title {
     font-family: var(--zh-serif);
-    font-size: 14px;
+    font-size: var(--fs-lg);
     color: var(--ink);
     letter-spacing: 0.08em;
   }
   .era-picker-title em {
     font-family: var(--mono);
     font-style: normal;
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     color: var(--ash);
     margin-left: 8px;
     letter-spacing: 0.12em;
@@ -1097,7 +1102,7 @@
     background: none;
     border: none;
     color: var(--graphite);
-    font-size: 18px;
+    font-size: var(--fs-2xl);
     cursor: pointer;
     padding: 4px 8px;
     line-height: 1;
@@ -1112,7 +1117,7 @@
 
   .era-picker-group-label {
     font-family: var(--mono);
-    font-size: 9px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.2em;
     color: var(--ash);
     text-transform: uppercase;
@@ -1135,7 +1140,7 @@
 
   .era-picker-year {
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--vermilion);
     min-width: 36px;
     letter-spacing: 0.04em;
@@ -1145,20 +1150,20 @@
   .era-picker-name {
     flex: 1;
     font-family: var(--zh-serif);
-    font-size: 13px;
+    font-size: var(--fs-md);
     color: var(--ink);
     line-height: 1.3;
   }
   .era-picker-en {
     font-family: var(--mono);
-    font-size: 9px;
+    font-size: var(--fs-2xs);
     color: var(--ash);
     letter-spacing: 0.06em;
     display: block;
     margin-top: 1px;
   }
   .era-picker-check {
-    font-size: 14px;
+    font-size: var(--fs-lg);
     color: var(--vermilion);
     opacity: 0;
   }
@@ -1172,13 +1177,13 @@
     color: var(--paper);
     padding: 6px 12px;
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     letter-spacing: 0.15em;
   }
   .era-label .zh {
     display: block;
     font-family: var(--zh-serif);
-    font-size: 12px;
+    font-size: var(--fs-sm);
     letter-spacing: 0.1em;
     margin-top: 1px;
     color: var(--mist);
@@ -1191,7 +1196,7 @@
     align-items: center;
     justify-content: center;
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     color: var(--ash);
     letter-spacing: 0.2em;
     background: var(--paper-2);
@@ -1224,7 +1229,7 @@
     flex: 1;
     text-align: center;
     font-family: var(--zh-serif);
-    font-size: 16px;
+    font-size: var(--fs-xl);
     font-weight: 500;
     letter-spacing: 0.1em;
     color: var(--ink);
@@ -1232,7 +1237,7 @@
   .cal-title em {
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 13px;
+    font-size: var(--fs-md);
     color: var(--ash);
     margin-left: 6px;
     letter-spacing: 0.02em;
@@ -1241,7 +1246,7 @@
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     color: var(--ash);
     letter-spacing: 0.16em;
     text-align: center;
@@ -1261,7 +1266,7 @@
     justify-content: center;
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 13px;
+    font-size: var(--fs-md);
     color: var(--graphite);
     position: relative;
     border-radius: 2px;
@@ -1283,7 +1288,7 @@
     border-left: 2px solid var(--indigo);
     background: var(--indigo-l);
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--graphite);
     letter-spacing: 0.05em;
     line-height: 1.8;
@@ -1293,7 +1298,7 @@
   .cal-summary .head {
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--indigo);
     margin-bottom: 4px;
   }
@@ -1315,7 +1320,7 @@
     background: var(--paper);
     font-family: var(--zh-serif);
     font-weight: 500;
-    font-size: 13px;
+    font-size: var(--fs-md);
     color: var(--silver);
     letter-spacing: 0.04em;
     text-align: center;
@@ -1345,7 +1350,7 @@
   .seal::after  { bottom: 3px; right: 3px; border-left: none; border-top: none; }
   .seal-count {
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.12em;
     color: var(--ash);
     margin-top: 12px;
@@ -1359,7 +1364,7 @@
     display: block;
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--ash);
     margin-top: 2px;
   }
@@ -1380,7 +1385,7 @@
     cursor: pointer;
     user-select: none;
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     color: var(--ash);
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -1440,7 +1445,7 @@
     display: inline-block;
     width: 10px;
     color: var(--ash);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     line-height: 1;
     transition: transform 0.18s ease;
     transform-origin: 50% 50%;
@@ -1451,7 +1456,7 @@
   }
   .pc-city-zh {
     font-family: var(--zh-serif);
-    font-size: 14px;
+    font-size: var(--fs-lg);
     color: var(--ink);
     letter-spacing: 0.06em;
   }
@@ -1459,13 +1464,13 @@
     flex: 1;
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--ash);
     letter-spacing: 0.04em;
   }
   .pc-city-tally {
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     color: var(--vermilion);
     letter-spacing: 0.1em;
   }
@@ -1499,7 +1504,7 @@
   .pc-region-zh {
     font-family: var(--zh-serif);
     font-weight: 600;
-    font-size: 15px;
+    font-size: var(--fs-xl);
     color: var(--ink);
     letter-spacing: 0.1em;
   }
@@ -1507,7 +1512,7 @@
     flex: 1;
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--ash);
     letter-spacing: 0.04em;
   }
@@ -1554,14 +1559,14 @@
     background: linear-gradient(to top, rgba(31, 29, 25, 0.78) 0%, rgba(31, 29, 25, 0) 100%);
     color: var(--paper);
     font-family: var(--zh-serif);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     font-weight: 500;
     letter-spacing: 0.04em;
   }
   .postcard-cell .pc-year {
     display: block;
     font-family: var(--mono);
-    font-size: 9px;
+    font-size: var(--fs-2xs);
     color: var(--paper-2);
     opacity: 0.8;
     letter-spacing: 0.1em;
@@ -1579,7 +1584,7 @@
     background: var(--vermilion);
     color: #fff;
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -1594,11 +1599,11 @@
   .postcard-cell .pc-badge--drawn {
     background: var(--paper);
     border: 1px solid var(--stone);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
   }
   .postcard-count {
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.12em;
     color: var(--ash);
     margin-top: 12px;
@@ -1624,7 +1629,7 @@
     background: var(--vermilion);
     color: var(--paper);
     font-family: var(--zh-sans);
-    font-size: 13px;
+    font-size: var(--fs-md);
     letter-spacing: 0.06em;
     border-radius: 9px;
     cursor: pointer;
@@ -1641,7 +1646,7 @@
   }
   .pc-draw-hint {
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.08em;
     color: var(--ash);
     text-align: center;
@@ -1655,17 +1660,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: var(--fs-lg);
     line-height: 1;
     box-shadow: 0 2px 6px rgba(31, 29, 25, 0.35);
     transition: transform 0.18s, background 0.18s;
   }
-  /* Far from user — only the inner glyph, no surrounding circle */
+  /* 還沒收集：米色小圓＋灰框——看起來是「等你去收」，而不是停用 */
   .pc-marker.far {
-    background: transparent;
-    border: none;
-    color: var(--ash);
-    box-shadow: none;
+    background: var(--paper);
+    border: 1.5px solid var(--ash);
+    color: var(--graphite);
+    font-size: var(--fs-xs);
+    transform: scale(0.8);
+    box-shadow: 0 1px 4px rgba(31, 29, 25, 0.28);
   }
   /* Within discovery radius — vivid + pulse */
   .pc-marker.near {
@@ -1720,7 +1727,7 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     background: var(--paper);
-    border-radius: 8px;
+    border-radius: var(--radius-card);
     box-shadow: 0 28px 80px rgba(0,0,0,0.55);
     padding: 18px 18px 16px;
     transform: scale(0.94) translateY(20px);
@@ -1735,7 +1742,7 @@
     border: none;
     background: transparent;
     color: var(--ash);
-    font-size: 18px;
+    font-size: var(--fs-2xl);
     cursor: pointer;
   }
   .pc-card-close:hover { background: var(--mist); color: var(--ink); }
@@ -1762,7 +1769,7 @@
   .pc-card-tag {
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--vermilion);
     letter-spacing: 0.04em;
     margin-bottom: 2px;
@@ -1770,20 +1777,20 @@
   .pc-card-title {
     font-family: var(--pc-font);
     font-weight: 600;
-    font-size: 22px;
+    font-size: var(--fs-3xl);
     color: var(--ink);
     letter-spacing: 0.02em;
     margin: 0;
   }
   .pc-card-subtitle {
     font-family: var(--zh-sans);
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--graphite);
     margin-top: 3px;
   }
   .pc-card-year {
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--ash);
     letter-spacing: 0.16em;
     margin-top: 6px;
@@ -1791,7 +1798,7 @@
   .pc-card-desc {
     margin: 14px 6px 0;
     font-family: var(--pc-font);
-    font-size: 13px;
+    font-size: var(--fs-md);
     line-height: 1.7;
     color: var(--graphite);
     text-align: justify;
@@ -1810,7 +1817,7 @@
   .pc-card-source {
     display: block;
     font-family: var(--mono);
-    font-size: 9px;
+    font-size: var(--fs-2xs);
     color: var(--ash);
     margin-top: 14px;
     letter-spacing: 0.12em;
@@ -1840,16 +1847,16 @@
     background: var(--paper);
     color: var(--vermilion);
     padding: 8px 22px;
-    border-radius: 22px;
+    border-radius: var(--radius-pill);
     font-family: var(--zh-serif);
-    font-size: 13px;
+    font-size: var(--fs-md);
     letter-spacing: 0.08em;
     cursor: pointer;
     transition: background 0.18s, color 0.18s, transform 0.12s;
   }
   .pc-card-share:hover { background: var(--vermilion); color: var(--paper); }
   .pc-card-share:active { transform: scale(0.96); }
-  .pc-card-share span { margin-right: 6px; font-size: 14px; }
+  .pc-card-share span { margin-right: 6px; font-size: var(--fs-lg); }
 
   /* ── 公民科學回報 Report modal ─────────────────────── */
   .report-overlay {
@@ -1875,7 +1882,7 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     background: var(--paper);
-    border-radius: 8px;
+    border-radius: var(--radius-card);
     box-shadow: 0 28px 80px rgba(0,0,0,0.55);
     padding: 22px 20px 18px;
     transform: scale(0.94) translateY(20px);
@@ -1890,27 +1897,27 @@
     border: none;
     background: transparent;
     color: var(--ash);
-    font-size: 18px;
+    font-size: var(--fs-2xl);
     cursor: pointer;
   }
   .report-close:hover { background: var(--mist); color: var(--ink); }
   .report-eyebrow {
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--vermilion);
     letter-spacing: 0.04em;
   }
   .report-title {
     font-family: var(--zh-serif);
     font-weight: 600;
-    font-size: 19px;
+    font-size: var(--fs-2xl);
     color: var(--ink);
     margin: 2px 0 0;
   }
   .report-for {
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--ash);
     letter-spacing: 0.08em;
     margin-top: 4px;
@@ -1929,7 +1936,7 @@
     padding: 9px 6px;
     border-radius: 8px;
     font-family: var(--zh-serif);
-    font-size: 13px;
+    font-size: var(--fs-md);
     cursor: pointer;
     transition: background 0.16s, color 0.16s, border-color 0.16s;
   }
@@ -1940,7 +1947,7 @@
   }
   .report-help {
     font-family: var(--zh-sans);
-    font-size: 12.5px;
+    font-size: var(--fs-md);
     line-height: 1.65;
     color: var(--graphite);
     margin: 0 0 12px;
@@ -1950,7 +1957,7 @@
     align-items: flex-start;
     gap: 8px;
     font-family: var(--zh-sans);
-    font-size: 13px;
+    font-size: var(--fs-md);
     color: var(--ink);
     cursor: pointer;
     margin-bottom: 8px;
@@ -1958,7 +1965,7 @@
   .report-coord-row input { margin-top: 2px; }
   .report-coord-readout {
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--vermilion);
     letter-spacing: 0.06em;
     margin: -2px 0 10px 24px;
@@ -1973,7 +1980,7 @@
     background: var(--paper-2);
     color: var(--ink);
     font-family: var(--zh-sans);
-    font-size: 13px;
+    font-size: var(--fs-md);
     padding: 9px 10px;
     margin-bottom: 10px;
     resize: vertical;
@@ -1992,7 +1999,7 @@
     padding: 12px;
     border-radius: 8px;
     font-family: var(--zh-serif);
-    font-size: 13px;
+    font-size: var(--fs-md);
     cursor: pointer;
     margin-bottom: 10px;
   }
@@ -2013,9 +2020,9 @@
     color: var(--paper);
     width: 100%;
     padding: 12px;
-    border-radius: 24px;
+    border-radius: var(--radius-pill);
     font-family: var(--zh-serif);
-    font-size: 14px;
+    font-size: var(--fs-lg);
     letter-spacing: 0.08em;
     cursor: pointer;
     margin-top: 4px;
@@ -2026,7 +2033,7 @@
   .report-submit:disabled { opacity: 0.5; cursor: default; }
   .report-status {
     font-family: var(--zh-sans);
-    font-size: 12px;
+    font-size: var(--fs-sm);
     text-align: center;
     color: var(--graphite);
     min-height: 16px;
@@ -2035,7 +2042,7 @@
   .report-status.error { color: var(--vermilion); }
   .report-privacy {
     font-family: var(--zh-sans);
-    font-size: 10.5px;
+    font-size: var(--fs-xs);
     line-height: 1.5;
     color: var(--ash);
     text-align: center;
@@ -2066,7 +2073,7 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     background: var(--paper);
-    border-radius: 8px;
+    border-radius: var(--radius-card);
     box-shadow: 0 28px 80px rgba(0,0,0,0.55);
     padding: 26px 26px 22px;
     transform: scale(0.94) translateY(20px);
@@ -2080,7 +2087,7 @@
     border: none;
     background: transparent;
     color: var(--ash);
-    font-size: 18px;
+    font-size: var(--fs-2xl);
     cursor: pointer;
   }
   .credits-close:hover { background: var(--mist); color: var(--ink); }
@@ -2088,13 +2095,13 @@
     margin: 0 0 12px;
     font-family: var(--zh-serif);
     font-weight: 600;
-    font-size: 22px;
+    font-size: var(--fs-3xl);
     color: var(--ink);
     letter-spacing: 0.04em;
   }
   .credits-intro {
     font-family: var(--zh-serif);
-    font-size: 13px;
+    font-size: var(--fs-md);
     line-height: 1.75;
     color: var(--graphite);
     margin: 0 0 14px;
@@ -2102,7 +2109,7 @@
   }
   .credits-meta {
     font-family: var(--zh-sans);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--ash);
     line-height: 1.85;
     padding: 10px 12px;
@@ -2126,7 +2133,7 @@
     padding-bottom: 4px;
     border-bottom: 1px solid var(--mist);
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     color: var(--vermilion);
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -2135,7 +2142,7 @@
     display: flex;
     gap: 8px;
     padding: 4px 0;
-    font-size: 11px;
+    font-size: var(--fs-xs);
     line-height: 1.4;
   }
   .credits-row .id {
@@ -2149,7 +2156,7 @@
   /* 詳細版權附註：授權依據 · 攝影者 · 原始出處（寫真帖/館藏） */
   .credits-row .credits-meta {
     font-family: var(--mono);
-    font-size: 9.5px;
+    font-size: var(--fs-2xs);
     color: var(--ash);
     letter-spacing: 0.04em;
     overflow-wrap: anywhere;
@@ -2193,14 +2200,14 @@
   .credits-sponsor-text strong {
     display: block;
     font-family: var(--zh-serif);
-    font-size: 13px;
+    font-size: var(--fs-md);
     font-weight: 600;
     color: var(--ink);
     margin-bottom: 4px;
   }
   .credits-sponsor-text p {
     font-family: var(--zh-serif);
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--graphite);
     line-height: 1.6;
     margin: 0 0 6px;
@@ -2208,12 +2215,12 @@
   .credits-sponsor-btn {
     display: inline-block;
     padding: 5px 12px;
-    border-radius: 20px;
+    border-radius: var(--radius-pill);
     border: 1px solid var(--vermilion);
     background: transparent;
     color: var(--vermilion);
     font-family: var(--zh-sans);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     cursor: pointer;
     text-decoration: none;
     transition: background 0.15s, color 0.15s;
@@ -2232,9 +2239,13 @@
     background: var(--vermilion);
     color: var(--paper);
     padding: 10px 18px;
-    border-radius: 22px;
+    width: max-content;
+    max-width: min(360px, calc(100vw - 32px));
+    text-align: center;
+    line-height: 1.6;
+    border-radius: 20px;   /* 一行時像膠囊，多行時是圓角矩形，不會變成橢圓 */
     font-family: var(--zh-serif);
-    font-size: 13px;
+    font-size: var(--fs-md);
     letter-spacing: 0.05em;
     box-shadow: 0 8px 24px rgba(193, 95, 60, 0.35);
     z-index: 9400;
@@ -2268,7 +2279,7 @@
   .pack-hint {
     margin-top: 8px;
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.14em;
     color: var(--ash);
     text-align: center;
@@ -2287,13 +2298,13 @@
   .pack-row:last-child { border-bottom: none; }
   .pack-info .pack-name {
     font-family: var(--zh-serif);
-    font-size: 14px;
+    font-size: var(--fs-lg);
     color: var(--ink);
     letter-spacing: 0.04em;
   }
   .pack-info .pack-meta {
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     color: var(--graphite);
     letter-spacing: 0.06em;
     margin-top: 3px;
@@ -2301,7 +2312,7 @@
   .pack-info .pack-layers {
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--ash);
     margin-top: 2px;
   }
@@ -2309,7 +2320,7 @@
     background: transparent;
     border: 1px solid var(--mist);
     font-family: var(--mono);
-    font-size: 9px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.14em;
     padding: 4px 8px;
     cursor: pointer;
@@ -2383,6 +2394,7 @@
     flex-direction: column;
     gap: 12px;
     box-shadow: 0 24px 60px -16px rgba(0,0,0,0.6);
+    border-radius: var(--radius-card);
   }
   .lb-image {
     display: block;
@@ -2393,7 +2405,7 @@
   }
   .lb-meta {
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--graphite);
     line-height: 1.85;
     letter-spacing: 0.05em;
@@ -2402,7 +2414,7 @@
   .lb-coords { color: var(--ink); }
   .lb-layer {
     font-family: var(--zh-serif);
-    font-size: 13px;
+    font-size: var(--fs-md);
     color: var(--indigo);
     letter-spacing: 0.06em;
     margin-top: 2px;
@@ -2419,7 +2431,7 @@
     color: var(--paper);
     border: 1px solid var(--stone);
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--fs-lg);
     line-height: 1;
   }
   .lb-close:hover { background: var(--indigo); }
@@ -2457,7 +2469,7 @@
     border-left: 2px solid var(--indigo);
     background: var(--indigo-l);
     font-family: var(--zh-sans);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--graphite);
     line-height: 1.7;
     letter-spacing: 0.02em;
@@ -2468,7 +2480,7 @@
     display: block;
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--ash);
     margin-top: 2px;
   }
@@ -2479,7 +2491,7 @@
     padding-top: 18px;
     border-top: 1px solid var(--stone);
     font-family: var(--zh-sans);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--ash);
     line-height: 1.85;
     letter-spacing: 0.04em;
@@ -2496,12 +2508,12 @@
     gap: 5px;
     margin-top: 14px;
     padding: 6px 12px;
-    border-radius: 20px;
+    border-radius: var(--radius-pill);
     background: var(--paper-2);
     border: 1px solid var(--stone) !important;
     color: var(--graphite) !important;
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.08em;
     text-decoration: none;
     cursor: pointer;
@@ -2527,7 +2539,7 @@
   }
   .panel-foot .lang-row .mono {
     color: var(--ash);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.12em;
     text-transform: uppercase;
     margin-right: 4px;
@@ -2539,10 +2551,10 @@
     background: var(--paper-2);
     color: var(--graphite);
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     letter-spacing: 0.06em;
     padding: 4px 10px;
-    border-radius: 14px;
+    border-radius: var(--radius-pill);
     cursor: pointer;
     transition: background 0.18s, border-color 0.18s, color 0.18s;
   }
@@ -2574,10 +2586,10 @@
     gap: 5px;
     text-decoration: none;
   }
-  .panel-foot .sister-pill .arr { color: var(--vermilion); font-size: 11px; }
+  .panel-foot .sister-pill .arr { color: var(--vermilion); font-size: var(--fs-xs); }
   .backup-hint {
     margin-top: 6px;
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     line-height: 1.6;
     color: var(--ash);
     letter-spacing: 0.02em;
@@ -2604,7 +2616,7 @@
   .donate-overlay.show { opacity: 1; pointer-events: auto; }
   .donate-card {
     background: var(--paper);
-    border-radius: 14px;
+    border-radius: var(--radius-card);
     box-shadow: 0 20px 60px rgba(31, 29, 25, 0.35);
     width: 100%;
     max-width: 340px;
@@ -2624,7 +2636,7 @@
     border: none;
     background: transparent;
     color: var(--ash);
-    font-size: 18px;
+    font-size: var(--fs-2xl);
     cursor: pointer;
     transition: background 0.15s, color 0.15s;
   }
@@ -2633,14 +2645,14 @@
     text-align: center;
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 22px;
+    font-size: var(--fs-3xl);
     color: var(--vermilion);
     letter-spacing: 0.01em;
     margin: 0 0 4px;
   }
   .donate-card-sub {
     text-align: center;
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--ash);
     letter-spacing: 0.06em;
     margin: 0 0 16px;
@@ -2654,7 +2666,7 @@
     color: #fff;
     text-decoration: none;
     font-family: var(--zh-sans);
-    font-size: 14px;
+    font-size: var(--fs-lg);
     letter-spacing: 0.08em;
     padding: 12px 18px;
     border-radius: 8px;
@@ -2683,13 +2695,13 @@
     flex: 1;
     min-width: 0;
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--graphite);
     letter-spacing: 0.02em;
   }
   .donate-account-info .bank {
     display: block;
-    font-size: 9px;
+    font-size: var(--fs-2xs);
     color: var(--ash);
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -2703,7 +2715,7 @@
     background: var(--paper);
     color: var(--graphite);
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.08em;
     cursor: pointer;
     transition: background 0.15s, color 0.15s, border-color 0.15s;
@@ -2721,14 +2733,14 @@
   .donate-scan {
     text-align: center;
     font-family: var(--zh-sans);
-    font-size: 12.5px;
+    font-size: var(--fs-md);
     color: var(--graphite);
     line-height: 1.6;
     margin: 12px 4px 14px;
   }
   .donate-thanks {
     text-align: center;
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--ash);
     line-height: 1.6;
     margin: 0;
@@ -2743,7 +2755,7 @@
     max-width: min(92vw, 420px);
     background: var(--paper);
     border: 1px solid var(--mist);
-    border-radius: 14px;
+    border-radius: var(--radius-card);
     box-shadow: 0 14px 44px rgba(31, 29, 25, 0.28);
     padding: 14px 16px 12px;
     display: flex;
@@ -2760,7 +2772,7 @@
   }
   .coffee-tip-text {
     font-family: var(--zh-serif);
-    font-size: 13.5px;
+    font-size: var(--fs-lg);
     line-height: 1.6;
     color: var(--ink);
     margin: 0;
@@ -2776,9 +2788,9 @@
     background: var(--paper-2);
     color: var(--graphite);
     padding: 7px 16px;
-    border-radius: 20px;
+    border-radius: var(--radius-pill);
     font-family: var(--zh-serif);
-    font-size: 13px;
+    font-size: var(--fs-md);
     cursor: pointer;
     transition: background 0.16s, color 0.16s, border-color 0.16s;
   }
@@ -2792,14 +2804,14 @@
     display: block;
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     color: var(--ash);
     margin-top: 2px;
     letter-spacing: 0.04em;
   }
   .panel-foot .mono {
     font-family: var(--mono);
-    font-size: 9px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.22em;
     color: var(--ash);
     text-transform: uppercase;
@@ -2836,6 +2848,7 @@
     transform: translateY(12px) scale(0.97);
     transition: transform 0.24s cubic-bezier(0.2, 0.7, 0.3, 1);
     overflow: hidden;
+    border-radius: var(--radius-card);
   }
   .ob-overlay.show .ob-card { transform: none; }
   .ob-card::before {
@@ -2852,7 +2865,7 @@
     background: transparent;
     color: var(--ash);
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.18em;
     text-transform: uppercase;
     cursor: pointer;
@@ -2868,7 +2881,7 @@
   .ob-kicker {
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 13px;
+    font-size: var(--fs-md);
     color: var(--vermilion);
     letter-spacing: 0.06em;
     margin-bottom: 6px;
@@ -2876,13 +2889,13 @@
   .ob-title {
     font-family: var(--zh-serif);
     font-weight: 600;
-    font-size: 21px;
+    font-size: var(--fs-3xl);
     letter-spacing: 0.14em;
     color: var(--sumi);
     margin-bottom: 12px;
   }
   .ob-body {
-    font-size: 13px;
+    font-size: var(--fs-md);
     line-height: 1.9;
     color: var(--graphite);
     letter-spacing: 0.03em;
@@ -2894,7 +2907,7 @@
     gap: 10px;
     margin: 14px 0 4px;
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.14em;
     color: var(--ash);
   }
@@ -2917,7 +2930,7 @@
     background: transparent;
     color: var(--graphite);
     font-family: var(--zh-sans);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     letter-spacing: 0.08em;
     padding: 4px 12px;
     cursor: pointer;
@@ -2932,7 +2945,7 @@
   .ob-pick-label {
     margin-top: 12px;
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.16em;
     color: var(--ash);
     text-transform: uppercase;
@@ -2951,7 +2964,7 @@
     background: transparent;
     color: var(--graphite);
     font-family: var(--zh-sans);
-    font-size: 12px;
+    font-size: var(--fs-sm);
     letter-spacing: 0.06em;
     padding: 5px 11px;
     cursor: pointer;
@@ -2985,7 +2998,7 @@
     background: transparent;
     color: var(--graphite);
     font-family: var(--zh-sans);
-    font-size: 12px;
+    font-size: var(--fs-sm);
     letter-spacing: 0.1em;
     padding: 8px 16px;
     cursor: pointer;
@@ -3029,6 +3042,7 @@
     color: var(--ink);
     transform: translateY(12px) scale(0.97);
     transition: transform 0.24s cubic-bezier(0.2, 0.7, 0.3, 1);
+    border-radius: var(--radius-card);
   }
   .wpc-overlay.show .wpc-card { transform: none; }
   .wpc-card::before {
@@ -3041,7 +3055,7 @@
   .wpc-tag {
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 13px;
+    font-size: var(--fs-md);
     color: var(--vermilion);
     letter-spacing: 0.06em;
     margin-bottom: 12px;
@@ -3060,20 +3074,20 @@
   .wpc-title {
     font-family: var(--pc-font);
     font-weight: 600;
-    font-size: 19px;
+    font-size: var(--fs-2xl);
     letter-spacing: 0.12em;
     color: var(--sumi);
     margin: 0 0 2px;
   }
   .wpc-sub {
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--graphite);
     letter-spacing: 0.04em;
     margin-bottom: 4px;
   }
   .wpc-year {
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.16em;
     color: var(--ash);
     text-transform: uppercase;
@@ -3081,7 +3095,7 @@
   }
   .wpc-desc {
     font-family: var(--pc-font);
-    font-size: 12px;
+    font-size: var(--fs-sm);
     line-height: 1.8;
     color: var(--graphite);
     letter-spacing: 0.02em;
@@ -3092,7 +3106,7 @@
   .wpc-source {
     display: block;
     font-family: var(--mono);
-    font-size: 9px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.08em;
     color: var(--ash);
     text-decoration: none;
@@ -3100,7 +3114,7 @@
   }
   .wpc-source:hover { color: var(--vermilion); }
   .wpc-hint {
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--ash);
     letter-spacing: 0.04em;
     padding-top: 10px;
@@ -3149,14 +3163,14 @@
   .nearby-kicker .nb-zh {
     font-family: var(--zh-serif);
     font-weight: 600;
-    font-size: 16px;
+    font-size: var(--fs-xl);
     letter-spacing: 0.14em;
     color: var(--paper);
   }
   .nearby-kicker .nb-en {
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--silver);
   }
   /* Viewport that clips the sliding track */
@@ -3176,6 +3190,7 @@
     padding: 22px 22px 18px;
     color: var(--ink);
     position: relative;
+    border-radius: var(--radius-card);
   }
   .nearby-card::before {
     content: '';
@@ -3189,14 +3204,14 @@
     align-items: center;
     gap: 6px;
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     letter-spacing: 0.12em;
     color: var(--vermilion);
     margin-bottom: 10px;
   }
   .nb-arrow {
     display: inline-block;
-    font-size: 13px;
+    font-size: var(--fs-md);
     line-height: 1;
     transform-origin: 50% 50%;
   }
@@ -3219,7 +3234,7 @@
     position: absolute;
     left: 8px; bottom: 18px;
     font-family: var(--mono);
-    font-size: 9px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--paper);
@@ -3230,14 +3245,14 @@
   .nb-title {
     font-family: var(--pc-font);
     font-weight: 600;
-    font-size: 18px;
+    font-size: var(--fs-2xl);
     letter-spacing: 0.1em;
     color: var(--sumi);
     margin: 0 0 2px;
   }
   .nb-meta {
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.14em;
     color: var(--ash);
     text-transform: uppercase;
@@ -3245,7 +3260,7 @@
   }
   .nb-desc {
     font-family: var(--pc-font);
-    font-size: 12.5px;
+    font-size: var(--fs-md);
     line-height: 1.85;
     color: var(--graphite);
     letter-spacing: 0.02em;
@@ -3260,7 +3275,7 @@
     background: var(--indigo);
     color: var(--paper);
     font-family: var(--zh-sans);
-    font-size: 13px;
+    font-size: var(--fs-md);
     letter-spacing: 0.08em;
     padding: 10px 0;
     cursor: pointer;
@@ -3287,7 +3302,7 @@
     border: none;
     background: transparent;
     color: var(--silver);
-    font-size: 18px;
+    font-size: var(--fs-2xl);
     line-height: 1;
     cursor: pointer;
     padding: 4px 8px;
@@ -3301,7 +3316,7 @@
     background: transparent;
     color: var(--silver);
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     letter-spacing: 0.16em;
     text-transform: uppercase;
     cursor: pointer;
@@ -3313,7 +3328,7 @@
   .geo-steps {
     margin: 6px 0 4px;
     padding-left: 20px;
-    font-size: 13px;
+    font-size: var(--fs-md);
     line-height: 1.9;
     color: var(--graphite);
     letter-spacing: 0.02em;
@@ -3340,7 +3355,7 @@
     color: var(--graphite);
     font-family: var(--en-serif);
     font-style: italic;
-    font-size: 16px;
+    font-size: var(--fs-xl);
     cursor: pointer;
     box-shadow: 0 4px 16px -6px rgba(31, 29, 25, 0.25);
     transition: all 0.15s;
@@ -3378,7 +3393,7 @@
   }
   /* icon-only：隱藏「今日明信片」文字，aria-label 仍保留無障礙標籤 */
   .today-pc-tab .tpc-text { display: none; }
-  .today-pc-tab .tpc-emoji { font-size: 18px; line-height: 1; }
+  .today-pc-tab .tpc-emoji { font-size: var(--fs-2xl); line-height: 1; }
   /* 未讀小紅點：當天有新明信片但還沒從頁籤點開過 */
   .today-pc-tab .tpc-dot {
     position: absolute;
@@ -3431,7 +3446,7 @@
     align-items: center;
     justify-content: center;
     color: var(--graphite);
-    font-size: 16px;
+    font-size: var(--fs-xl);
     font-family: var(--en-serif);
   }
   .search-input {
@@ -3441,7 +3456,7 @@
     outline: 0;
     padding: 10px 6px;
     font-family: var(--zh-sans);
-    font-size: 14px;
+    font-size: var(--fs-lg);
     color: var(--ink);
     letter-spacing: 0.04em;
     min-width: 0;
@@ -3470,7 +3485,7 @@
     padding: 10px 14px;
     cursor: pointer;
     color: var(--graphite);
-    font-size: 12px;
+    font-size: var(--fs-sm);
     -webkit-tap-highlight-color: transparent;
   }
   .search-clear:hover { color: var(--indigo); }
@@ -3499,7 +3514,7 @@
   }
   .search-pin-label {
     font-family: var(--zh-sans);
-    font-size: 13px;
+    font-size: var(--fs-md);
     font-weight: 400;
     color: var(--graphite);
     letter-spacing: 0.06em;
@@ -3576,14 +3591,14 @@
   }
   .search-result-name {
     font-family: var(--zh-serif);
-    font-size: 14px;
+    font-size: var(--fs-lg);
     color: var(--ink);
     font-weight: 500;
     letter-spacing: 0.04em;
   }
   .search-result-meta {
     font-family: var(--mono);
-    font-size: 9px;
+    font-size: var(--fs-2xs);
     color: var(--ash);
     letter-spacing: 0.08em;
     margin-top: 3px;
@@ -3594,13 +3609,13 @@
     font-family: var(--en-serif);
     font-style: italic;
     color: var(--ash);
-    font-size: 13px;
+    font-size: var(--fs-md);
   }
   .search-loading {
     padding: 14px;
     text-align: center;
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.2em;
     color: var(--ash);
     text-transform: uppercase;
@@ -3620,7 +3635,7 @@
     border: 1px solid var(--stone);
     box-shadow: 0 4px 14px -6px rgba(31, 29, 25, 0.35);
     font-family: var(--mono);
-    font-size: 9px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.16em;
     color: var(--ash);
     text-transform: uppercase;
@@ -3746,7 +3761,7 @@
     .sheet-hint {
       margin-top: 6px;
       font-family: var(--mono);
-      font-size: 9px;
+      font-size: var(--fs-2xs);
       letter-spacing: 0.22em;
       color: var(--ash);
       text-transform: uppercase;
@@ -3758,12 +3773,12 @@
     }
 
     /* Typography tweaks for mobile */
-    .head-zh { font-size: 22px; letter-spacing: 0.14em; }
-    .head-en { font-size: 12px; }
-    .head-meta { font-size: 9px; letter-spacing: 0.18em; }
+    .head-zh { font-size: var(--fs-3xl); letter-spacing: 0.14em; }
+    .head-en { font-size: var(--fs-sm); }
+    .head-meta { font-size: var(--fs-2xs); letter-spacing: 0.18em; }
 
-    .city-zh { font-size: 24px; letter-spacing: 0.12em; }
-    .city-en { font-size: 13px; }
+    .city-zh { font-size: var(--fs-4xl); letter-spacing: 0.12em; }
+    .city-en { font-size: var(--fs-md); }
 
     /* Larger touch targets */
     .city-current {
@@ -3780,7 +3795,7 @@
     }
 
     .city-pill {
-      font-size: 15px;
+      font-size: var(--fs-xl);
       padding: 8px 12px;
       margin: 0 4px 4px 0;
       border: 1px solid var(--mist);
@@ -3792,8 +3807,8 @@
       border-color: var(--indigo);
       background: var(--indigo-l);
     }
-    .region-zh { font-size: 14px; }
-    .region-en { font-size: 12px; }
+    .region-zh { font-size: var(--fs-lg); }
+    .region-en { font-size: var(--fs-sm); }
 
     .layer-row {
       padding: 12px 4px 10px;
@@ -3803,13 +3818,13 @@
       left: -22px;
       top: 16px;
     }
-    .row-zh { font-size: 18px; }
-    .row-en { font-size: 13px; }
-    .row-year { font-size: 11px; }
+    .row-zh { font-size: var(--fs-2xl); }
+    .row-en { font-size: var(--fs-md); }
+    .row-year { font-size: var(--fs-xs); }
 
     .layer-row.active .opacity-slot { height: 36px; }
     .opacity-slot-inner { grid-template-columns: 1fr 48px; }
-    .opa-val { font-size: 11px; }
+    .opa-val { font-size: var(--fs-xs); }
 
     /* Bigger slider thumb for fingers */
     input[type=range].opa { height: 32px; }
@@ -3829,7 +3844,7 @@
     .strata-actions { margin-bottom: 4px; }
     .action-row { margin-top: 6px; }
     .base-pills { margin-top: 4px; }
-    .panel-foot { font-size: 12px; }
+    .panel-foot { font-size: var(--fs-sm); }
 
     /* Reposition Leaflet zoom controls so they sit below the search box */
     .leaflet-top.leaflet-left {
@@ -3840,7 +3855,7 @@
       width: 36px !important;
       height: 36px !important;
       line-height: 36px !important;
-      font-size: 18px !important;
+      font-size: var(--fs-2xl) !important;
     }
     .leaflet-control-attribution { display: none; }
 
@@ -3866,7 +3881,7 @@
     background: var(--paper-2) !important;
     color: var(--ash) !important;
     font-family: var(--mono) !important;
-    font-size: 9px !important;
+    font-size: var(--fs-2xs) !important;
     letter-spacing: 0.06em;
     padding: 2px 8px !important;
     border: 1px solid var(--stone);
@@ -3890,25 +3905,32 @@
   /* ── 歷史事件與地點(台灣歷史地圖 · 邱璽民)─────────── */
   .hs-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
   .hs-chip{display:flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid var(--stone);
-    background:var(--paper-2,#fff);font-family:var(--zh-sans);font-size:13px;letter-spacing:.06em;
+    background:var(--paper-2,#fff);font-family:var(--zh-sans);font-size:var(--fs-md);letter-spacing:.06em;
     color:var(--graphite);cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent}
   .hs-chip .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;opacity:.55}
-  .hs-chip .n{font-family:var(--mono);font-size:11px;color: var(--ash)}
+  .hs-chip .n{font-family:var(--mono);font-size:var(--fs-xs);color: var(--ash)}
   .hs-chip.on{border-color:currentColor;color:var(--ink);background:rgba(193,95,60,.06)}
   .hs-chip.on .dot{opacity:1}
-  .hs-note{margin-top:10px;font-size:11.5px;line-height:1.7;color: var(--ash);letter-spacing:.03em}
+  .hs-note{margin-top:10px;font-size:var(--fs-sm);line-height:1.7;color: var(--ash);letter-spacing:.03em}
   .hs-note a{color:var(--vermilion);text-decoration:none}
   .hs-popup .leaflet-popup-content-wrapper{background:#F7F3E8;border:1px solid #c9bda3;border-radius:4px;
     box-shadow:0 10px 30px -12px rgba(31,29,25,.5)}
   .hs-popup .leaflet-popup-content{margin:14px 16px;width:min(78vw,300px)!important}
-  .hs-pop-era{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;
+  .hs-pop-era{display:inline-block;font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.12em;
     padding:2px 8px;border-radius:2px;color:#fff;margin-bottom:7px}
-  .hs-pop-name{font-family:var(--zh-serif,serif);font-size:16.5px;font-weight:700;color:var(--ink);
+  .hs-pop-name{font-family:var(--zh-serif,serif);font-size:var(--fs-xl);font-weight:700;color:var(--ink);
     letter-spacing:.04em;line-height:1.4;margin-bottom:8px}
-  .hs-pop-desc{font-size:13px;line-height:1.85;color:var(--graphite);max-height:38vh;overflow-y:auto;
+  .hs-pop-desc{font-size:var(--fs-md);line-height:1.85;color:var(--graphite);max-height:38vh;overflow-y:auto;
     white-space:pre-wrap;letter-spacing:.02em;padding-right:4px}
   .hs-pop-src{margin-top:9px;padding-top:7px;border-top:1px dotted #c9bda3;font-family:var(--mono);
-    font-size:10px;color: var(--ash);letter-spacing:.06em}
+    font-size:var(--fs-2xs);color: var(--ash);letter-spacing:.06em}
+
+  /* 鍵盤操作時的焦點外框（滑鼠、手指點擊不會出現） */
+  :where(button, a[href], summary, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--vermilion);
+    outline-offset: 2px;
+  }
+  #walk-opacity:focus-visible { outline: 2px solid #E0A96D; outline-offset: 4px; }
 
   /* hidden 屬性一律生效：元件自己的 display 規則不能蓋過它 */
   [hidden] { display: none !important; }
@@ -3945,16 +3967,94 @@
     font: inherit; min-height: 44px; -webkit-tap-highlight-color: transparent;
   }
   .layer-chip-label {
-    padding: 0 12px 0 14px; font-size: 13px; letter-spacing: 0.06em;
+    padding: 0 12px 0 14px; font-size: var(--fs-md); letter-spacing: 0.06em;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .layer-chip-label .yr { font-family: var(--mono); color: var(--vermilion); margin-right: 8px; letter-spacing: 0.08em; }
-  .layer-chip-off { padding: 0 14px; font-size: 13px; color: var(--ash); border-left: 1px solid var(--mist) !important; }
+  .layer-chip-off { padding: 0 14px; font-size: var(--fs-md); color: var(--ash); border-left: 1px solid var(--mist) !important; }
   @media (max-width: 768px) {
     .layer-chip { top: calc(max(10px, calc(env(safe-area-inset-top, 0px) - 14px)) + 52px); }
   }
 
+  .pc-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 4px 0 12px; font-family: var(--zh-sans); font-size: var(--fs-sm); color: var(--graphite); }
+  .pc-legend > span { display: inline-flex; align-items: center; gap: 6px; }
+  .pc-legend .pc-marker { width: 20px; height: 20px; font-size: var(--fs-2xs); font-style: normal; animation: none; transform: none; }
   .pc-card-go { background: var(--vermilion); color: #fff; border-color: var(--vermilion); }
+
+  /* ── β 測試版標記 + 街景漫遊 walk mode ─────────────── */
+  .beta-tag{display:inline-block;font-family:var(--mono);font-size:var(--fs-xs);color:#fff;
+    background:var(--vermilion);border-radius:3px;padding:1px 6px;vertical-align:8px;letter-spacing:.05em}
+  /* 背景一律用紙色：平面旋轉時若露出缺角，看起來是「霧」不是黑色破洞
+     （Android 實測：黑底 + 旋轉缺角 = 黑白交替閃爍感） */
+  .walk-overlay{position:fixed;inset:0;z-index:9600;display:none;background:#EDE0C4;overflow:hidden}
+  .walk-overlay.show{display:block}
+  .walk-sky{position:absolute;left:0;top:0;right:0;height:27%;
+    background:linear-gradient(180deg,#c9c0ab 0%,#e2d7bd 70%,#EDE0C4 100%)}
+  .walk-groundwrap{position:absolute;left:0;right:0;top:26%;bottom:0;overflow:hidden;
+    background:#EDE0C4;perspective:640px;perspective-origin:50% 0}
+  /* 不用 preserve-3d：子層(#walk-map)只做 2D rotateZ，沒有巢狀 3D。
+     preserve-3d 在 Android WebView 會建立昂貴且會 z 序錯亂的 3D 合成脈絡，
+     是 HUD 偶爾被地圖蓋掉（閃爍）的元兇。 */
+  #walk-tilt{position:absolute;inset:0;transform:rotateX(60deg);transform-origin:50% 0}
+  #walk-map{position:absolute;left:-30%;top:-60%;width:160%;height:230%;background:#EDE0C4;
+    transform-origin:50% 78%;backface-visibility:hidden}
+  /* HUD 一律提升成獨立合成層，地圖重繪時不會被捲進去一起重畫/搶繪 */
+  .walk-chip,.walk-close,.walk-compass,.walk-op,.walk-hint,.walk-feet,.walk-fog,.walk-sky{
+    will-change:transform;transform:translateZ(0)}
+  /* 霧帶：從地平線往下鋪一大片，把覆蓋最差、最模糊的遠方地面藏進霧裡，
+     只留下圖磚扎實的近—中景。這是「有界近景」設計的視覺收尾。 */
+  .walk-fog{position:absolute;left:0;right:0;top:calc(26% - 70px);height:230px;pointer-events:none;z-index:4;
+    background:linear-gradient(180deg,rgba(237,224,196,1) 0%,rgba(237,224,196,1) 26%,rgba(237,224,196,.85) 52%,rgba(237,224,196,0) 100%)}
+  .walk-chip{position:absolute;font-family:var(--mono);font-size:var(--fs-md);letter-spacing:.12em;color:#E0A96D;
+    background:rgba(25,20,14,.62);border:1px solid rgba(224,169,109,.45);padding:6px 12px;border-radius:3px;z-index:5}
+  .walk-era{left:14px;top:calc(env(safe-area-inset-top,0px) + 14px)}
+  .walk-close{position:absolute;right:14px;top:calc(env(safe-area-inset-top,0px) + 14px);z-index:6;
+    font-family:var(--zh-sans);font-size:var(--fs-md);letter-spacing:.1em;color:#EDE0C4;background:rgba(25,20,14,.62);
+    border:1px solid rgba(224,169,109,.45);padding:7px 13px;border-radius:3px;cursor:pointer}
+  .walk-compass{position:absolute;right:18px;top:calc(env(safe-area-inset-top,0px) + 62px);width:46px;height:46px;z-index:5}
+  .walk-feet{position:absolute;left:50%;bottom:18%;transform:translateX(-50%);z-index:5;pointer-events:none}
+  .walk-feet .ring{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:120px;height:46px;
+    border-radius:50%;border:2px solid rgba(193,95,60,.5);
+    background:radial-gradient(ellipse,rgba(193,95,60,.16),rgba(193,95,60,0) 70%);
+    animation:walk-breathe 2.4s ease-in-out infinite}
+  .walk-feet .dot{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:18px;height:18px;
+    border-radius:50%;background:var(--vermilion);border:3px solid #fff;box-shadow:0 3px 8px rgba(20,15,8,.5)}
+  @keyframes walk-breathe{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.09)}}
+  .walk-hint{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);transform:translateX(-50%);
+    z-index:5;font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.14em;color:#cfc4ab;
+    background:rgba(25,20,14,.5);padding:5px 12px;border-radius:3px;white-space:nowrap;max-width:92vw;
+    overflow:hidden;text-overflow:ellipsis}
+  /* 漫遊中的古地圖透明度滑桿：拉低即見現代街道透出（古今疊合的地面） */
+  .walk-op{position:absolute;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 52px);z-index:6;
+    display:flex;align-items:center;gap:8px;background:rgba(25,20,14,.62);
+    border:1px solid rgba(224,169,109,.45);border-radius:3px;padding:8px 12px}
+  .walk-op .wo-ic{color:#E0A96D;font-size:var(--fs-md);line-height:1}
+  .walk-op input[type=range]{-webkit-appearance:none;appearance:none;width:110px;height:3px;border-radius:2px;
+    background:linear-gradient(90deg,rgba(224,169,109,.25),rgba(224,169,109,.8));outline:none}
+  .walk-op input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;
+    border-radius:50%;background:var(--vermilion);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);cursor:pointer}
+  .walk-op input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:var(--vermilion);border:2px solid #fff;cursor:pointer}
+  .walk-op .wo-val{font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.08em;color:#E0A96D;min-width:34px;text-align:right}
+  /* 漫遊頁內的「定位 / 記錄」控制（重用主程式的定位與路徑記錄） */
+  .walk-ctrl{position:absolute;left:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 52px);z-index:6;
+    display:flex;gap:8px;will-change:transform;transform:translateZ(0)}
+  .walk-btn{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:52px;
+    background:rgba(25,20,14,.62);border:1px solid rgba(224,169,109,.45);border-radius:6px;padding:7px 10px;
+    color:#E0A96D;font-family:var(--zh-sans);cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .walk-btn .wb-ic{font-size:var(--fs-xl);line-height:1}
+  .walk-btn .wb-t{font-size:var(--fs-xs);letter-spacing:.1em}
+  .walk-btn.on{background:rgba(193,95,60,.9);border-color:#E0A96D;color:#fff}
+  .walk-btn:disabled{opacity:.4}
+  .walk-rec-btn.on{background:rgba(214,73,47,.95)}
+  .walk-rec-readout{position:absolute;left:50%;top:calc(env(safe-area-inset-top,0px) + 66px);transform:translateX(-50%) translateZ(0);
+    z-index:6;display:flex;align-items:center;gap:8px;background:rgba(25,20,14,.7);border:1px solid rgba(224,169,109,.4);
+    border-radius:20px;padding:6px 15px;font-family:var(--mono);font-size:var(--fs-md);letter-spacing:.1em;color:#EDE0C4;will-change:transform}
+  .walk-rec-readout[hidden]{display:none} /* 明確 display 會蓋過 hidden 屬性，需補這條 */
+  .walk-rec-readout .wr-dot{width:9px;height:9px;border-radius:50%;background:#e0492f;animation:walk-recblink 1.2s steps(2) infinite}
+  @keyframes walk-recblink{0%,49%{opacity:1}50%,100%{opacity:.25}}
+  /* 定位/背景定位同意卡必須浮在漫遊(9600)之上，否則按定位時看不到提示 */
+  #geo-overlay.show,#bgloc-overlay.show{z-index:9700}
 </style>
 </head>
 <body>
@@ -4168,6 +4268,12 @@
       </label>
     </summary>
 
+    <div class="pc-legend" aria-label="地圖標記說明">
+      <span><i class="pc-marker far">◉</i><span data-i18n="pc.legend.far">還沒收集</span></span>
+      <span><i class="pc-marker drawn">◉</i><span data-i18n="pc.legend.drawn">今日抽到</span></span>
+      <span><i class="pc-marker collected">◉</i><span data-i18n="pc.legend.collected">已收集</span></span>
+      <span><i class="pc-marker near">◉</i><span data-i18n="pc.legend.near">就在附近</span></span>
+    </div>
     <div class="postcard-grid" id="postcard-grid"></div>
     <div class="postcard-count" id="postcard-count">
       <span class="num">0</span> / 0 collected · 走到地點附近自動沖洗
@@ -4336,6 +4442,7 @@
     <span class="tpc-emoji">🎴</span><span class="tpc-text" data-i18n="tpc.tab">今日明信片</span>
     <span class="tpc-dot" aria-hidden="true"></span>
   </button>
+  <button type="button" class="help-fab" id="walk-fab" aria-label="街景漫遊"><span style="font-size:17px;font-style:normal">👣</span><span class="help-fab-label">漫遊</span></button>
   <button type="button" class="help-fab" id="btn-help" aria-label="操作說明" data-i18n="ob.help.aria" data-i18n-attr="aria-label">?<span class="help-fab-label">說明</span></button>
 </div>
 
@@ -4528,6 +4635,29 @@
     </div>
   </div>
 </div>
+
+<!-- 街景漫遊：把古地圖鋪成腳下的透視地面（Google 街景式的「走在古地圖上」） -->
+<div class="walk-overlay" id="walk-overlay" aria-hidden="true">
+  <div class="walk-sky"></div>
+  <div class="walk-groundwrap"><div id="walk-tilt"><canvas id="walk-map"></canvas></div></div>
+  <div class="walk-fog"></div>
+  <div class="walk-chip walk-era" id="walk-era">◷ —</div>
+  <button type="button" class="walk-close" id="walk-close">✕ 離開</button>
+  <div class="walk-compass"><svg viewBox="0 0 46 46">
+    <circle cx="23" cy="23" r="21" fill="rgba(25,20,14,.62)" stroke="rgba(224,169,109,.45)"/>
+    <g id="walk-needle"><polygon points="23,7 27,25 23,22 19,25" fill="#C15F3C"/><polygon points="23,39 27,25 23,28 19,25" fill="#ddd2bd"/></g>
+    <text x="23" y="14" text-anchor="middle" fill="#E0A96D" font-size="8" font-family="monospace">N</text>
+  </svg></div>
+  <div class="walk-feet"><div class="ring"></div><div class="dot"></div></div>
+  <div class="walk-rec-readout" id="walk-rec-readout" hidden><span class="wr-dot"></span><span id="walk-rec-dist">0 m</span> · <span id="walk-rec-time">0:00</span></div>
+  <div class="walk-ctrl" id="walk-ctrl">
+    <button type="button" class="walk-btn" id="walk-locate"><span class="wb-ic">◎</span><span class="wb-t">定位</span></button>
+    <button type="button" class="walk-btn walk-rec-btn" id="walk-record" disabled><span class="wb-ic">●</span><span class="wb-t">記錄</span></button>
+  </div>
+  <div class="walk-op"><span class="wo-ic">◐</span><input type="range" id="walk-opacity" min="20" max="100" step="5" value="85" aria-label="古地圖透明度" /><span class="wo-val" id="walk-op-val">85%</span></div>
+  <div class="walk-hint" id="walk-hint">—</div>
+</div>
+
 <div class="pc-toast" id="pc-toast"></div>
 
 <!-- ── 公民科學回報 Citizen-science report modal ────────────────
@@ -4686,6 +4816,13 @@
       'foot.histsites': '歷史事件',
       'sec.events.sub': '歷史事件',
       'layerchip.off': '關閉古地圖',
+      'pc.legend.far': '還沒收集',
+      'pc.legend.drawn': '今日抽到',
+      'pc.legend.collected': '已收集',
+      'pc.legend.near': '就在附近',
+      'tile.err.hist': '這一帶暫時載不到古地圖：可能不在這張圖的範圍內，或網路不穩。換一張圖或移動地圖試試。',
+      'tile.err.base': '現代底圖暫時載不到，網路可能不穩，稍後會自動重試。',
+      'tile.err.offline': '目前離線：只看得到已下載或看過的地圖。',
       'hs.era.prehistory': '史前',
       'hs.era.pingpu': '平埔族群',
       'hs.era.dutch': '荷西',
@@ -4944,6 +5081,13 @@
       'foot.histsites': 'Historic events',
       'sec.events.sub': 'historic events',
       'layerchip.off': 'Hide old map',
+      'pc.legend.far': 'Not yet collected',
+      'pc.legend.drawn': "Today's draw",
+      'pc.legend.collected': 'Collected',
+      'pc.legend.near': 'Nearby',
+      'tile.err.hist': "Old map tiles aren't loading here. This map may not cover this area, or the connection is unstable. Try another map or move the view.",
+      'tile.err.base': "The base map isn't loading. The connection may be unstable; it will retry automatically.",
+      'tile.err.offline': "You're offline. Only downloaded or previously viewed maps are available.",
       'hs.era.prehistory': 'Prehistory',
       'hs.era.pingpu': 'Pingpu',
       'hs.era.dutch': 'Dutch & Spanish',
@@ -5202,6 +5346,13 @@
       'foot.histsites': '歴史の出来事',
       'sec.events.sub': '歴史の出来事',
       'layerchip.off': '古地図を閉じる',
+      'pc.legend.far': '未収集',
+      'pc.legend.drawn': '今日の一枚',
+      'pc.legend.collected': '収集済み',
+      'pc.legend.near': 'すぐ近く',
+      'tile.err.hist': 'この付近の古地図を読み込めません。この地図の範囲外か、通信が不安定です。別の地図に切り替えるか、地図を動かしてみてください。',
+      'tile.err.base': '背景地図を読み込めません。通信が不安定な可能性があります。自動で再試行します。',
+      'tile.err.offline': 'オフラインです。ダウンロード済みまたは表示済みの地図のみ見られます。',
       'hs.era.prehistory': '先史',
       'hs.era.pingpu': '平埔族',
       'hs.era.dutch': 'オランダ・スペイン',
@@ -5593,7 +5744,7 @@
   const spinner = document.getElementById('tile-spinner');
   let pendingTiles = 0;
   let spinnerTimer = null;
-  function trackTileLayer(layer) {
+  function trackTileLayer(layer, kind = 'hist') {
     layer.on('tileloadstart', () => {
       pendingTiles++;
       if (spinnerTimer) clearTimeout(spinnerTimer);
@@ -5611,6 +5762,28 @@
     };
     layer.on('tileload', decrement);
     layer.on('tileerror', decrement);
+    watchTileHealth(layer, kind);
+  }
+
+  // 圖磚健康度：一段時間內只有失敗、沒有任何成功，就告訴使用者為什麼地圖是空的。
+  // 中研院圖磚在「沒有涵蓋的區域」本來就會回錯誤，所以文案要同時涵蓋範圍與連線兩種可能。
+  let tileWarnUntil = 0;
+  function watchTileHealth(layer, kind) {
+    let ok = 0, bad = 0, windowTimer = null;
+    layer.on('tileload', () => { ok++; });
+    layer.on('tileerror', () => {
+      bad++;
+      if (windowTimer) return;
+      ok = 0; bad = 1;
+      windowTimer = setTimeout(() => {
+        windowTimer = null;
+        const timelapsePlaying = !document.getElementById('tl-overlay')?.hidden;
+        if (bad < 6 || ok > 0 || !map.hasLayer(layer) || timelapsePlaying || Date.now() < tileWarnUntil) return;
+        tileWarnUntil = Date.now() + 60000;
+        const key = !navigator.onLine ? 'tile.err.offline' : kind === 'base' ? 'tile.err.base' : 'tile.err.hist';
+        showPostcardToast(t(key), 5200);
+      }, 4000);
+    });
   }
 
   function setBaseMap(id) {
@@ -5625,7 +5798,7 @@
         maxZoom: MAP_MAX_ZOOM,
         ...layerDef.opts,
       });
-      trackTileLayer(layer);
+      trackTileLayer(layer, 'base');
       layer.addTo(map);
       // Keep base layers below historical overlays
       if (!layerDef.opts.pane) layer.getContainer && layer.getContainer()?.classList.add('base-tile');
@@ -7713,13 +7886,13 @@
 
   // Toast: brief on-screen notification when a postcard is collected.
   let toastTimer = null;
-  function showPostcardToast(msg) {
+  function showPostcardToast(msg, ms = 2600) {
     const toastEl = document.getElementById('pc-toast');
     if (!toastEl) return;
     toastEl.textContent = msg;
     toastEl.classList.add('show');
     if (toastTimer) clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), ms);
   }
 
   function openPostcardModal(pc, mode) {
@@ -10602,6 +10775,301 @@
         if (typeof sfx !== 'undefined' && sfx.tick) try { sfx.tick(); } catch {}
       });
     });
+  })();
+
+  // ── 街景漫遊 walk mode ──────────────────────────────
+  // 把目前啟用的歷史圖層（未啟用則預設 1904 臺灣堡圖）以透視角度鋪成
+  // 「腳下的地面」：GPS 更新時地圖在腳下捲動、羅盤轉向時地圖跟著旋轉，
+  // 體驗上等於「走在古地圖上」。互動全部停用（3D 變形下座標會歪），
+  // 純粹是跟著身體移動的視窗。Leaflet 容器加大到 160%×230%，讓遠方
+  // （地平線附近）也有圖磚可看。
+  (function setupWalkMode() {
+    const overlay = document.getElementById('walk-overlay');
+    const fab = document.getElementById('walk-fab');
+    if (!overlay || !fab) return;
+    const mapEl = document.getElementById('walk-map');
+    const eraEl = document.getElementById('walk-era');
+    const hintEl = document.getElementById('walk-hint');
+    const needle = document.getElementById('walk-needle');
+    let active = false, rafId = null, pollId = null;
+    let heading = 0, targetHeading = 0, pos = null, targetPos = null;
+    let anchorRatio = 0.78; // 使用者錨點在地面容器內的高度比例（sizeGround 動態算）
+
+    // ── Canvas 圖磚渲染器 ─────────────────────────────
+    // 地面不再用 Leaflet：把兩層圖磚（現代底圖＋古地圖）直接畫進單一
+    // canvas，3D 傾斜與旋轉只作用在這一張畫布上。架構性優點：
+    //  · 單一合成層 → 不再有上百個圖磚 <img> 的 Android 重繪抖動
+    //  · 覆蓋自己算 → 永遠滿版，沒有遠方空白 / 旋轉缺角
+    //  · 靜止時零重繪；位移超過門檻才重畫一次（約 30 次 drawImage）
+    const TILE = 256, WZ_MAX = 16, DPR = Math.min(window.devicePixelRatio || 1, 2);
+    let ctx = null, walkDef = null, needsRedraw = false;
+    let cw = 0, chh = 0; // canvas CSS 尺寸
+    const tileCache = new Map(); // key → {img, ok, fail}
+    let tileHolder = null; // 隱藏的 DOM 容器：SW 控制的頁面上，未掛 DOM 的 Image
+                           // 不會啟動載入（實測），掛上去就跟 Leaflet 圖磚同路。
+    function cacheGet(key, url) {
+      let e = tileCache.get(key);
+      if (e) return e;
+      if (!tileHolder) {
+        tileHolder = document.createElement('div');
+        tileHolder.style.display = 'none';
+        overlay.appendChild(tileHolder);
+      }
+      e = { img: new Image(), ok: false, fail: false };
+      e.img.decoding = 'async';
+      e.img.onload = () => { e.ok = true; needsRedraw = true; };
+      e.img.onerror = () => { e.fail = true; }; // 中研院缺磚回 HTML → onerror，不重試
+      e.img.src = url;
+      tileHolder.appendChild(e.img);
+      tileCache.set(key, e);
+      if (tileCache.size > 360) { // 簡單 FIFO 淘汰，控記憶體
+        const it = tileCache.keys();
+        for (let i = 0; i < 60; i++) {
+          const k = it.next().value;
+          if (!k) break;
+          const old = tileCache.get(k);
+          if (old && old.img) old.img.remove();
+          tileCache.delete(k);
+        }
+      }
+      return e;
+    }
+    const lngToPx = (lng, z) => (lng + 180) / 360 * TILE * Math.pow(2, z);
+    const latToPx = (lat, z) => { const r = lat * Math.PI / 180;
+      return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * TILE * Math.pow(2, z); };
+    const walkZoom = () => Math.min((walkDef && walkDef.maxNativeZoom) || 15, WZ_MAX);
+    function baseURL(z, x, y) {
+      const s = 'abcd'[(x + y) % 4], r = DPR > 1 ? '@2x' : '';
+      return 'https://' + s + '.basemaps.cartocdn.com/light_nolabels/' + z + '/' + x + '/' + y + r + '.png?key=cb1_4jrf_1_df9bfe1a958ad80bf43708e6';
+    }
+    function histURL(z, x, y) {
+      return walkDef.url.replace('{z}', z).replace('{x}', x).replace('{y}', y);
+    }
+    function drawLayer(z, originX, originY, keyPfx, urlFn, alpha) {
+      const tx0 = Math.floor(originX / TILE), ty0 = Math.floor(originY / TILE);
+      const tx1 = Math.floor((originX + cw) / TILE), ty1 = Math.floor((originY + chh) / TILE);
+      const max = Math.pow(2, z);
+      ctx.globalAlpha = alpha;
+      for (let tx = tx0; tx <= tx1; tx++) for (let ty = ty0; ty <= ty1; ty++) {
+        if (ty < 0 || ty >= max) continue;
+        const wx = ((tx % max) + max) % max;
+        const e = cacheGet(keyPfx + z + '/' + wx + '/' + ty, urlFn(z, wx, ty));
+        if (e.ok) ctx.drawImage(e.img, tx * TILE - originX, ty * TILE - originY, TILE, TILE);
+      }
+      ctx.globalAlpha = 1;
+    }
+    function drawGround() {
+      if (!ctx || !pos || !walkDef) return;
+      const z = walkZoom();
+      const originX = lngToPx(pos.lng, z) - cw / 2;
+      const originY = latToPx(pos.lat, z) - chh * anchorRatio; // 錨點=你站的位置
+      ctx.fillStyle = '#EDE0C4'; ctx.fillRect(0, 0, cw, chh);
+      drawLayer(z, originX, originY, 'b/', baseURL, 1);
+      drawLayer(z, originX, originY, 'h' + walkDef.id + '/', histURL, walkOpacity);
+      needsRedraw = false;
+    }
+
+    // ── Safari 關鍵修正：平面尺寸依螢幕動態計算 ────────────
+    // rotateX(60°)+perspective(640px) 下，平面上局部 y 超過 d/sin60 ≈ 739px
+    // 的部分會跑到「相機後方」：Chromium 會裁掉，iOS Safari 直接把整塊
+    // 渲染壞掉（畫面出現黑洞）。所以平面深度必須動態算到「剛好蓋滿畫面
+    // 底部」為止，全程保持在相機平面之前。
+    const TILT_DEG = 60, PERSP = 640;
+    function sizeGround() {
+      const wrap = mapEl.parentElement.parentElement; // .walk-groundwrap
+      const H = wrap.clientHeight || 1, W = wrap.clientWidth || 1;
+      const s = Math.sin(TILT_DEG * Math.PI / 180), c = Math.cos(TILT_DEG * Math.PI / 180);
+      const yFor = sy => sy * PERSP / (c * PERSP + sy * s); // 螢幕深度 → 平面局部 y
+      // 旋轉覆蓋：平面會繞使用者錨點轉（羅盤），寬度取「錨點到地平線角落」
+      // 的距離 ×2 再加餘裕，讓多數轉角下不露出缺角；露出的極端角落由紙色
+      // 背景＋霧帶吸收。上限 1600px 控制 GPU 紋理大小（Android 閃爍主因之二）。
+      const overhang = 60;                                   // 地平線後方的緩衝（不可見）
+      const hPx = Math.min(yFor(H) * 1.18, (PERSP / s) * 0.92) + overhang;
+      const yAnchor = yFor(0.76 * H);
+      const wPx = Math.min(Math.max(W * 1.7, 2 * Math.hypot(yAnchor, W * 0.55) + 80), 1600);
+      cw = Math.round(wPx); chh = Math.round(hPx);
+      mapEl.style.width  = cw + 'px';
+      mapEl.style.height = chh + 'px';
+      mapEl.style.left   = Math.round((W - wPx) / 2) + 'px';
+      mapEl.style.top    = (-overhang) + 'px';
+      // canvas 背景儲存以 DPR 倍率配置，高 DPI 手機上圖磚才銳利
+      mapEl.width = Math.round(cw * DPR); mapEl.height = Math.round(chh * DPR);
+      if (!ctx) ctx = mapEl.getContext('2d');
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      // 錨點（你站的位置）投影在畫面約 76% 高處，和 CSS 的腳印標記對齊
+      anchorRatio = (yAnchor + overhang) / hPx;
+      mapEl.style.transformOrigin = '50% ' + (anchorRatio * 100).toFixed(2) + '%';
+      needsRedraw = true;
+    }
+    window.addEventListener('resize', () => { if (active) { sizeGround(); drawGround(); } });
+
+    // 漫遊中的古地圖透明度：獨立於主地圖記憶（拉低=現代街道透出）。
+    const WALK_OP_KEY = 'taiwanOldMaps.walkOpacity';
+    let walkOpacity = 0.85;
+    try {
+      const v = parseFloat(localStorage.getItem(WALK_OP_KEY));
+      if (!Number.isNaN(v) && v >= 0.2 && v <= 1) walkOpacity = v;
+    } catch {}
+    const opSlider = document.getElementById('walk-opacity');
+    const opVal = document.getElementById('walk-op-val');
+    function applyWalkOpacity(v) {
+      walkOpacity = v;
+      needsRedraw = true; // 下一幀以新透明度重畫古地圖層
+      if (opVal) opVal.textContent = Math.round(v * 100) + '%';
+      try { localStorage.setItem(WALK_OP_KEY, String(v)); } catch {}
+    }
+
+    function currentDef() {
+      return HISTORICAL_MAPS.find(d => d.id === activeId) ||
+             HISTORICAL_MAPS.find(d => d.id === 'jm20k_1904') ||
+             HISTORICAL_MAPS[0];
+    }
+    function anchorLL() {
+      if (lastUserLatLng) return L.latLng(lastUserLatLng.lat, lastUserLatLng.lng);
+      return map.getCenter();
+    }
+    function ensureMap() {
+      const def = currentDef();
+      if (!ctx) ctx = mapEl.getContext('2d');
+      if (!walkDef || walkDef.id !== def.id) { walkDef = def; needsRedraw = true; }
+      eraEl.textContent = '◷ ' + def.year + ' · ' + def.label;
+    }
+    let lastAppliedHeading = null, lastCenterPx = null;
+    function frame() {
+      if (targetPos) {
+        pos = pos
+          ? { lat: pos.lat + (targetPos.lat - pos.lat) * 0.12,
+              lng: pos.lng + (targetPos.lng - pos.lng) * 0.12 }
+          : targetPos;
+        // 像素級死區：平滑後的位置實際位移 ≥1.5px 才標記重畫。
+        // 收斂後完全不重畫 —— canvas 靜止時是一張死圖，先天無抖動。
+        const z = walkZoom();
+        const px = { x: lngToPx(pos.lng, z), y: latToPx(pos.lat, z) };
+        if (!lastCenterPx || Math.abs(px.x - lastCenterPx.x) + Math.abs(px.y - lastCenterPx.y) >= 1.5) {
+          lastCenterPx = px;
+          needsRedraw = true;
+        }
+      }
+      if (needsRedraw) drawGround(); // 位置變了 / 圖磚到貨 / 透明度變了 → 重畫一次
+      const dh = ((targetHeading - heading + 540) % 360) - 180;
+      heading = (heading + dh * 0.12 + 360) % 360;
+      // 角度變化 <0.1° 就不重寫 transform——連續改寫大型 3D 圖層的
+      // transform 是 Android WebView 閃爍的主因之一。
+      if (lastAppliedHeading === null || Math.abs(((heading - lastAppliedHeading + 540) % 360) - 180) > 0.1) {
+        lastAppliedHeading = heading;
+        mapEl.style.transform = 'rotateZ(' + (-heading).toFixed(2) + 'deg)';
+        if (needle) needle.setAttribute('transform', 'rotate(' + (-heading).toFixed(1) + ' 23 23)');
+      }
+      rafId = requestAnimationFrame(frame);
+    }
+    // 方位來源紀律（Android 災情根因）：deviceorientation 在 Android 上是
+    // 「相對」方位（任意參考系），和 deviceorientationabsolute（真羅盤）的
+    // 角度完全不同。之前兩個事件都在覆寫 targetHeading，平面就在兩個角度
+    // 之間劇烈擺盪 → 畫面瘋狂旋轉閃爍。規則：一旦收過任何「絕對」讀值，
+    // 永遠忽略相對讀值；再加 1.5° 死區濾掉羅盤雜訊。
+    let haveAbsolute = false;
+    function onOrient(e) {
+      let h = null;
+      if (typeof e.webkitCompassHeading === 'number') {            // iOS 真羅盤
+        h = e.webkitCompassHeading; haveAbsolute = true;
+      } else if (e.type === 'deviceorientationabsolute' || e.absolute === true) {
+        if (typeof e.alpha === 'number') { h = 360 - e.alpha; haveAbsolute = true; }
+      } else if (!haveAbsolute && typeof e.alpha === 'number') {
+        h = 360 - e.alpha;                                         // 沒絕對來源時的退路
+      }
+      if (h == null || Number.isNaN(h)) return;
+      const dh = ((h - targetHeading + 540) % 360) - 180;
+      if (Math.abs(dh) < 1.5) return;                              // 雜訊死區
+      targetHeading = h;
+    }
+    async function enableCompass() {
+      try {
+        if (typeof DeviceOrientationEvent !== 'undefined' &&
+            typeof DeviceOrientationEvent.requestPermission === 'function') {
+          const r = await DeviceOrientationEvent.requestPermission();
+          if (r !== 'granted') return;
+        }
+        window.addEventListener('deviceorientationabsolute', onOrient, true);
+        window.addEventListener('deviceorientation', onOrient, true);
+      } catch {}
+    }
+    function open() {
+      active = true;
+      overlay.classList.add('show');
+      overlay.setAttribute('aria-hidden', 'false');
+      ensureMap();
+      requestAnimationFrame(() => {
+        sizeGround();
+        const ll = anchorLL();
+        targetPos = { lat: ll.lat, lng: ll.lng };
+        pos = { lat: ll.lat, lng: ll.lng }; // 開場直接落點，不用等平滑收斂
+        lastCenterPx = null;
+        drawGround();
+        if (!rafId) frame();
+      });
+      enableCompass();
+      syncControls();
+      pollId = setInterval(() => {
+        const ll = anchorLL();
+        // GPS 抖動死區：手機 GPS 靜止時仍會每秒跳動數公尺。只有位移
+        // ≥ 4 公尺才更新目標點，否則地圖會被雜訊推得一直微幅漂移。
+        if (!targetPos || haversine(targetPos, { lat: ll.lat, lng: ll.lng }) >= 4) {
+          targetPos = { lat: ll.lat, lng: ll.lng };
+        }
+        ensureMap(); // 圖層若在主地圖換了年代，跟著換
+        syncControls(); // 同步定位/記錄按鈕與讀數
+      }, 900);
+    }
+
+    // ── 定位 / 記錄：重用主程式的 requestLocate / startRecording ──────
+    // 記錄是全域狀態：在漫遊裡開始，離開漫遊仍持續（路徑畫在主地圖上）。
+    const locBtn = document.getElementById('walk-locate');
+    const recBtn = document.getElementById('walk-record');
+    const recReadout = document.getElementById('walk-rec-readout');
+    function syncControls() {
+      if (locBtn) locBtn.classList.toggle('on', isLocating);
+      if (recBtn) {
+        recBtn.disabled = !isLocating;
+        recBtn.classList.toggle('on', isRecording);
+        const t = recBtn.querySelector('.wb-t'); if (t) t.textContent = isRecording ? '停止' : '記錄';
+      }
+      if (recReadout) {
+        recReadout.hidden = !isRecording;
+        if (isRecording) {
+          const d = document.getElementById('rec-dist'), tm = document.getElementById('rec-time');
+          if (d) document.getElementById('walk-rec-dist').textContent = d.textContent;
+          if (tm) document.getElementById('walk-rec-time').textContent = tm.textContent;
+        }
+      }
+      hintEl.textContent = isRecording ? '記錄中 · 走動時路徑會沿路記下'
+        : lastUserLatLng ? '腳下就是古地圖 · 走動時跟著你捲動'
+        : '按「定位」開始，漫遊就會跟著你走。';
+    }
+    if (locBtn) locBtn.addEventListener('click', async () => {
+      try { await requestLocate(); } catch {}
+      syncControls(); setTimeout(syncControls, 400);
+    });
+    if (recBtn) recBtn.addEventListener('click', () => {
+      if (isRecording) stopRecording(); else startRecording();
+      syncControls();
+    });
+    function close() {
+      active = false;
+      overlay.classList.remove('show');
+      overlay.setAttribute('aria-hidden', 'true');
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      if (pollId) { clearInterval(pollId); pollId = null; }
+      window.removeEventListener('deviceorientationabsolute', onOrient, true);
+      window.removeEventListener('deviceorientation', onOrient, true);
+    }
+    fab.addEventListener('click', open);
+    document.getElementById('walk-close').addEventListener('click', close);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && active) close(); });
+    if (opSlider) {
+      opSlider.value = String(Math.round(walkOpacity * 100));
+      if (opVal) opVal.textContent = Math.round(walkOpacity * 100) + '%';
+      opSlider.addEventListener('input', () => applyWalkOpacity(parseInt(opSlider.value, 10) / 100));
+    }
   })();
 </script>
 </body>
