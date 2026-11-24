@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v85-2026-11-19'; // 街景漫遊文字三語化（中／英／日）
+const CACHE_VERSION = 'v86-2026-11-24'; // 補齊年代：1970、1973 地形圖，2015、2025 正射影像（國土測繪中心）
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
