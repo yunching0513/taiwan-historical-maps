@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v86-2026-11-24'; // 補齊年代：1970、1973 地形圖，2015、2025 正射影像（國土測繪中心）
+const CACHE_VERSION = 'v87-2026-11-24'; // 1916 蕃地地形圖標明「山地」（平地無圖）
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
