@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'beta17-2026-11-27'; // play-test fixes
+const CACHE_VERSION = 'beta18-2026-11-27'; // design follow-ups
 const SHELL_CACHE = `tw-beta-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-beta-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-beta-tiles-${CACHE_VERSION}`;

@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v89-2026-11-27'; // 試玩修正：QR、漫遊中收藏、記錄讀數、面板自動收起、快轉選擇器、抽卡文案、搜尋偏好附近、翻譯
+const CACHE_VERSION = 'v90-2026-11-27'; // 事件群集、快轉邊播邊載、中文地圖底圖、深色底圖、對照配對、抽卡偏好本地、印章全名
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;

@@ -413,7 +413,7 @@
   /* ── Base map pills ──────────────────────────────── */
   .base-pills {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 8px;
     margin-top: 8px;
   }
@@ -3982,6 +3982,10 @@
   .pc-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 4px 0 12px; font-family: var(--zh-sans); font-size: var(--fs-sm); color: var(--graphite); }
   .pc-legend > span { display: inline-flex; align-items: center; gap: 6px; }
   .pc-legend .pc-marker { width: 20px; height: 20px; font-size: var(--fs-2xs); font-style: normal; animation: none; transform: none; }
+  .hs-cluster-wrap { background: none; border: 0; }
+  .hs-cluster { display: flex; align-items: center; justify-content: center; border-radius: 50%;
+    background: var(--c); color: #fff; border: 2px solid #fff; font-family: var(--mono); font-size: var(--fs-sm); font-weight: 600;
+    box-shadow: 0 2px 8px rgba(31,29,25,.35); opacity: .92; cursor: pointer; }
   .compare-exit {
     position: absolute; z-index: 1006; left: 50%; transform: translateX(-50%);
     bottom: calc(env(safe-area-inset-bottom, 0px) + 96px);
@@ -4165,6 +4169,10 @@
       <button type="button" class="base-pill" data-id="satellite">
         <span data-i18n="base.satellite">衛星</span>
         <span class="en" data-i18n="base.satellite.sub" data-i18n-hide-empty="1">Satellite</span>
+      </button>
+      <button type="button" class="base-pill" data-id="emap">
+        <span data-i18n="base.emap">中文地圖</span>
+        <span class="en" data-i18n="base.emap.sub" data-i18n-hide-empty="1">e-Map</span>
       </button>
     </div>
 
@@ -4834,6 +4842,9 @@
       'foot.histsites': '歷史事件',
       'sec.events.sub': '歷史事件',
       'layerchip.off': '關閉古地圖',
+      'base.emap': '中文地圖',
+      'base.emap.sub': '',
+      'tl.skipped': '這一帶沒有圖幅的 {n} 張已自動略過。',
       'help.fab': '說明',
       'rec.live': '記錄中',
       'rec.saved': '已儲存路線：{d} · {t}',
@@ -5116,6 +5127,9 @@
       'foot.histsites': 'Historic events',
       'sec.events.sub': 'historic events',
       'layerchip.off': 'Hide old map',
+      'base.emap': 'e-Map',
+      'base.emap.sub': 'Chinese labels',
+      'tl.skipped': 'Skipped {n} map(s) with no coverage in this area.',
       'help.fab': 'Help',
       'rec.live': 'Recording',
       'rec.saved': 'Route saved: {d} · {t}',
@@ -5398,6 +5412,9 @@
       'foot.histsites': '歴史の出来事',
       'sec.events.sub': '歴史の出来事',
       'layerchip.off': '古地図を閉じる',
+      'base.emap': '電子地図',
+      'base.emap.sub': '中国語表記',
+      'tl.skipped': 'この付近に図幅がない {n} 枚は自動でスキップしました。',
       'help.fab': 'ヘルプ',
       'rec.live': '記録中',
       'rec.saved': 'ルートを保存しました：{d} · {t}',
@@ -5674,6 +5691,7 @@
     try { typeof renderSeals === 'function' && renderSeals(); } catch {}
     try { typeof updateCityUI === 'function' && updateCityUI(); } catch {}
     try { typeof updateButtons === 'function' && updateButtons(); } catch {}
+    try { if (geoHelperMode && document.getElementById('geo-overlay')?.classList.contains('show')) showGeoHelper(geoHelperMode); } catch {}
   }
 
   // ── Cities (22 administrative divisions) ──────────
@@ -5777,6 +5795,7 @@
   const layerCache = {};
   const opacities = {};
   let activeId = null;
+  let lastActiveId = null; // 使用者上一張看的圖，對照拉條優先拿來比
 
   function pad2(n) { return String(n).padStart(2, '0'); }
 
@@ -5796,6 +5815,18 @@
   // Sources are deliberately ToS-clean: CartoDB (free CDN), NLSC (Taiwan gov), Esri (free attrib).
   // Google Maps tiles are NOT used because direct XYZ access violates their Terms of Service.
   const BASE_MAPS = {
+    // 深色主題時「簡圖」自動換成這組
+    plainDark: [
+      { url: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png?key=cb1_4jrf_1_df9bfe1a958ad80bf43708e6',
+        opts: { subdomains: 'abcd', maxNativeZoom: 19, attribution: '&copy; OSM &copy; CARTO' } },
+      { url: 'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png?key=cb1_4jrf_1_df9bfe1a958ad80bf43708e6',
+        opts: { subdomains: 'abcd', maxNativeZoom: 19, pane: 'shadowPane' } },
+    ],
+    // 國土測繪中心通用電子地圖：鄉間地名也是中文（CARTO 在較小縮放時村名常是拼音）
+    emap: [
+      { url: 'https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}',
+        opts: { maxNativeZoom: 19, attribution: '電子地圖 &copy; <a href="https://maps.nlsc.gov.tw/" target="_blank" rel="noopener">國土測繪中心</a>' } },
+    ],
     plain: [
       { url: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png?key=cb1_4jrf_1_df9bfe1a958ad80bf43708e6',
         opts: { subdomains: 'abcd', maxNativeZoom: 19, attribution: '&copy; OSM &copy; CARTO' } },
@@ -5861,11 +5892,12 @@
     });
   }
 
-  function setBaseMap(id) {
-    if (id === currentBaseId) return;
+  function setBaseMap(id, force = false) {
+    if (id === currentBaseId && !force) return;
     currentBaseLayers.forEach(l => map.removeLayer(l));
     currentBaseLayers = [];
-    const stack = BASE_MAPS[id];
+    const dark = document.documentElement.classList.contains('theme-dark');
+    const stack = BASE_MAPS[id === 'plain' && dark ? 'plainDark' : id];
     if (!stack) return;
     stack.forEach((layerDef, i) => {
       const layer = L.tileLayer(layerDef.url, {
@@ -5963,6 +5995,7 @@
 
   // ── Layer toggling ───────────────────────────────
   function setActive(newId) {
+    if (activeId && activeId !== newId) lastActiveId = activeId;
     if (activeId && layerCache[activeId]) {
       map.removeLayer(layerCache[activeId]);
     }
@@ -6551,7 +6584,9 @@
     showGeoHelper('prompt');
   }
 
+  let geoHelperMode = null; // 換語言時，若引導還開著就用新語言重畫
   function showGeoHelper(mode) {
+    geoHelperMode = mode;
     const overlay = document.getElementById('geo-overlay');
     if (!overlay) { startLocate(); return; } // 保險：找不到 modal 就直接走原流程
     const body = document.getElementById('geo-body');
@@ -7026,11 +7061,22 @@
   // 即相鄰的更舊地圖，疊在目前圖層之下、現代底圖之上；目前圖層被裁成右半，
   // 左半便露出這張更舊的圖，達成「古地圖 vs 古地圖」對拖。沒有更舊的（已是
   // 最舊一張）就維持原行為——左側顯示現代底圖、標示 NOW。
+  // 對照的左側：優先用使用者剛看過的那張；否則往前找最近一張在目前縮放下不會糊的圖
+  function pickCompareLeft() {
+    const z = Math.round(map.getZoom());
+    const sharp = d => (d.maxNativeZoom ?? 16) > z - 2;
+    const last = lastActiveId && lastActiveId !== activeId && HISTORICAL_MAPS.find(m => m.id === lastActiveId);
+    if (last && sharp(last)) return last;
+    const cur = HISTORICAL_MAPS.find(m => m.id === activeId);
+    const earlier = HISTORICAL_MAPS.filter(m => m.id !== activeId && parseInt(m.year) <= parseInt(cur.year))
+      .sort((a, b) => parseInt(b.year) - parseInt(a.year));
+    return earlier.find(sharp) || last || earlier[0] || null;
+  }
   function setupCompareLeftLayer() {
     const maps = HISTORICAL_MAPS;
     const idx = maps.findIndex(m => m.id === activeId);
     const curDef = maps[idx];
-    const prevDef = idx > 0 ? maps[idx - 1] : null;
+    const prevDef = pickCompareLeft();
     if (prevDef) {
       compareLeftId = prevDef.id;
       if (!layerCache[compareLeftId]) {
@@ -7458,44 +7504,63 @@
       yearEl.textContent = big; labelEl.textContent = small;
     }
 
-    // 預載：把所選年代、目前畫面範圍的歷史圖磚抓進快取，回報進度。
-    // 底圖在播放時不變，毋需預載。
-    async function preload(defs, onProgress) {
+    // 預載：依播放順序把各年代、目前畫面範圍的圖磚抓進快取。每一幀各自有一個 promise，
+    // 播放只需等「這一幀」到齊，不必等全部（全選時動輒數百片）。
+    // 同時記錄這一帶有沒有真正的圖磚：中研院在沒有圖幅的地方回極小的檔案，這種年代播放時跳過。
+    function preloadFrames(defs) {
       const bounds = map.getBounds();
       const z = Math.round(map.getZoom());
-      const urls = [];
-      for (const def of defs) {
+      const jobs = [];
+      const frames = defs.map((def, fi) => {
         const zr = Math.min(z, def.maxNativeZoom ?? 16);
         const nw = map.project(bounds.getNorthWest(), zr);
         const se = map.project(bounds.getSouthEast(), zr);
         const x0 = Math.floor(Math.min(nw.x, se.x) / 256), x1 = Math.floor(Math.max(nw.x, se.x) / 256);
         const y0 = Math.floor(Math.min(nw.y, se.y) / 256), y1 = Math.floor(Math.max(nw.y, se.y) / 256);
-        for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) urls.push(buildTileUrl(def.url, x, y, zr));
-      }
-      let done = 0; const total = urls.length || 1; onProgress(0, total);
-      const pool = 6; let i = 0;
+        const f = { total: 0, done: 0, hasTiles: false, resolve: null };
+        f.ready = new Promise(r => { f.resolve = r; });
+        for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) { jobs.push({ fi, url: buildTileUrl(def.url, x, y, zr) }); f.total++; }
+        if (!f.total) f.resolve();
+        return f;
+      });
+      let i = 0;
       async function worker() {
-        while (i < urls.length && !stopFlag) {
-          const u = urls[i++];
-          try { await fetch(u, { mode: 'cors', credentials: 'omit', cache: 'force-cache' }); } catch {}
-          done++; onProgress(done, total);
+        while (i < jobs.length && !stopFlag) {
+          const { fi, url } = jobs[i++]; const f = frames[fi];
+          try {
+            const res = await fetch(url, { mode: 'cors', credentials: 'omit', cache: 'force-cache' });
+            if (res.ok && (await res.blob()).size > 1200) f.hasTiles = true;
+          } catch { f.hasTiles = true; } // 讀不到內容時當作有圖，寧可多播一幀也不要誤跳
+          if (++f.done >= f.total) f.resolve();
         }
+        if (stopFlag) frames.forEach(f => f.resolve()); // 只有使用者按停止時才全部放行
       }
-      await Promise.all(Array.from({ length: pool }, worker));
+      Array.from({ length: 6 }, worker);
+      return frames;
     }
 
     async function runPlay(defs) {
       try { if (typeof compareMode !== 'undefined' && compareMode) setCompareMode(false); } catch {}
       if (activeId && layerCache[activeId]) { map.removeLayer(layerCache[activeId]); }
       stopFlag = false; setUI(true);
-      // 1) 預載（時光膠囊）
-      showStatus(t('tl.preparing'), '0 / ' + 0);
-      await preload(defs, (d, total) => showStatus(t('tl.preparing'), d + ' / ' + total));
+      // 1) 邊播邊載：只等第一幀到齊就開始，其餘在背景依序下載
+      const frames = preloadFrames(defs);
+      const waitFrame = async (fi) => {
+        const f = frames[fi]; let shown = false;
+        const tick = setInterval(() => { if (f.done < f.total) { shown = true; showStatus(t('tl.preparing'), f.done + ' / ' + f.total); } }, 250);
+        await f.ready; clearInterval(tick);
+        return shown;
+      };
+      await waitFrame(0);
       if (stopFlag) { setUI(false); return; }
-      // 2) crossfade 播放
-      let prev = null, prevTarget = 0;
-      for (const def of defs) {
+      // 2) crossfade 播放；這一帶沒有圖幅的年代跳過
+      let prev = null, prevTarget = 0, skipped = 0;
+      for (let fi = 0; fi < defs.length; fi++) {
+        const def = defs[fi];
         if (stopFlag) break;
+        await waitFrame(fi);
+        if (stopFlag) break;
+        if (!frames[fi].hasTiles) { skipped++; continue; }
         const layer = ensure(def); layer.setOpacity(0); layer.addTo(map);
         const target = opacities[def.id] ?? 0.85;
         showYear(def);
@@ -7510,6 +7575,7 @@
       }
       const ended = !stopFlag;
       setUI(false);
+      if (ended && skipped) showPostcardToast(t('tl.skipped').replace('{n}', skipped), 4200);
       if (prev && ended) {
         const last = defs[defs.length - 1];
         activeId = last.id; layerCache[last.id] = prev; opacities[last.id] = prevTarget; updateLayerChip();
@@ -7665,9 +7731,13 @@
     const grid = document.getElementById('seal-grid');
     if (!grid) return;
     const visitedSet = new Set(savedTraces.map(t => t.city).filter(Boolean));
+    // 去掉「市／縣」縮短名稱，但新竹、嘉義這類市縣同名的保留全名
+    const short = c => c.zh.replace('市', '').replace('縣', '');
+    const counts = CITIES.reduce((m, c) => m.set(short(c), (m.get(short(c)) || 0) + 1), new Map());
     grid.innerHTML = CITIES.map(c => {
       const visited = visitedSet.has(c.zh);
-      return `<div class="seal${visited ? ' visited' : ''}" data-id="${c.id}" title="${c.zh}">${c.zh.replace('市','').replace('縣','')}</div>`;
+      const label = counts.get(short(c)) > 1 ? c.zh : short(c);
+      return `<div class="seal${visited ? ' visited' : ''}" data-id="${c.id}" title="${c.zh}">${label}</div>`;
     }).join('');
     document.querySelector('#seal-count .num').textContent = String(visitedSet.size);
   }
@@ -10419,7 +10489,9 @@
     function drawCard() {
       // 優先從「還沒抽過、也還沒收藏」的卡池抽，避免重複；抽完整池才放寬。
       const fresh = POSTCARDS.filter(p => !drawnPostcards.has(p.id) && !collectedPostcards.has(p.id));
-      const pool = fresh.length ? fresh : POSTCARDS;
+      // 優先抽目前縣市的卡：「帶我去這裡」才走得到；本地抽完再擴及全島
+      const local = fresh.filter(p => currentCity && p.city === currentCity.id);
+      const pool = local.length ? local : fresh.length ? fresh : POSTCARDS;
       return pool[Math.floor(Math.random() * pool.length)];
     }
 
@@ -10798,6 +10870,7 @@
     try { dark = localStorage.getItem(KEY) === 'dark'; } catch {}
     function apply() {
       document.documentElement.classList.toggle('theme-dark', dark);
+      try { if (currentBaseId) setBaseMap(currentBaseId, true); } catch {}
       btn.dataset.i18n = dark ? 'theme.dark' : 'theme.light';
       btn.textContent = t(dark ? 'theme.dark' : 'theme.light');
       // 同步瀏覽器列／狀態列顏色
@@ -10865,20 +10938,63 @@
       sc.onerror = () => { loading = false; };
       document.body.appendChild(sc);
     }
+    // 縮小時同一格的點合併成帶數字的群集，避免上百個點擠成一團；放大到 CLUSTER_UNTIL 起逐點顯示。
+    const CLUSTER_UNTIL = 15, CELL = 56;
+    const activeEras = new Set();
+    const clusterLayer = L.layerGroup();
+    function clusterIcon(n, color) {
+      const size = n < 10 ? 30 : n < 50 ? 36 : 44;
+      return L.divIcon({ className: 'hs-cluster-wrap', iconSize: [size, size],
+        html: `<div class="hs-cluster" style="--c:${color};width:${size}px;height:${size}px">${n}</div>` });
+    }
+    function render() {
+      Object.values(groups).forEach(g => map.removeLayer(g));
+      clusterLayer.clearLayers(); map.removeLayer(clusterLayer);
+      if (!activeEras.size || !window.HIST_SITES) return;
+      const z = map.getZoom();
+      if (z >= CLUSTER_UNTIL) {
+        activeEras.forEach(era => { if (!groups[era]) groups[era] = buildGroup(era); groups[era].addTo(map); });
+        return;
+      }
+      const cells = new Map();
+      activeEras.forEach(era => (window.HIST_SITES[era] || []).forEach(row => {
+        const pt = map.project([row[1], row[2]], z);
+        const key = Math.floor(pt.x / CELL) + ':' + Math.floor(pt.y / CELL);
+        let c = cells.get(key);
+        if (!c) cells.set(key, c = { n: 0, lat: 0, lng: 0, eras: new Set(), first: null });
+        c.n++; c.lat += row[1]; c.lng += row[2]; c.eras.add(era); if (!c.first) c.first = [era, row];
+      }));
+      cells.forEach(c => {
+        if (c.n === 1) {
+          const [era, row] = c.first;
+          L.circleMarker([row[1], row[2]], { renderer: hsRenderer, radius: 5.5, weight: 1.5, color: '#fff', fillColor: ERA_COLOR[era], fillOpacity: 0.88 })
+            .on('click', () => showPopup(era, row)).addTo(clusterLayer);
+          return;
+        }
+        const center = [c.lat / c.n, c.lng / c.n];
+        const color = c.eras.size === 1 ? ERA_COLOR[[...c.eras][0]] : '#3d3a35';
+        L.marker(center, { icon: clusterIcon(c.n, color), keyboard: false })
+          .on('click', () => map.flyTo(center, Math.min(z + 2, CLUSTER_UNTIL), { duration: 0.6 }))
+          .addTo(clusterLayer);
+      });
+      clusterLayer.addTo(map);
+    }
+    map.on('zoomend', () => { if (activeEras.size) render(); });
     chipsEl.addEventListener('click', e => {
       const chip = e.target.closest('.hs-chip');
       if (!chip) return;
       const era = chip.dataset.era;
       if (chip.classList.contains('on')) {
         chip.classList.remove('on');
-        if (groups[era]) map.removeLayer(groups[era]);
+        activeEras.delete(era);
+        render();
         return;
       }
       chip.classList.add('on');
       ensureData(() => {
         if (!chip.classList.contains('on')) return; // 載入期間被取消
-        if (!groups[era]) groups[era] = buildGroup(era);
-        groups[era].addTo(map);
+        activeEras.add(era);
+        render();
         if (typeof sfx !== 'undefined' && sfx.tick) try { sfx.tick(); } catch {}
       });
     });
