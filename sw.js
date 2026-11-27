@@ -15,7 +15,7 @@
  * - Bumping CACHE_VERSION invalidates the old cache on the next page load.
  */
 
-const CACHE_VERSION = 'v87-2026-11-24'; // 1916 蕃地地形圖標明「山地」（平地無圖）
+const CACHE_VERSION = 'v88-2026-11-27'; // 新增 1931 埤圳圖、1953 糖鐵圖；大範圍地圖開啟時提示縮小
 const SHELL_CACHE = `tw-historical-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tw-historical-runtime-${CACHE_VERSION}`;
 const TILE_CACHE = `tw-historical-tiles-${CACHE_VERSION}`;
