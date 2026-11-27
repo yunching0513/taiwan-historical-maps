@@ -1838,6 +1838,7 @@
   .pc-card-actions {
     margin-top: 14px;
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
   }
@@ -1847,7 +1848,9 @@
     border: 1px solid var(--vermilion);
     background: var(--paper);
     color: var(--vermilion);
-    padding: 8px 22px;
+    padding: 8px 16px;
+    min-height: 44px;
+    white-space: nowrap;
     border-radius: var(--radius-pill);
     font-family: var(--zh-serif);
     font-size: var(--fs-md);
@@ -3980,6 +3983,16 @@
   .pc-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 4px 0 12px; font-family: var(--zh-sans); font-size: var(--fs-sm); color: var(--graphite); }
   .pc-legend > span { display: inline-flex; align-items: center; gap: 6px; }
   .pc-legend .pc-marker { width: 20px; height: 20px; font-size: var(--fs-2xs); font-style: normal; animation: none; transform: none; }
+  .compare-exit {
+    position: absolute; z-index: 1006; left: 50%; transform: translateX(-50%);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 96px);
+    background: var(--ink); color: var(--paper); border: 0; border-radius: var(--radius-pill);
+    padding: 0 18px; min-height: 44px; font-family: var(--zh-sans); font-size: var(--fs-md); letter-spacing: .06em;
+    box-shadow: 0 6px 18px -6px rgba(31,29,25,.5); cursor: pointer;
+  }
+  .sheet-rec { font-family: var(--mono); font-size: var(--fs-sm); letter-spacing: .08em; color: var(--ink); display: inline-flex; align-items: center; gap: 6px; }
+  .sheet-rec-dot { width: 8px; height: 8px; border-radius: 50%; background: #e0492f; animation: walk-recblink 1.2s steps(2) infinite; }
+  .sheet-handle.recording .sheet-hint { display: none; }
   .pc-card-go { background: var(--vermilion); color: #fff; border-color: var(--vermilion); }
 
   /* ── β 測試版標記 + 街景漫遊 walk mode ─────────────── */
@@ -4057,6 +4070,8 @@
   @keyframes walk-recblink{0%,49%{opacity:1}50%,100%{opacity:.25}}
   /* 定位/背景定位同意卡必須浮在漫遊(9600)之上，否則按定位時看不到提示 */
   #geo-overlay.show,#bgloc-overlay.show{z-index:9700}
+  /* 漫遊中走到明信片旁：收藏卡要蓋在漫遊畫面上，不然使用者會錯過 */
+  #pc-overlay.show{z-index:9700}
 </style>
 </head>
 <body>
@@ -4101,6 +4116,7 @@
 <aside class="panel grain" id="panel">
   <div class="sheet-handle" id="sheet-handle" role="button" aria-label="切換圖層面板">
     <span class="sheet-hint"><span class="accent">▲</span>&nbsp;&nbsp;<span data-i18n="sheet.hint">Tap to open · 點此展開</span></span>
+    <span class="sheet-rec" id="sheet-rec" hidden><span class="sheet-rec-dot"></span><span data-i18n="rec.live">記錄中</span> · <span id="sheet-rec-text">0 m · 0:00</span></span>
   </div>
 
   <div class="panel-scroll">
@@ -4394,6 +4410,7 @@
 <div class="compare-side-label left" id="compare-label-left" data-i18n="compare.now">NOW</div>
 <div class="compare-side-label right" id="compare-label-right" data-i18n="compare.then">THEN</div>
 <div class="compare-divider" id="compare-divider" hidden></div>
+<button type="button" class="compare-exit" id="compare-exit" hidden data-i18n="compare.exit">✕ 結束對照</button>
 
 <!-- 時光快轉：年代大字浮層 -->
 <div class="tl-overlay" id="tl-overlay" hidden>
@@ -4406,7 +4423,7 @@
 <div class="tl-chooser" id="tl-chooser" hidden>
   <div class="tl-chooser-card" role="dialog" aria-modal="true" aria-labelledby="tl-chooser-title">
     <div class="tl-chooser-title" id="tl-chooser-title" data-i18n="tl.choose.title">時光快轉 · 選擇年代</div>
-    <div class="tl-chooser-hint" data-i18n="tl.choose.hint">勾選要播放的歷史圖。標「偏糊」者在目前縮放畫質較低，已預設不選。</div>
+    <div class="tl-chooser-hint" data-i18n="tl.choose.hint">勾選要播放的歷史圖，至少兩張。標「偏糊」的在目前縮放下畫質較低。</div>
     <div class="tl-speed" id="tl-speed" role="group" aria-label="速度">
       <span class="tl-speed-lb" data-i18n="tl.speed.label">每頁停留</span>
       <button type="button" class="tl-speed-btn" data-speed="fast" data-i18n="tl.speed.fast">快</button>
@@ -4445,7 +4462,7 @@
     <span class="tpc-dot" aria-hidden="true"></span>
   </button>
   <button type="button" class="help-fab" id="walk-fab" aria-label="街景漫遊" data-i18n="walk.fab.aria" data-i18n-attr="aria-label"><span style="font-size:17px;font-style:normal">👣</span><span class="help-fab-label" data-i18n="walk.fab">漫遊</span></button>
-  <button type="button" class="help-fab" id="btn-help" aria-label="操作說明" data-i18n="ob.help.aria" data-i18n-attr="aria-label">?<span class="help-fab-label">說明</span></button>
+  <button type="button" class="help-fab" id="btn-help" aria-label="操作說明" data-i18n="ob.help.aria" data-i18n-attr="aria-label">?<span class="help-fab-label" data-i18n="help.fab">說明</span></button>
 </div>
 
 <!-- Welcome postcard — a random vintage postcard greets each app open -->
@@ -4737,7 +4754,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
         crossorigin=""></script>
-<script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js" crossorigin=""></script>
+<script src="https://unpkg.com/qrcode@1.4.4/build/qrcode.min.js" crossorigin=""></script>
 <!-- 明信片資料（抽離成獨立檔，全域宣告 const POSTCARDS），須在主程式之前載入 -->
 <script src="../data/postcards.js"></script>
 <script>
@@ -4801,7 +4818,7 @@
       'tl.blurry': '偏糊',
       'tl.need_two': '請至少選擇兩個年代',
       'tl.choose.title': '時光快轉 · 選擇年代',
-      'tl.choose.hint': '勾選要播放的歷史圖。標「偏糊」者在目前縮放畫質較低，已預設不選。',
+      'tl.choose.hint': '勾選要播放的歷史圖，至少兩張。標「偏糊」的在目前縮放下畫質較低。',
       'tl.choose.all': '全選',
       'tl.choose.cancel': '取消',
       'tl.choose.play': '▶ 開始',
@@ -4818,6 +4835,14 @@
       'foot.histsites': '歷史事件',
       'sec.events.sub': '歷史事件',
       'layerchip.off': '關閉古地圖',
+      'help.fab': '說明',
+      'rec.live': '記錄中',
+      'rec.saved': '已儲存路線：{d} · {t}',
+      'rec.too_short': '路線太短，這次沒有儲存。',
+      'compare.exit': '✕ 結束對照',
+      'tl.choose.need': '已選 {n} 張 · 至少選 2 張',
+      'tl.choose.play.n': '▶ 播放 {n} 張',
+      'pc.draw.left.cool': '今天還有 {n} 張可抽，倒數結束就能抽下一張',
       'layer.zoomhint': '這是大範圍的地圖，縮小一點看會更清楚。',
       'walk.close': '✕ 離開',
       'walk.opacity': '古地圖透明度',
@@ -4846,7 +4871,7 @@
       'hs.pop.src': '資料 · 台灣歷史地圖（邱璽民 輯）',
       'hs.pop.nodesc': '（尚無描述）',
       'pc.tag.collected': 'Discovered',
-      'pc.tag.new': 'Just Developed',
+      'pc.tag.new': '剛沖洗好',
       'pc.tag.locked': '未沖洗',
       'pc.source.pending': 'pending discovery',
       'pc.source.by': '攝影',
@@ -4862,7 +4887,7 @@
       'cal.weekday.wed': '三', 'cal.weekday.thu': '四', 'cal.weekday.fri': '五',
       'cal.weekday.sat': '六',
       'cal.nav.prev': '上一月', 'cal.nav.next': '下一月',
-      'seals.visited': 'visited',
+      'seals.visited': '已造訪',
       'foot.sources': 'Sources',
       'foot.historical_maps': '歷史圖資',
       'foot.base_maps': '現代底圖',
@@ -4926,7 +4951,7 @@
       'alert.save_fail': '儲存失敗：',
       'alert.image_fail': '產生圖檔失敗',
       'trace.action.share': '分享',
-      'trace.action.export': 'GeoJSON',
+      'trace.action.export': '匯出檔案',
       'trace.action.delete': '刪除',
       'compare.now': 'NOW', 'compare.then': 'THEN',
       'lang.label': '語言',
@@ -5074,7 +5099,7 @@
       'tl.blurry': 'low-res',
       'tl.need_two': 'Pick at least two eras',
       'tl.choose.title': 'Time-lapse · choose eras',
-      'tl.choose.hint': 'Pick the maps to play. Those marked low-res look soft at this zoom and are unchecked by default.',
+      'tl.choose.hint': 'Pick at least two maps to play. Those marked low-res look soft at this zoom.',
       'tl.choose.all': 'All',
       'tl.choose.cancel': 'Cancel',
       'tl.choose.play': '▶ Start',
@@ -5092,6 +5117,14 @@
       'foot.histsites': 'Historic events',
       'sec.events.sub': 'historic events',
       'layerchip.off': 'Hide old map',
+      'help.fab': 'Help',
+      'rec.live': 'Recording',
+      'rec.saved': 'Route saved: {d} · {t}',
+      'rec.too_short': 'Too short to save this time.',
+      'compare.exit': '✕ End compare',
+      'tl.choose.need': '{n} selected · pick at least 2',
+      'tl.choose.play.n': '▶ Play {n}',
+      'pc.draw.left.cool': '{n} more today — the next unlocks when the timer ends',
       'layer.zoomhint': 'This is a wide-area map. Zoom out to see it clearly.',
       'walk.close': '✕ Exit',
       'walk.opacity': 'Old map opacity',
@@ -5200,7 +5233,7 @@
       'alert.save_fail': 'Save failed: ',
       'alert.image_fail': 'Failed to generate image',
       'trace.action.share': 'Share',
-      'trace.action.export': 'GeoJSON',
+      'trace.action.export': 'Export file',
       'trace.action.delete': 'Delete',
       'compare.now': 'NOW', 'compare.then': 'THEN',
       'lang.label': 'Language',
@@ -5348,7 +5381,7 @@
       'tl.blurry': '粗い',
       'tl.need_two': '2つ以上の年代を選んでください',
       'tl.choose.title': '早送り · 年代を選択',
-      'tl.choose.hint': '再生する歴史地図を選択。「粗い」は現在のズームで画質が低く、初期状態で未選択です。',
+      'tl.choose.hint': '再生する歴史地図を2枚以上選んでください。「粗い」は現在のズームで画質が低めです。',
       'tl.choose.all': '全選択',
       'tl.choose.cancel': 'キャンセル',
       'tl.choose.play': '▶ 開始',
@@ -5366,6 +5399,14 @@
       'foot.histsites': '歴史の出来事',
       'sec.events.sub': '歴史の出来事',
       'layerchip.off': '古地図を閉じる',
+      'help.fab': 'ヘルプ',
+      'rec.live': '記録中',
+      'rec.saved': 'ルートを保存しました：{d} · {t}',
+      'rec.too_short': '短すぎるため保存しませんでした。',
+      'compare.exit': '✕ 比較を終了',
+      'tl.choose.need': '{n} 枚選択中 · 2枚以上選んでください',
+      'tl.choose.play.n': '▶ {n} 枚を再生',
+      'pc.draw.left.cool': '今日はあと {n} 枚。タイマーが終わると次の1枚を引けます',
       'layer.zoomhint': '広域の地図です。縮小するとはっきり見えます。',
       'walk.close': '✕ 終了',
       'walk.opacity': '古地図の透明度',
@@ -5474,7 +5515,7 @@
       'alert.save_fail': '保存に失敗：',
       'alert.image_fail': '画像生成に失敗',
       'trace.action.share': '共有',
-      'trace.action.export': 'GeoJSON',
+      'trace.action.export': 'ファイル出力',
       'trace.action.delete': '削除',
       'compare.now': 'NOW', 'compare.then': 'THEN',
       'lang.label': '言語',
@@ -6819,6 +6860,8 @@
       lineJoin: 'round',
     }).addTo(map);
     recStatus.classList.add('show');
+    document.getElementById('sheet-rec').hidden = false;
+    sheetHandle.classList.add('recording');
     updateButtons();
     if (recTimerId) clearInterval(recTimerId);
     recTimerId = setInterval(updateRecTimer, 1000);
@@ -6842,9 +6885,14 @@
       renderSeals();
       renderCalendar();
       try { sfx.stamp(); } catch {}
+      showPostcardToast(t('rec.saved').replace('{d}', fmtDist(currentTrace.distance)).replace('{t}', fmtDur(currentTrace.endTime - currentTrace.startTime)), 3600);
+    } else if (currentTrace) {
+      showPostcardToast(t('rec.too_short'), 3200);
     }
     currentTrace = null;
     recStatus.classList.remove('show');
+    document.getElementById('sheet-rec').hidden = true;
+    sheetHandle.classList.remove('recording');
     updateButtons();
     armLocateIdle(); // 停止記錄後，若定位仍開著，重新啟動閒置自動關閉計時
   }
@@ -6860,8 +6908,10 @@
 
   function updateRecTimer() {
     if (!currentTrace) return;
-    document.getElementById('rec-dist').textContent = fmtDist(calcDistance(currentTrace.points));
-    document.getElementById('rec-time').textContent = fmtDur(Date.now() - currentTrace.startTime);
+    const dist = fmtDist(calcDistance(currentTrace.points)), dur = fmtDur(Date.now() - currentTrace.startTime);
+    document.getElementById('rec-dist').textContent = dist;
+    document.getElementById('rec-time').textContent = dur;
+    document.getElementById('sheet-rec-text').textContent = dist + ' · ' + dur;
     document.getElementById('rec-points').textContent = String(currentTrace.points.length);
   }
 
@@ -6938,6 +6988,7 @@
 
   function setCompareMode(on) {
     compareMode = on;
+    document.getElementById('compare-exit').hidden = !on;
     compareBtn.classList.toggle('active', on);
     document.body.classList.toggle('compare-active', on);
     compareDivider.hidden = !on;
@@ -6948,6 +6999,7 @@
         compareBtn.classList.remove('active');
         document.body.classList.remove('compare-active');
         compareDivider.hidden = true;
+        document.getElementById('compare-exit').hidden = true;
         return;
       }
       // Reset divider to centre on each activation
@@ -7020,7 +7072,12 @@
     if (compareLabelRight) compareLabelRight.textContent = t('compare.then');
   }
 
-  compareBtn.addEventListener('click', () => setCompareMode(!compareMode));
+  compareBtn.addEventListener('click', () => {
+    setCompareMode(!compareMode);
+    if (compareMode && isMobile()) setPeek(true);
+  });
+  document.getElementById('compare-exit').addEventListener('click', () => setCompareMode(false));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && compareMode) setCompareMode(false); });
 
   // Drag handling — try Pointer Events first, fall back to Touch Events for
   // iOS WKWebView where pointer capture sometimes misbehaves.
@@ -7480,8 +7537,16 @@
         </label>`;
       }).join('');
       chooser.hidden = false;
+      syncPlayBtn();
     }
     function closeChooser() { chooser.hidden = true; }
+    const playBtn = document.getElementById('tl-chooser-play');
+    function syncPlayBtn() {
+      const n = listEl.querySelectorAll('input:checked').length;
+      playBtn.disabled = n < 2;
+      playBtn.textContent = n < 2 ? t('tl.choose.need').replace('{n}', n) : t('tl.choose.play.n').replace('{n}', n);
+    }
+    listEl.addEventListener('change', syncPlayBtn);
 
     function haltUI() { stopFlag = true; playing = false; overlay.hidden = true; btn.classList.remove('playing'); btn.querySelector('[data-i18n]').textContent = t('strata.timelapse'); }
     btn.addEventListener('click', () => { if (playing) { haltUI(); } else openChooser(); });
@@ -7490,13 +7555,14 @@
     chooser.addEventListener('click', e => { if (e.target === chooser) closeChooser(); });
     document.getElementById('tl-chooser-all').addEventListener('click', () => {
       listEl.querySelectorAll('input').forEach(c => c.checked = true);
+      syncPlayBtn();
     });
     document.getElementById('tl-chooser-play').addEventListener('click', () => {
       const ids = [...listEl.querySelectorAll('input:checked')].map(c => c.value);
       if (ids.length < 2) { alert(t('tl.need_two')); return; }
       const defs = ids.map(id => HISTORICAL_MAPS.find(m => m.id === id))
         .sort((a, b) => parseInt(a.year) - parseInt(b.year));
-      closeChooser(); runPlay(defs);
+      closeChooser(); if (isMobile()) setPeek(true); runPlay(defs);
     });
   })();
   document.getElementById('era-close').addEventListener('click', () => {
@@ -8344,6 +8410,7 @@
       renderTraceList();
       return;
     }
+    if (isMobile()) setPeek(true);
     const coords = trace.points.map(p => [p.lat, p.lng]);
     shownTracePolyline = L.polyline(coords, {
       color: '#C15F3C',
@@ -8354,6 +8421,7 @@
       dashArray: null,
     }).addTo(map);
     map.fitBounds(shownTracePolyline.getBounds(), { padding: [50, 50] });
+    if (isMobile()) setTimeout(() => map.invalidateSize(), 350);
     shownTraceId = id;
     renderTraceList();
   }
@@ -9740,7 +9808,10 @@
         + '&countrycodes=tw'
         + '&limit=8'
         + '&addressdetails=1'
-        + '&accept-language=zh-Hant';
+        // 目前畫面附近的結果排前面（不限制在範圍內）
+        + '&viewbox=' + (() => { const b = map.getBounds().pad(1); return [b.getWest(), b.getNorth(), b.getEast(), b.getSouth()].map(v => v.toFixed(4)).join(','); })()
+        + '&bounded=0'
+        + '&accept-language=' + ({ en: 'en', ja: 'ja' }[currentLang] || 'zh-Hant');
       const res = await fetch(url, {
         signal: searchAbort.signal,
         headers: { 'Accept': 'application/json' },
@@ -10457,7 +10528,7 @@
       } else { // cooldown
         drawBtn.disabled = true;
         drawBtn.textContent = t('pc.draw.wait').replace('{t}', fmtCooldown(st.cooldownLeft));
-        drawHint.textContent = t('pc.draw.left').replace('{n}', st.remainingToday);
+        drawHint.textContent = t('pc.draw.left.cool').replace('{n}', st.remainingToday);
         if (!drawTick) drawTick = setInterval(refreshDrawBtn, 1000);
       }
     }
